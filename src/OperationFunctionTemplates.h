@@ -24,7 +24,7 @@ void valveTasks(const std::array<T, size>& valveArray, uint8_t& nodeIDReadIn, bo
             {
                 valve->setCurrentAutoSequenceTime(mainAutoSequence.getCurrentCountdown());
                 valve->controllerStateOperations();
-                valve->stateOperations();
+                valve->ioStateOperations();
             }
         }
     }

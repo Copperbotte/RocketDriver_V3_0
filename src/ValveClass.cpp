@@ -14,18 +14,9 @@ Valve::Valve(uint32_t setValveID, uint8_t setValveNodeID, ValveType setValveType
 
     switch (valveType)
     {
-        case NormalClosed:
-            state = ValveState::Closed;
-            priorState = ValveState::Closed;
-            break;
-        case NormalOpen:
-            state = ValveState::Open;
-            priorState = ValveState::Open;
-            break;
-        default:
-            state = ValveState::Closed;
-            priorState = ValveState::Closed;
-            break;
+    case NormalClosed: _setInitialValues(ValveState::Closed, ValveState::Closed); break;
+    case NormalOpen:   _setInitialValues(ValveState::Open,   ValveState::Open);   break;
+    default:           _setInitialValues(ValveState::Closed, ValveState::Closed); break;
     }
     timer = 0;
     
@@ -44,18 +35,9 @@ Valve::Valve(ValveType setValveType_Default, bool setNodeIDCheck) : valveType_De
 
     switch (valveType)
     {
-        case NormalClosed:
-            state = ValveState::Closed;
-            priorState = ValveState::Closed;
-            break;
-        case NormalOpen:
-            state = ValveState::Open;
-            priorState = ValveState::Open;
-            break;
-        default:
-            state = ValveState::Closed;
-            priorState = ValveState::Closed;
-            break;
+    case NormalClosed: _setInitialValues(ValveState::Closed, ValveState::Closed); break;
+    case NormalOpen:   _setInitialValues(ValveState::Open,   ValveState::Open);   break;
+    default:           _setInitialValues(ValveState::Closed, ValveState::Closed); break;
     }
 }
 
@@ -84,20 +66,9 @@ void Valve::resetAll()
     //
 }
 
-ValveState Valve::getSyncState()
+void Valve::ioStateOperations()
 {
-    if(controllerUpdate)
-    {
-        controllerUpdate = false;
-        return state;
-    }
-    else {return ValveState::NullReturn;}
-}
-
-
-void Valve::stateOperations()
-{
-    switch (state)
+    switch (getState())
     {
     // if a valve is commanded open, if its normal closed it needs to fully actuate, if normal open it needs to drop power to zero
 /*     case ValveState::OpenCommanded:
@@ -522,11 +493,11 @@ void Valve::stateOperations()
 
 void Valve::controllerStateOperations()
 {
-    switch (state)
+    switch (getState())
     {
     // if a valve is commanded open, if its normal closed it needs to fully actuate, if normal open it needs to drop power to zero
     case ValveState::OpenCommanded:
-        if (!((priorState == ValveState::Open) || (priorState == ValveState::OpenProcess)))
+        if (!((getPriorState() == ValveState::Open) || (getPriorState() == ValveState::OpenProcess)))
         {
             switch (valveType)
             {
@@ -554,11 +525,13 @@ void Valve::controllerStateOperations()
         }
         else
         {
-            state = priorState;
+            // Revert the state if OpenCommanded is sent, but is already open.
+            _revertState();
+//state = priorState;
         }
         break;
     case ValveState::BangOpenCommanded:
-        if (priorState != ValveState::Open)
+        if (getPriorState() != ValveState::Open)
         //if (priorState == ValveState::Closed)
         {
             switch (valveType)
@@ -587,14 +560,16 @@ void Valve::controllerStateOperations()
         }
         else
         {
-            state = ValveState::Open;
+            // If the valve is already open, replace the command with Open.
+            _setInitialValues(ValveState::Open, getPriorState());
+//state = ValveState::Open;
             //controllerUpdate = true; //do I need it here?
         }
         break;
 
     // if a valve is commanded closed, a normal closed removes power, normal open starts activation sequence
     case ValveState::CloseCommanded:
-        if ((priorState != ValveState::Closed) && (priorState != ValveState::CloseProcess))
+        if ((getPriorState() != ValveState::Closed) && (getPriorState() != ValveState::CloseProcess))
         {
             switch (valveType)
             {
@@ -618,12 +593,14 @@ void Valve::controllerStateOperations()
         }
         else
         {
-            state = priorState;
+            // Revert the state if CloseCommanded is sent, but is already closed.
+            _revertState();
+//state = priorState;
             //state = ValveState::Closed;
         }
         break;
     case ValveState::BangCloseCommanded:
-        if (priorState != ValveState::Closed)
+        if (getPriorState() != ValveState::Closed)
         //if (priorState == ValveState::Open)
         {
             switch (valveType)
@@ -648,7 +625,9 @@ void Valve::controllerStateOperations()
         }
         else
         {
-            state = ValveState::Closed;
+            // Revert the state if BangCloseCommanded is sent, but is already closed.
+            _revertState();
+//state = ValveState::Closed;
             //controllerUpdate = true; //do I need it here
         }
         break;
@@ -704,10 +683,13 @@ void Valve::controllerStateOperations()
         break;
     
     case ValveState::FireCommanded:
-        if (currentAutosequenceTime >= fireSequenceActuation)
+        if (getCurrentAutoSequenceTime() >= getFireTime())
         {
-            
-            state = ValveState::OpenCommanded;
+////////////////////////////////////////////////////////////////////////////////
+            //     If AutosequenceTime is greater than fireSequenceActuation, 
+            // and the valve has already fired, replace the command.
+            _setInitialValues(ValveState::OpenCommanded, getPriorState());
+//state = ValveState::OpenCommanded;
         }
 
         break;

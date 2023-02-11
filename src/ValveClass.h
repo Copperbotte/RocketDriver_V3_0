@@ -3,9 +3,21 @@
 
 #include <Arduino.h>
 #include "ValveStates.h"
+#include "base_classes/state_machine.hpp"
 
 // This class defines the Valve Object that will be used to represent and actuate the valves
 // Run begin to set the pins
+
+
+// 2023 Feb 10
+// Current Authors: 
+//     Joseph Kessler (joseph.b.kessler@gmail.com)
+// 
+////////////////////////////////////////////////////////////////////////////////
+//     This is a template state machine class that requires an enum of states.
+// It is inherited by a class using class Class : StateMachine<StateType> with a
+// generic typename.
+// 
 
 enum ValveType
 {
@@ -13,7 +25,7 @@ enum ValveType
     NormalOpen,
 };
 
-class Valve
+class Valve : public StateMachine<ValveState>
 {
 
     private:
@@ -27,8 +39,8 @@ class Valve
         uint8_t pinADC = 99;                              // Valve ADC read pin
         uint32_t fullDutyTime_Default = 2000;                // Time PWM needs to be at full duty for actuation, in MICROS
         uint32_t fullDutyTime;                // Time PWM needs to be at full duty for actuation, in MICROS
-        ValveState state;
-        ValveState priorState;                           // Tracks the valve state
+//ValveState _state;
+//ValveState _priorState;                           // Tracks the valve state
         elapsedMicros timer;                        // timer for the valve, used for changing duty cycles, in MICROS
         uint16_t fullDuty_Default{256};                // full duty cycle for servo initial actuation
         uint16_t holdDuty_Default{50};                   // partial duty cycle to hold valve in actuated state
@@ -40,9 +52,9 @@ class Valve
         bool abortHaltDeviceBool;                    // Whether this valve is set by the abort halt flag override
         uint16_t controlSensor1Value;               // For use in control schemes, really a template placement pending needed number and type of samples
         bool controllerUpdate = false;              // flag for when valve stateOps does a state change to update in the controllers
-        int64_t fireSequenceActuation;              // time on autosequence to actuate IF FireCommanded is used
-        int64_t currentAutosequenceTime;              // time of autosequence for comparison under FireCommanded
-    
+//int64_t fireSequenceActuation;              // time on autosequence to actuate IF FireCommanded is used
+//int64_t currentAutosequenceTime;              // time of autosequence for comparison under FireCommanded
+
     public:
     
     // constructor, define the valve ID here, and the pin that controls the valve, setFireDelay is only parameter that can be left blank
@@ -65,97 +77,31 @@ class Valve
         uint8_t getPinADC(){return pinADC;}
         uint32_t getFullDutyTime(){return fullDutyTime;}
         uint16_t getHoldDuty(){return holdDuty;}
-        ValveState getState(){return state;}
-        ValveState getSyncState();
-        ValveState getPriorState(){return priorState;}
+//ValveState getState(){return _state;}
+        ValveState getSyncState()
+        {
+            if(controllerUpdate)
+            {
+                controllerUpdate = false;
+                return getState();
+            }
+            else {return ValveState::NullReturn;}
+        }
+
+//ValveState getPriorState(){return _priorState;}
         uint32_t getTimer(){return timer;}
-        int64_t getCurrentAutoSequenceTime(){return currentAutosequenceTime;}
-        int64_t getFireTime(){return fireSequenceActuation;}
+//int64_t getCurrentAutoSequenceTime(){return currentAutosequenceTime;}
+//int64_t getFireTime(){return fireSequenceActuation;}
         bool getNodeIDCheck(){return nodeIDCheck;}
         bool getAbortHaltDeviceBool(){return abortHaltDeviceBool;}
 
-    // set functions, allows the setting of a variable
-        void setState(ValveState newState) 
-            {
-                    if (newState != state)
-                    {
-                        priorState = state;
-                        state = newState;
-                    }
-                    else
-                    {
-                        // do nothing
-                    }
-            }
-        void setState(ValveState newState, int64_t fireTimeIn) 
-            {
-                // Only do anything in the case of the fireTimeIn if the state sent is FireCommanded
-                //if (newState == ValveState::FireCommanded)
-                    //{
-                    if (newState != state)
-                        {
-                        priorState = state;
-                        state = newState;
-                        // set the autosequence firing time
-                        fireSequenceActuation = fireTimeIn;
-                        }
-                    else
-                        {
-                        // do nothing
-                        }
-                    //}
-            }
-
-/*
-         void setState(ValveState newState) 
-            {
-                if (newState == ValveState::OpenCommanded)
-                {
-                    if (priorState == ValveState::OpenProcess || priorState == ValveState::Open)
-                    {
-                        //Don't update the state, it's already doing opening operations
-                    }
-                    else
-                    {
-                    if (newState != state)
-                    {
-                        priorState = state;
-                    }
-                    state = newState;
-                    }
-                }
-                else if (newState == ValveState::CloseCommanded)
-                {
-                    if (priorState == ValveState::CloseProcess || priorState == ValveState::Closed)
-                    {
-                        //Don't update the state, it's already doing closing operations
-                    }
-                    else
-                    {
-                    if (newState != state)
-                    {
-                        priorState = state;
-                    }
-                    state = newState;
-                    }
-                }
-                else
-                {
-                if (newState != state)
-                {
-                    priorState = state;
-                }
-                state = newState;
-                }
-            }
- */            
         //every time a state is set, the timer should reset
         //Is the above still true?
         // set function for current autosequence time
-        void setCurrentAutoSequenceTime(int64_t timeSetIn)
-        {
-            currentAutosequenceTime = timeSetIn;
-        }
+ //       void setCurrentAutoSequenceTime(int64_t timeSetIn)
+ //       {
+ //           currentAutosequenceTime = timeSetIn;
+ //       }
     // set the Node ID Check bool function
         void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
     //set functions 
@@ -174,7 +120,7 @@ class Valve
     // stateOperations will check the current state of the valve and perform any actions that need to be performed
     // for example, if the valve is commanded to open, this needs to be run so that the valve can start opening
     // and it needs to be run every loop so that once enough time has pass the 
-        void stateOperations();
+        void ioStateOperations();
         void controllerStateOperations();
 
     // Sensor pull in function for control
