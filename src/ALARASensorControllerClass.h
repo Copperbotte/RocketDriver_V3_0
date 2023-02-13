@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 #include "ControllerStates.h"
-#include "ValveStates.h"
-#include "SensorStates.h"
-#include "PyroStates.h"
+#include "States/PyroStates.hpp"
+#include "States/SensorStates.hpp"
+#include "States/ValveStates.hpp"
 #include "ALARASNConfigurations.h"
 #include "ALARAHPSensorClass.h"
 

@@ -1,20 +1,20 @@
+
 #include "PyroClass.h"
 #include <Arduino.h>
 #include "extendedIO/extendedIO.h"
-
-
 
 Pyro::Pyro(uint32_t setPyroID, uint32_t setPyroNodeID, uint8_t setALARA_HP_Channel, uint32_t setLiveOutTime_Default,  bool setNodeIDCheck)
                 : pyroID{setPyroID}, pyroNodeID{setPyroNodeID}, ALARA_HP_Channel{setALARA_HP_Channel}, liveOutTime_Default{setLiveOutTime_Default}, nodeIDCheck{setNodeIDCheck}
 {
     liveOutTime = liveOutTime_Default;
-    state = PyroState::Off;
+    _setInitialValues(PyroState::Off, PyroState::Off);
+    //state = PyroState::Off;
     timer = 0;
 }
 
 Pyro::Pyro(uint32_t setLiveOutTime) : liveOutTime{setLiveOutTime}
 {
-    
+
 }
 
 void Pyro::begin(uint8_t pinArrayIn[][11])
@@ -48,14 +48,14 @@ PyroState Pyro::getSyncState()
     if(controllerUpdate)
     {
         controllerUpdate = false;
-        return state;
+        return getState();
     }
     else {return PyroState::NullReturn;}
 }
 
-void Pyro::stateOperations()
+void Pyro::ioStateOperations()
 {
-    switch (state)
+    switch (getState())
     {
     // physical output state actions only, NO LOGIC
     case PyroState::On:
@@ -78,7 +78,7 @@ void Pyro::stateOperations()
 
 void Pyro::controllerStateOperations()
 {
-    switch (state)
+    switch (getState())
     {
     // if a valve has been commanded to fire, it will start actuation after appropriate delay, normal closed actuate open, normal open actuate closed
     // every state change should reset the timer
@@ -89,48 +89,53 @@ void Pyro::controllerStateOperations()
  */
     // if a pyro is commanded on, turns on 
     case PyroState::OnCommanded:
-        if (priorState != PyroState::Fired) //only allow OnCommanded to do anything if not Fired
+        if (getPriorState() != PyroState::Fired) //only allow OnCommanded to do anything if not Fired
         {
-            if (priorState != PyroState::On)
+            if (getPriorState() != PyroState::On)
             {
-            state = PyroState::On;
-            timer = 0;
+                _setInitialValues(PyroState::On, getPriorState());
+//state = PyroState::On;
+                timer = 0;
             }
-            else {state = PyroState::On;}
+            else {_setInitialValues(PyroState::On, getPriorState());}
         }
-        else {state = PyroState::Fired;} //keeps us in Fired state
+        else {_setInitialValues(PyroState::Fired, getPriorState());} //keeps us in Fired state
         break;
 
     case PyroState::On:
         if(timer >= liveOutTime)
         {
-            state = PyroState::Fired;
+            _setInitialValues(PyroState::Fired, getPriorState());
+//state = PyroState::Fired;
             //timer = 0;
         }
         break;
 
     // if a pyro is commanded off, turns off immediately, not sure I need this at all the way we do on valves
     case PyroState::OffCommanded:
-        if (priorState != PyroState::Fired) //only allow OnCommanded to do anything if not Fired
+        if (getPriorState() != PyroState::Fired) //only allow OnCommanded to do anything if not Fired
         {
-            if (priorState != PyroState::Off)
+            if (getPriorState() != PyroState::Off)
             {
-            state = PyroState::Off;
+                _setInitialValues(PyroState::Off, getPriorState());
+//state = PyroState::Off;
             //timer = 0;
             }
-            else {state = PyroState::Off;}
+            else {_setInitialValues(PyroState::Off, getPriorState());}
         }
-        else {state = PyroState::Fired;} //keeps us in Fired state
+        else {_setInitialValues(PyroState::Fired, getPriorState());} //keeps us in Fired state
         break;
         
     case PyroState::Off:
         //timer = 0;
         break;        
     case PyroState::FireCommanded:
-        if (currentAutosequenceTime >= fireSequenceActuation)
+        if (getCurrentAutoSequenceTime() >= getFireTime())
         {
-            
-            state = PyroState::OnCommanded;
+            //     If AutosequenceTime is greater than fireSequenceActuation, 
+            // and the valve has already fired, replace the command.
+            _setInitialValues(PyroState::OnCommanded, getPriorState());
+//state = PyroState::OnCommanded;
         }
         break;
     case PyroState::Fired:

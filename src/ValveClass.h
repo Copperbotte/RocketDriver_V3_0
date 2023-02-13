@@ -2,8 +2,8 @@
 #define VALVECLASS_H
 
 #include <Arduino.h>
-#include "ValveStates.h"
-#include "base_classes/state_machine.hpp"
+#include "States/ValveStates.hpp"
+#include "Base_Classes/State_Machine.hpp"
 
 // This class defines the Valve Object that will be used to represent and actuate the valves
 // Run begin to set the pins

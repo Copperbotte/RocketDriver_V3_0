@@ -1,5 +1,5 @@
-#ifndef VALVESTATES_H
-#define VALVESTATES_H
+#ifndef STATES_VALVESTATES_H_
+#define STATES_VALVESTATES_H_
 
 // defines the possible valve states accross all valves
 

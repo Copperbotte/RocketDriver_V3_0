@@ -1,11 +1,11 @@
-#ifndef ENGINECONTROLLERDEFINITIONS_H
-#define ENGINECONTROLLERDEFINITIONS_H
+#ifndef DEFINITIONS_ENGINECONTROLLERDEFINITIONS_HPP_
+#define DEFINITIONS_ENGINECONTROLLERDEFINITIONS_HPP_
 
 #include "EngineControllerClass.h"
 #include <array>
 #include "ALARApinDefines.h"
-#include "ValveDefinitions.h"
-#include "PyroDefinitions.h"
+#include "Definitions/ValveDefinitions.hpp"
+#include "Definitions/PyroDefinitions.hpp"
 #pragma once
 
 #ifdef PASABANG

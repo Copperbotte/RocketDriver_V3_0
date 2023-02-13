@@ -1,11 +1,12 @@
-#ifndef SENSORCLASS_H
-#define SENSORCLASS_H
+
+#ifndef BASECLASS_SENSORCLASS_H_
+#define BASECLASS_SENSORCLASS_H_
 
 #include <Arduino.h>
 #include <string>
 #include <bitset>
 #include <ADC.h>
-#include "SensorStates.h"
+#include "States/SensorStates.hpp"
 #pragma once
 
 // enum for holding ADC input types, may not use this way
@@ -21,7 +22,7 @@ enum ADCType
 // Base sensor class to hold the various derived classes, should be purely virtual functions
 class SENSORBASE
 {
-  public:
+public:
     virtual void begin();                     //
     virtual void read(ADC& adc);              // updates currentRawValue with current reading, using an activated ADC object
     virtual void stateOperations();

@@ -685,7 +685,6 @@ void Valve::controllerStateOperations()
     case ValveState::FireCommanded:
         if (getCurrentAutoSequenceTime() >= getFireTime())
         {
-////////////////////////////////////////////////////////////////////////////////
             //     If AutosequenceTime is greater than fireSequenceActuation, 
             // and the valve has already fired, replace the command.
             _setInitialValues(ValveState::OpenCommanded, getPriorState());

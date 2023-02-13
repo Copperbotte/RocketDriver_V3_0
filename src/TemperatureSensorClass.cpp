@@ -6,34 +6,34 @@
 RTD_BREAKOUT::RTD_BREAKOUT(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setI2Caddress, uint8_t setResolution)
                         : sensorID{setSensorID}, sensorNodeID{setSensorNodeID}, I2Caddress{setI2Caddress}, resolution{setResolution}
 {
-  // Bound check resolution setting
-  if (resolution >= 3)
-  {
-    resolution = 3;
-  }
-  // Bound check I2C address setting
-  if (I2Caddress < 24 || I2Caddress > 31)
-  {
-    // If address from constructor out of bounds, set to default address
-    I2Caddress = 24;
-  }
-  if (resolution == 3)
-  {
-  sampleTimeCurrent = sampleTimeResolution3;
-  }
-  else if (resolution == 2)
-  {
-  sampleTimeCurrent = sampleTimeResolution2;
-  }
-  else if (resolution == 1)
-  {
-  sampleTimeCurrent = sampleTimeResolution1;
-  }
-  else if (resolution == 0)
-  {
-  sampleTimeCurrent = sampleTimeResolution0;
-  }
-  
+    // Bound check resolution setting
+    if (resolution >= 3)
+    {
+        resolution = 3;
+    }
+    // Bound check I2C address setting
+    if (I2Caddress < 24 || I2Caddress > 31)
+    {
+        // If address from constructor out of bounds, set to default address
+        I2Caddress = 24;
+    }
+
+    switch(resolution)
+    {
+    case 0: sampleTimeCurrent = sampleTimeResolution0; break;
+    case 1: sampleTimeCurrent = sampleTimeResolution1; break;
+    case 2: sampleTimeCurrent = sampleTimeResolution2; break;
+    case 3: sampleTimeCurrent = sampleTimeResolution3; break;
+    }
+////////////////////////////////////////////////////////////////////////////////
+    //     This is a clever solution, but seems dangerous. I'll leave it here, 
+    // but I don't know enough of this code to trust it.  - Joe
+    //int sampleTimeRes_n[4] = {sampleTimeResolution0, sampleTimeResolution1,
+    //    sampleTimeResolution2, sampleTimeResolution3};
+    //
+    //sampleTimeCurrent = sampleTimeRes_n[resolution];
+
+
 }
 
 void RTD_BREAKOUT::begin()

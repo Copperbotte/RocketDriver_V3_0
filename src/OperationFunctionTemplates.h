@@ -42,7 +42,7 @@ void pyroTasks(const std::array<T, size>& pyroArray, uint8_t& nodeIDReadIn, bool
             {
                 pyro->setCurrentAutoSequenceTime(mainAutoSequence.getCurrentCountdown());
                 pyro->controllerStateOperations();
-                pyro->stateOperations();
+                pyro->ioStateOperations();
             }
         }
     }

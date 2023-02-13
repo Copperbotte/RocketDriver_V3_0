@@ -142,7 +142,11 @@ uint16_t MS5607:: get_D1_OSR_delay()
     case CONV_D1_4096:
         return 9040;
         break;
+    default:
+        return 600;
+        break;
     }
+    return 600; // The 600s here are a "semi-realistic" non crashing return
 }
 
 
@@ -167,7 +171,11 @@ uint16_t MS5607:: get_D2_OSR_delay()
     case CONV_D2_4096:
         return 9040;
         break;
+    default:
+        return 600;
+        break;
     }
+    return 600; // The 600s here are a "semi-realistic" non crashing return
 }
 
 

@@ -2,7 +2,7 @@
 #define FLUIDSYSTEMSIMULATION_H
 
 #include <Arduino.h>
-#include "ValveStates.h"
+#include "states/ValveStates.hpp"
 
 ValveState valveStateFlowSimSimplify(ValveState inputValveState);
 

@@ -1,5 +1,5 @@
-#ifndef PyroStates_H
-#define PyroStates_H
+#ifndef STATES_PYROSTATES_H_
+#define STATES_PYROSTATES_H_
 
 // defines the possible pyro states accross all Pyros
 

@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <ADC.h>
-#include "SensorStates.h"
+#include "States/SensorStates.hpp"
 #include "Adafruit_MCP9808.h"
 #include "ALARAUtilityFunctions.h"
 

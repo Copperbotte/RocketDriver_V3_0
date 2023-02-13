@@ -7,10 +7,10 @@
 // Use top level define conditional to determine which system the code is operating
 // Maintain definition header sets for a given propulsion system
 #include "ControlFunctions.h"
-#include "ValveDefinitions.h"
-#include "PyroDefinitions.h"
+#include "Definitions/ValveDefinitions.hpp"
+#include "Definitions/PyroDefinitions.hpp"
 #include "AutoSequenceDefinitions.h"
-#include "SensorDefinitions.h"
+#include "Definitions/SensorDefinitions.hpp"
 #include "TankPressControllerDefinitions.h"
 #include "EngineControllerDefinitions.h"
 #include "ControlFunctions.h"
