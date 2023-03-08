@@ -216,7 +216,7 @@ void FlexCan3Controller::generateHPObjectStateReportmsgs(FlexCAN& CANbus, const 
     writeObjectByteArray(nodeObjectStateReportStruct.objectIDByteArray, nodeObjectStateReportStruct.objectIDmsg, msgID);
 }
 
-bool FlexCan3Controller::generateRawSensormsgs(FlexCAN& CANbus, const std::array<SENSORBASE*, NUM_SENSORS>& sensorArray, const std::array<ALARAHP_SENSOR*, NUM_HPSENSORS>& HPsensorArray, const uint8_t& propulsionNodeIDIn)
+bool FlexCan3Controller::generateRawSensormsgs(FlexCAN& CANbus, const std::array<Sensor*, NUM_SENSORS>& sensorArray, const std::array<ALARAHP_SENSOR*, NUM_HPSENSORS>& HPsensorArray, const uint8_t& propulsionNodeIDIn)
 {
     bool samplesRemaining = true;
     bool isFirstSample = true;
@@ -376,7 +376,7 @@ CANbus.write(sensorReadStruct.packedSensorCAN2);
 
 //NOT CHANGED YET FROM RAW VERSION!!!! Needs to pull converted values at a given rate (if new available) and set the new converted false when reading just like with raw
 //Use a one decimal place shifted version of the float as Int, will give up to ~6500.0 PSI max value on all the pressures.
-bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std::array<SENSORBASE*, NUM_SENSORS>& sensorArray, const std::array<ALARAHP_SENSOR*, NUM_HPSENSORS>& HPsensorArray, const uint8_t& propulsionNodeIDIn)
+bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std::array<Sensor*, NUM_SENSORS>& sensorArray, const std::array<ALARAHP_SENSOR*, NUM_HPSENSORS>& HPsensorArray, const uint8_t& propulsionNodeIDIn)
 {
         bool samplesRemaining = true;
         bool isFirstSample = true;
@@ -811,7 +811,7 @@ void FlexCan3Controller::generatePropNodeStateReport(FlexCAN& CANbus,  VehicleSt
     CANbus.write(stateReport);
 }
 
-void FlexCan3Controller::controllerTasks(FlexCAN& CANbus, VehicleState& currentState, MissionState& currentMissionState, Command& currentCommand, const std::array<EngineController*, NUM_ENGINECONTROLLERS>& engineControllerArray, const std::array<TankPressController*, NUM_TANKPRESSCONTROLLERS>& tankPressControllerArray, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<SENSORBASE*, NUM_SENSORS>& sensorArray, const std::array<ALARAHP_SENSOR*, NUM_HPSENSORS>& HPsensorArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, FluidSystemSimulation& fluidSim, const uint8_t& propulsionNodeIDIn)
+void FlexCan3Controller::controllerTasks(FlexCAN& CANbus, VehicleState& currentState, MissionState& currentMissionState, Command& currentCommand, const std::array<EngineController*, NUM_ENGINECONTROLLERS>& engineControllerArray, const std::array<TankPressController*, NUM_TANKPRESSCONTROLLERS>& tankPressControllerArray, const std::array<Valve*, NUM_VALVES>& valveArray, const std::array<Pyro*, NUM_PYROS>& pyroArray, const std::array<Sensor*, NUM_SENSORS>& sensorArray, const std::array<ALARAHP_SENSOR*, NUM_HPSENSORS>& HPsensorArray, const std::array<AutoSequence*, NUM_AUTOSEQUENCES>& autoSequenceArray, FluidSystemSimulation& fluidSim, const uint8_t& propulsionNodeIDIn)
 {
     //call this every loop of main program
     //call all the types of messages inside this function and execute as needed
