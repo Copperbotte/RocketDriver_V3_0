@@ -50,8 +50,7 @@ protected:
     uint32_t sampleRateCalibrationMode; //the sample rate this given sensor will be read at
 
     uint32_t _currentSampleRate = 10;
-// This doesn't seem to want to link.  Dang!!
-//elapsedMicros _____timer;                      // timer for sensor timing operations
+    elapsedMicros timer;                      // timer for sensor timing operations
     uint32_t currentRawValue{};               // holds the current value for the sensor
 
     float maxIntegralSum_Default;
@@ -117,9 +116,10 @@ public:
 
 
     bool pullTimestamp = false;
-    virtual void begin();                     //
-    virtual void read(ADC& adc);              // updates currentRawValue with current reading, using an activated ADC object
-    virtual void stateOperations();
+    virtual void begin() = 0;                     //
+    virtual void resetAll() = 0;
+    virtual void read(ADC& adc) = 0;              // updates currentRawValue with current reading, using an activated ADC object
+    virtual void stateOperations() = 0;
 
     // Access functions defined in place
     uint32_t getSensorID() const {return _sensorID;}
@@ -175,20 +175,18 @@ public:
         }
     }
 
-    virtual void linearConversion();
-    virtual void exponentialMovingAverage();
+//virtual void linearConversion() = 0;
+//virtual void exponentialMovingAverage() = 0;
     void setTargetValue(float targetValueIn){targetValue = targetValueIn;}
 
     float getEMAConvertedValue(){return newEMAOutput;}
     //virtual float getDeengergizeOffsetValue();
     float getIntegralSum(){return currentIntegralSum;}
-    virtual float getLinRegSlope();
+    virtual float getLinRegSlope() = 0;
 
-    virtual void initializeLinReg(uint8_t arraySizeIn); //not in use at the moment
+//virtual void initializeLinReg(uint8_t arraySizeIn) = 0; //not in use at the moment
     void setEnableIntegralCalc(bool setEnableIn){enableIntegralCalc = setEnableIn;}
     void resetIntegralCalc(bool resetBoolIn, float integralCalcIn = 0){if(resetBoolIn){currentIntegralSum = integralCalcIn;}}  //resets the integral sum, default arg zeros it
-
-    virtual void resetAll();
 
     void setCurrentRawValue(uint32_t updateCurrentRawValue){currentRawValue = updateCurrentRawValue;} //Why is set raw value here again?
     //resets both the CAN and log bools for when new sample is read
@@ -209,8 +207,15 @@ public:
 //void setTargetValue(float targetValueIn){targetValue = targetValueIn;}
     //virtual void setDeenergizeOffset(ADC& adc, bool outputOverrideIn);
 
-    //void resetTimer(){timer = 0;}                // resets timer to zero
+    void resetTimer(){timer = 0;}                // resets timer to zero
 
+
+    // This group feels like it should be a different class, or object.
+    virtual void linearConversion();          //Runs a linear sensor conversion 
+    void exponentialMovingAverage();
+    void initializeLinReg(uint8_t arraySizeIn); //not in use at the moment
+    float linearRegressionLeastSquared_PID();
+    void accumulatedI_float();
 
     /*     //void setRollingSensorArrayRaw(uint8_t arrayPosition, uint16_t sensorValueToArray)
     void setRollingSensorArrayRaw(uint8_t arrayPosition, uint16_t sensorValueToArray)

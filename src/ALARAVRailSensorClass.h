@@ -15,10 +15,10 @@ class ALARAVRAIL_SENSOR : public Sensor
     const uint32_t sampleRateMedMode_Default = 4;         //the sample rate this given sensor will be read at
     const uint32_t sampleRateFastMode_Default = 25;        //the sample rate this given sensor will be read at
     const uint32_t sampleRateCalibrationMode_Default = 10;        //the sample rate this given sensor will be read at
-    elapsedMicros timer;                      // timer for sensor timing operations
 
   public:
     void begin();                     // run in setup to get pins going
+    void resetAll();                  // reset all configurable settings to defaults
     void read(ADC& adc);              // updates currentRawValue with current reading, using an activated ADC object
     void stateOperations();
     
@@ -28,18 +28,6 @@ class ALARAVRAIL_SENSOR : public Sensor
 
     // Access functions defined in place
     float getLinRegSlope(){currentLinReg_a1 = linearRegressionLeastSquared_PID(); return currentLinReg_a1;}
-
-    // further fuctions defined in SensorClass.cpp
-
-void resetTimer();                // resets timer to zero
-    // reset all configurable settings to defaults
-    void resetAll();
-    void linearConversion();          //Runs a linear sensor conversion 
-    void exponentialMovingAverage();
-    void initializeLinReg(uint8_t arraySizeIn); //not in use at the moment
-    float linearRegressionLeastSquared_PID();
-    void accumulatedI_float();
-
 };
 
 
