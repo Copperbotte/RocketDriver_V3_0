@@ -37,7 +37,7 @@ void AutoSequence::stateOperations()
     //if (priorState != AutoSequenceState::Running)
     //{
         state = AutoSequenceState::Running;
-        timer = 0;
+        resetTimer();
     //}
         break;
        
@@ -47,8 +47,8 @@ void AutoSequence::stateOperations()
             countdownStart = getCountdownStart();
             //Serial.print("CountdownStart from StateOps : ");
             //Serial.print(countdownStart);
-            timer = getTimer();
-            signedTimer = (signed int)timer;
+            //timer = getTimer(); // Does this line do anything?
+            signedTimer = (signed int)getTimer();
             //Serial.print(" timer : ");
             //Serial.print(timer);
             currentCountdown = signedTimer + countdownStart;
@@ -67,10 +67,3 @@ void AutoSequence::stateOperations()
         break;
     }
 }
-
-
-
-/* void AutoSequence::resetTimer()
-{
-    timer = 0;
-} */

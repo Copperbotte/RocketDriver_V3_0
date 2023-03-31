@@ -263,7 +263,7 @@ float timeStepAccumI = 0;
     if (enableIntegralCalc)
     {
         //timeStepAccumI = (currentTimestampSeconds - priorTimestampSeconds) + ((currentTimestampMicros - priorTimestampMicros)*1000000); //calculates timestep between samples in S
-        timeStepAccumI = timer/float(1000000);
+        timeStepAccumI = getTimer()/float(1000000);
         //timeStepAccumI = 0.01;
 /*         Serial.print(" ID: ");
         Serial.print(getSensorID());

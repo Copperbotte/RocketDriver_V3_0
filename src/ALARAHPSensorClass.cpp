@@ -59,7 +59,7 @@ void ALARAHP_SENSOR::read(ADC& adc)
     //I'll have to change how it's written though, right now it's ADC* adc which is specific to Teensy MCU ADC
         if (getCurrentSampleRate() != 0)     //math says no divide by zero, use separate conditional for sample rate of 0
         {
-        if (timer >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
+        if (getTimer() >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
             {
                     currentRawValue = adc.analogRead(getADCinput());
                     pullTimestamp = true;
@@ -79,7 +79,7 @@ void ALARAHP_SENSOR::read(ADC& adc)
                 newConversionCheck = true;
                 //Serial.println("newSensorinREADafter");
                 //Serial.println(newSensorValueCheck);
-                timer = 0;
+                resetTimer();
             }
         
       }

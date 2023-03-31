@@ -130,7 +130,7 @@ if (getADCtype() == TeensyMCUADC)
     {
         if (getCurrentSampleRate() != 0)     //math says no divide by zero, use separate conditional for sample rate of 0
         {
-        if (timer >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
+        if (getTimer() >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
             {
                 
                     currentRawValue = adc.analogRead(getADCinput());
@@ -169,7 +169,7 @@ if (getADCtype() == TeensyMCUADC)
                 newConversionCheck = true;
                 //Serial.println("newSensorinREADafter");
                 //Serial.println(newSensorValueCheck);
-                timer = 0;
+                resetTimer();
             }
         }
     }
@@ -178,7 +178,7 @@ if (getADCtype() == simulatedInput)
     {
         if (getCurrentSampleRate() != 0)     //math says no divide by zero, use separate conditional for sample rate of 0
         {
-        if (timer >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
+        if (getTimer() >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
             {
                 
                     //currentRawValue = adc->analogRead(ADCinput);
@@ -191,7 +191,7 @@ if (getADCtype() == simulatedInput)
                     writeToRollingArray(convertedValueArray, currentConvertedValue);
                     exponentialMovingAverage();
                     accumulatedI_float();
-                    timer = 0;
+                    resetTimer();
             }
         }
     }

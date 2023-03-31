@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 #include "AutoSequenceStates.h"
+#include "Base_Classes/Timer.hpp"
 
-
-class AutoSequence
+class AutoSequence : public Timer
 {
 
     private:
@@ -13,7 +13,7 @@ class AutoSequence
         int32_t countdownStart_Default;        //must be set in Micros so it matches the timer
         int32_t countdownStart;        //must be set in Micros so it matches the timer
         int64_t currentCountdown;
-        elapsedMicros timer;
+        //elapsedMicros timer; // Keep this instance here as a comment for now. - Joe
         int32_t signedTimer;
         AutoSequenceState state;
         AutoSequenceState priorState;
@@ -33,7 +33,7 @@ class AutoSequence
         int64_t getCurrentCountdown(){return currentCountdown;}
         AutoSequenceState getAutoSequenceState(){return state;}
         uint32_t getHostNodeID(){return hostNodeID;}
-        uint32_t getTimer(){return timer;}
+        //uint32_t getTimer(){return timer;}
         uint32_t getSignedTimer(){return signedTimer;}
         
     // set functions, allows the setting of a variable
@@ -57,7 +57,6 @@ class AutoSequence
                 }
             }
 
-        void resetTimer() {timer = 0;}
     // reset all configurable settings to defaults
         void resetAll();
         void setCountdownStart(uint32_t countdownStartIn){if(countdownStartIn >= 1000000 && countdownStartIn <= 60000000){countdownStart = (-1)*static_cast<int32_t>(countdownStartIn);}}

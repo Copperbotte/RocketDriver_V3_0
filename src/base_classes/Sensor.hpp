@@ -7,6 +7,7 @@
 #include <bitset>
 #include <ADC.h>
 #include "States/SensorStates.hpp"
+#include "Timer.hpp"
 //#include "fluidSystemSimulation.h"
 //#include "ALARAUtilityFunctions.h"
 //#pragma once
@@ -30,7 +31,7 @@ const ADCType ADCType_Default = ADCType::TeensyMCUADC;  //default source here is
 // than the items in protected.  Ideally, everything should have getters and 
 // setters defined in a seperate .cpp, but the linker is whining when I try.
 // - Joe
-class Sensor
+class Sensor : public Timer
 {
 
 private:
@@ -50,7 +51,6 @@ protected:
     uint32_t sampleRateCalibrationMode; //the sample rate this given sensor will be read at
 
     uint32_t _currentSampleRate = 10;
-    elapsedMicros timer;                      // timer for sensor timing operations
     uint32_t currentRawValue{};               // holds the current value for the sensor
 
     float maxIntegralSum_Default;
@@ -206,9 +206,6 @@ public:
     //void setRegressionSamples():???
 //void setTargetValue(float targetValueIn){targetValue = targetValueIn;}
     //virtual void setDeenergizeOffset(ADC& adc, bool outputOverrideIn);
-
-    void resetTimer(){timer = 0;}                // resets timer to zero
-
 
     // This group feels like it should be a different class, or object.
     virtual void linearConversion();          //Runs a linear sensor conversion 

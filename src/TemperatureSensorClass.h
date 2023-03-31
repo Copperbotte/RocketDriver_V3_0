@@ -6,6 +6,7 @@
 #include "States/SensorStates.hpp"
 #include "Adafruit_MCP9808.h"
 #include "ALARAUtilityFunctions.h"
+#include "Base_Classes/Timer.hpp"
 
 //#include "thermocoupleT_K.h"
 //#pragma once // This pragma once shouldn't be required.
@@ -16,7 +17,7 @@ enum TCType
     T_Type,
 };
 
-class RTD_BREAKOUT
+class RTD_BREAKOUT : public Timer // Timer doesn't have a reset here.  Should that be a template?
 {
     private:
         const uint32_t sensorID;
@@ -29,7 +30,7 @@ class RTD_BREAKOUT
         const uint32_t sampleTimeResolution1 = 65;
         const uint32_t sampleTimeResolution2 = 130;
         const uint32_t sampleTimeResolution3 = 250;
-        elapsedMillis timer;
+//elapsedMillis timer;
         int16_t convertedReadC = 0;
         int16_t convertedReadF = 0;
         Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();    
@@ -41,7 +42,7 @@ class RTD_BREAKOUT
         //get functions
         uint32_t getSensorID(){return sensorID;}
         uint32_t getSensorNodeID(){return sensorNodeID;}
-        elapsedMillis getTimer(){return timer;}
+//elapsedMillis getTimer(){return timer;}
         int16_t getConvertedValueC(){return convertedReadC;}
         int16_t getConvertedValueF(){return convertedReadF;}
         
@@ -52,7 +53,7 @@ class RTD_BREAKOUT
 
 };
 
-class THERMOCOUPLE
+class THERMOCOUPLE : public Timer
 {
     private:
         const uint32_t sensorID;
@@ -72,7 +73,7 @@ class THERMOCOUPLE
 
         RTD_BREAKOUT& tempsensor;
         elapsedMillis RTDtimer;
-        elapsedMillis timer;
+//elapsedMillis timer;
         bool newRTD = false;
         uint32_t currentRawValue1{};               // holds the current value for the sensor
         uint32_t currentRawValue2{};               // holds the current value for the sensor
@@ -123,7 +124,7 @@ class THERMOCOUPLE
         }
 
         void setAlphaEMA(float alphaEMAIn){if(alphaEMAIn >0 && alphaEMAIn <=1){alphaEMA = alphaEMAIn;}}
-        void resetTimer();                // resets timer to zero
+//void resetTimer();                // resets timer to zero
         // reset all configurable settings to defaults
         void resetAll();
 

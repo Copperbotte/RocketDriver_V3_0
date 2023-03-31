@@ -70,13 +70,13 @@ tempsensor.setResolution(resolution);
 
 void RTD_BREAKOUT::read()
 {
-  if (sensorInitialized && (timer >= sampleTimeCurrent))
-  {
-    convertedReadC = static_cast<int16_t>(tempsensor.readTempC()+0.5);
-    Serial.print("Temp C: ");
-    Serial.print(convertedReadC);
-    timer = 0;
-  }
+    if (sensorInitialized && (getTimer() >= sampleTimeCurrent))
+    {
+        convertedReadC = static_cast<int16_t>(tempsensor.readTempC()+0.5);
+        Serial.print("Temp C: ");
+        Serial.print(convertedReadC);
+        resetTimer();
+    }
 }
 
 

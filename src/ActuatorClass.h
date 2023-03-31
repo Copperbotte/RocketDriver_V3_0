@@ -2,6 +2,7 @@
 #define ACTUATORCLASS_H
 
 #include <Arduino.h>
+#include "Base_Classes/Timer.hpp"
 
 enum ActuatorType
 {
@@ -12,7 +13,7 @@ enum ActuatorType
     Pneumatic,
 };
 
-class Actuator
+class Actuator : public Timer
 {
     private:
         const uint32_t actuatorID;                          // Valve ID number 
@@ -30,9 +31,6 @@ class Actuator
     // get functions, return the current value of that variable
 
     // set functions, allows the setting of a variable
-
-    // functions with executables defined in ValveClasses.cpp
-        void resetTimer();              // resets timer to zero, timer increments automatically in microseconds
 
     // ----- THIS METHOD TO BE RUN EVERY LOOP ------
     // stateOperations will check the current state of the valve and perform any actions that need to be performed

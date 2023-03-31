@@ -4,12 +4,11 @@
 #include "extendedIO/extendedIO.h"
 
 Pyro::Pyro(uint32_t setPyroID, uint32_t setPyroNodeID, uint8_t setALARA_HP_Channel, uint32_t setLiveOutTime_Default,  bool setNodeIDCheck)
-                : pyroID{setPyroID}, pyroNodeID{setPyroNodeID}, ALARA_HP_Channel{setALARA_HP_Channel}, liveOutTime_Default{setLiveOutTime_Default}, nodeIDCheck{setNodeIDCheck}
+    : pyroID{setPyroID}, pyroNodeID{setPyroNodeID}, ALARA_HP_Channel{setALARA_HP_Channel}, liveOutTime_Default{setLiveOutTime_Default}, nodeIDCheck{setNodeIDCheck}
 {
     liveOutTime = liveOutTime_Default;
     _setInitialValues(PyroState::Off, PyroState::Off);
     //state = PyroState::Off;
-    timer = 0;
 }
 
 Pyro::Pyro(uint32_t setLiveOutTime) : liveOutTime{setLiveOutTime}
@@ -30,11 +29,6 @@ void Pyro::begin(uint8_t pinArrayIn[][11])
         digitalWriteExtended(pinDigital, 0);
         digitalWriteExtended(pinPWM, 0);
     }
-}
-
-void Pyro::resetTimer()
-{
-    timer = 0;
 }
 
 void Pyro::resetAll()
@@ -95,7 +89,7 @@ void Pyro::controllerStateOperations()
             {
                 _setInitialValues(PyroState::On, getPriorState());
 //state = PyroState::On;
-                timer = 0;
+                resetTimer();
             }
             else {_setInitialValues(PyroState::On, getPriorState());}
         }
@@ -103,11 +97,11 @@ void Pyro::controllerStateOperations()
         break;
 
     case PyroState::On:
-        if(timer >= liveOutTime)
+        if(getTimer() >= liveOutTime)
         {
             _setInitialValues(PyroState::Fired, getPriorState());
 //state = PyroState::Fired;
-            //timer = 0;
+            //resetTimer();
         }
         break;
 
@@ -119,7 +113,7 @@ void Pyro::controllerStateOperations()
             {
                 _setInitialValues(PyroState::Off, getPriorState());
 //state = PyroState::Off;
-            //timer = 0;
+            //resetTimer();
             }
             else {_setInitialValues(PyroState::Off, getPriorState());}
         }
@@ -127,7 +121,7 @@ void Pyro::controllerStateOperations()
         break;
         
     case PyroState::Off:
-        //timer = 0;
+        //resetTimer();
         break;        
     case PyroState::FireCommanded:
         if (getCurrentAutoSequenceTime() >= getFireTime())

@@ -9,6 +9,7 @@
 #include <vector>
 using std::vector;
 #include <algorithm>
+#include "Base_Classes/Timer.hpp"
 
 struct throttlePoint
 {
@@ -17,7 +18,7 @@ struct throttlePoint
 };
 
 
-class EngineController
+class EngineController : public Timer
 {
     private:
         const uint32_t controllerID;                          // Controller ID number 
@@ -46,7 +47,6 @@ class EngineController
         //I'm thinking 2D array with times and target Pc, write throttle function to work with arbitrary number of given points
         // sort values at Fire arm
 
-        elapsedMicros timer;                        // timer for the valve, used for changing duty cycles, in MICROS
 /*         ValveState pilotMVFuelValveState;
         ValveState pilotMVLoxValveState;
         ValveState pneumaticVentState;
@@ -152,8 +152,7 @@ class EngineController
         void setCurrentAutosequenceTime(int64_t countdownIn) {currentAutosequenceTime = countdownIn;}
         void setControllerUpdate(bool controllerUpdateIn){controllerUpdate = controllerUpdateIn;}
         void setControllerConfigUpdate(bool controllerConfigUpdateIn){controllerConfigUpdate = controllerConfigUpdateIn;}
-    // functions with executables defined in ValveClasses.cpp
-        void resetTimer();              // resets timer to zero, timer increments automatically in microseconds
+        
     // reset all configurable settings to defaults
         void resetAll();
 

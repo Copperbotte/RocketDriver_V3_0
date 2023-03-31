@@ -40,11 +40,6 @@ void TankPressController::begin()
     }
 }
 
-void TankPressController::resetTimer()
-{
-    timer = 0;
-}
-
 void TankPressController::ventPressureCheck()
 {
     if (ventFailsafeArm)

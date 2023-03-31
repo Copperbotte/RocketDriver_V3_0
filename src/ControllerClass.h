@@ -3,15 +3,15 @@
 
 #include <Arduino.h>
 #include "ControllerStates.h"
+#include "Base_Classes/Timer.hpp"
 
-class PropulsionController
+class PropulsionController : public Timer
 {
     private:
         const uint8_t controllerNodeID;
         bool nodeIDCheck;                           // Whether this object should operate on this node
         ControllerState state;
         ControllerState priorState;
-        elapsedMicros timer;                        // timer for the valve, used for changing duty cycles, in MICROS
 
         uint32_t targetValue;
         uint32_t deadbandHighPoint;
@@ -34,9 +34,6 @@ class PropulsionController
         uint32_t getTargetValue(){return targetValue;}
     // set the Node ID Check bool function
         void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
-
-    // functions with executables defined in ValveClasses.cpp
-        void resetTimer();              // resets timer to zero, timer increments automatically in microseconds
 
     // ----- THIS METHOD TO BE RUN EVERY LOOP ------
     // stateOperations will check the current state of the valve and perform any actions that need to be performed

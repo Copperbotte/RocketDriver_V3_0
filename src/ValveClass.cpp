@@ -18,7 +18,6 @@ Valve::Valve(uint32_t setValveID, uint8_t setValveNodeID, ValveType setValveType
     case NormalOpen:   _setInitialValues(ValveState::Open,   ValveState::Open);   break;
     default:           _setInitialValues(ValveState::Closed, ValveState::Closed); break;
     }
-    timer = 0;
     
 }
 
@@ -54,11 +53,6 @@ void Valve::begin(uint8_t pinArrayIn[][11])
         analogWrite(pinPWM, 0);
         digitalWriteExtended(pinDigital, LOW);
     }
-}
-
-void Valve::resetTimer()
-{
-    timer = 0;
 }
 
 void Valve::resetAll()
@@ -200,21 +194,21 @@ void Valve::ioStateOperations()
  */
     // if a valve is in OpenProcess, check if the fullDutyTime has passed. If it has, cycle down to hold duty
     case ValveState::OpenProcess:
-        //if(timer >= fullDutyTime)
+        //if(getTimer() >= fullDutyTime)
         //{
             analogWrite(pinPWM, fullDuty);
             digitalWriteExtended(pinDigital, HIGH);
-            //timer = 0;
+            //resetTimer();
             //state = ValveState::Open;
             //controllerUpdate = true;
         //}
         break;
     case ValveState::BangOpenProcess:
-        //if(timer >= fullDutyTime)
+        //if(getTimer() >= fullDutyTime)
         //{
             analogWrite(pinPWM, fullDuty);
             digitalWriteExtended(pinDigital, HIGH);
-            //timer = 0;
+            //resetTimer();
             //state = ValveState::BangingOpen;
             //controllerUpdate = true;
         //}
@@ -222,11 +216,11 @@ void Valve::ioStateOperations()
 
     // if a valve is in CloseProcess, check if the fullDutyTime has passed. If it has, cycle down to hold duty
     case ValveState::CloseProcess:
-        //if(timer >= fullDutyTime)
+        //if(getTimer() >= fullDutyTime)
         //{
             analogWrite(pinPWM, fullDuty);
             digitalWriteExtended(pinDigital, HIGH);
-            //timer = 0;
+            //resetTimer();
             //state = ValveState::Closed;
             //controllerUpdate = true;
         //}
@@ -304,7 +298,7 @@ void Valve::ioStateOperations()
                 case NormalClosed:
                     analogWrite(pinPWM, fullDuty);
                     digitalWriteFast(pinDigital, HIGH);
-                    timer = 0;
+                    resetTimer();
                     state = ValveState::OpenProcess;
                     controllerUpdate = true;
                     //Serial.print("NC OpenCommanded: ");
@@ -313,7 +307,7 @@ void Valve::ioStateOperations()
                 case NormalOpen:
                     analogWrite(pinPWM, 0);
                     digitalWriteFast(pinDigital, LOW);
-                    timer = 0;
+                    resetTimer();
                     state = ValveState::Open;
                     controllerUpdate = true;
                     //Serial.print("NO OpenCommanded: ");
@@ -336,7 +330,7 @@ void Valve::ioStateOperations()
                 case NormalClosed:
                     analogWrite(pinPWM, fullDuty);
                     digitalWriteFast(pinDigital, HIGH);
-                    timer = 0;
+                    resetTimer();
                     state = ValveState::BangOpenProcess;
                     controllerUpdate = true;
                     //Serial.print("NC OpenCommanded: ");
@@ -345,7 +339,7 @@ void Valve::ioStateOperations()
                 case NormalOpen:
                     analogWrite(pinPWM, 0);
                     digitalWriteFast(pinDigital, LOW);
-                    timer = 0;
+                    resetTimer();
                     state = ValveState::Open;
                     controllerUpdate = true;
                     //Serial.print("NO OpenCommanded: ");
@@ -371,14 +365,14 @@ void Valve::ioStateOperations()
                 case NormalClosed:
                     analogWrite(pinPWM, 0);
                     digitalWriteFast(pinDigital, LOW);
-                    timer = 0;
+                    resetTimer();
                     state = ValveState::Closed;
                     controllerUpdate = true;
                     break;
                 case NormalOpen:
                     analogWrite(pinPWM, fullDuty);
                     digitalWriteFast(pinDigital, HIGH);
-                    timer = 0;
+                    resetTimer();
                     state = ValveState::CloseProcess;
                     controllerUpdate = true;
                     break;
@@ -399,14 +393,14 @@ void Valve::ioStateOperations()
                 case NormalClosed:
                     analogWrite(pinPWM, 0);
                     digitalWriteFast(pinDigital, LOW);
-                    timer = 0;
+                    resetTimer();
                     state = ValveState::BangingClosed;
                     controllerUpdate = true;
                     break;
                 case NormalOpen:    //I think this is bogus??
                     analogWrite(pinPWM, fullDuty);
                     digitalWriteFast(pinDigital, HIGH);
-                    timer = 0;
+                    resetTimer();
                     state = ValveState::CloseProcess;
                     controllerUpdate = true;
                     break;
@@ -423,21 +417,21 @@ void Valve::ioStateOperations()
 
     // if a valve is in OpenProcess, check if the fullDutyTime has passed. If it has, cycle down to hold duty
     case ValveState::OpenProcess:
-        if(timer >= fullDutyTime)
+        if(getTimer() >= fullDutyTime)
         {
             analogWrite(pinPWM, holdDuty);
             digitalWriteFast(pinDigital, HIGH);
-            timer = 0;
+            resetTimer();
             state = ValveState::Open;
             controllerUpdate = true;
         }
         break;
     case ValveState::BangOpenProcess:
-        if(timer >= fullDutyTime)
+        if(getTimer() >= fullDutyTime)
         {
             analogWrite(pinPWM, holdDuty);
             digitalWriteFast(pinDigital, HIGH);
-            timer = 0;
+            resetTimer();
             state = ValveState::BangingOpen;
             controllerUpdate = true;
         }
@@ -445,11 +439,11 @@ void Valve::ioStateOperations()
 
     // if a valve is in CloseProcess, check if the fullDutyTime has passed. If it has, cycle down to hold duty
     case ValveState::CloseProcess:
-        if(timer >= fullDutyTime)
+        if(getTimer() >= fullDutyTime)
         {
             analogWrite(pinPWM, holdDuty);
             digitalWriteFast(pinDigital, HIGH);
-            timer = 0;
+            resetTimer();
             state = ValveState::Closed;
             controllerUpdate = true;
         }
@@ -502,7 +496,7 @@ void Valve::controllerStateOperations()
             switch (valveType)
             {
                 case NormalClosed:
-                    timer = 0;
+                    resetTimer();
                     setState(ValveState::OpenProcess);
                     //priorState = state;
                     //state = ValveState::OpenProcess;
@@ -511,7 +505,7 @@ void Valve::controllerStateOperations()
                     //Serial.println(valveID);
                     break;
                 case NormalOpen:
-                    timer = 0;
+                    resetTimer();
                     setState(ValveState::Open);
                     //priorState = state;
                     //state = ValveState::Open;
@@ -537,7 +531,7 @@ void Valve::controllerStateOperations()
             switch (valveType)
             {
                 case NormalClosed:
-                    timer = 0;
+                    resetTimer();
                     setState(ValveState::BangOpenProcess);
                     //priorState = state;
                     //state = ValveState::BangOpenProcess;
@@ -546,7 +540,7 @@ void Valve::controllerStateOperations()
                     //Serial.println(valveID);
                     break;
                 case NormalOpen:
-                    timer = 0;
+                    resetTimer();
                     setState(ValveState::Open);
                     //priorState = state;
                     //state = ValveState::Open;
@@ -574,14 +568,14 @@ void Valve::controllerStateOperations()
             switch (valveType)
             {
                 case NormalClosed:
-                    timer = 0;
+                    resetTimer();
                     setState(ValveState::Closed);
                     //priorState = state;
                     //state = ValveState::Closed;
                     //controllerUpdate = true;
                     break;
                 case NormalOpen:
-                    timer = 0;
+                    resetTimer();
                     setState(ValveState::CloseProcess);
                     //priorState = state;
                     //state = ValveState::CloseProcess;
@@ -606,14 +600,14 @@ void Valve::controllerStateOperations()
             switch (valveType)
             {
                 case NormalClosed:
-                    timer = 0;
+                    resetTimer();
                     setState(ValveState::BangingClosed);
                     //priorState = state;
                     //state = ValveState::BangingClosed;
                     //controllerUpdate = true;
                     break;
                 case NormalOpen:    //I think this is bogus??
-                    timer = 0;
+                    resetTimer();
                     setState(ValveState::CloseProcess);
                     //priorState = state;
                     //state = ValveState::CloseProcess;
@@ -634,9 +628,9 @@ void Valve::controllerStateOperations()
 
     // if a valve is in OpenProcess, check if the fullDutyTime has passed. If it has, cycle down to hold duty
     case ValveState::OpenProcess:
-        if(timer >= fullDutyTime)
+        if(getTimer() >= fullDutyTime)
         {
-            timer = 0;
+            resetTimer();
             setState(ValveState::Open);
             //priorState = state;
             //state = ValveState::Open;
@@ -644,9 +638,9 @@ void Valve::controllerStateOperations()
         }
         break;
     case ValveState::BangOpenProcess:
-        if(timer >= fullDutyTime)
+        if(getTimer() >= fullDutyTime)
         {
-            timer = 0;
+            resetTimer();
             setState(ValveState::BangingOpen);
             //priorState = state;
             //state = ValveState::BangingOpen;
@@ -656,11 +650,11 @@ void Valve::controllerStateOperations()
 
     // if a valve is in CloseProcess, check if the fullDutyTime has passed. If it has, cycle down to hold duty
     case ValveState::CloseProcess:
-        if(timer >= fullDutyTime)
+        if(getTimer() >= fullDutyTime)
         {
             //analogWrite(pinPWM, holdDuty);
             //digitalWriteFast(pinDigital, HIGH);
-            timer = 0;
+            resetTimer();
             setState(ValveState::Closed);
             //priorState = state;
             //state = ValveState::Closed;

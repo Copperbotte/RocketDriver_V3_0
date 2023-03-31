@@ -38,11 +38,6 @@ void EngineController::begin()
     }
 }
 
-void EngineController::resetTimer()
-{
-    timer = 0;
-}
-
 void EngineController::resetAll()
 {
     fuelMVAutosequenceActuation = fuelMVAutosequenceActuation_Default;

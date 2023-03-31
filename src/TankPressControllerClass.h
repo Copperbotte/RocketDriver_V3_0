@@ -5,8 +5,9 @@
 #include "ControllerStates.h"
 #include "States/SensorStates.hpp"
 #include "ValveClass.h"
+#include "Base_Classes/Timer.hpp"
 
-class TankPressController
+class TankPressController : public Timer
 {
     private:
         const uint32_t controllerID;                          // Controller ID number 
@@ -18,7 +19,6 @@ TankPressControllerState state;
 TankPressControllerState priorState;
         int64_t currentAutosequenceTime;
         SensorState sensorState;                    // Use one sensor state inside here to toggle all sensors on controller
-        elapsedMicros timer;                        // timer for the valve, used for changing duty cycles, in MICROS
         //elapsedMicros bangtimer;                        // timer for the valve, used for changing duty cycles, in MICROS
         ValveState pressLineVentStateBang1;
         ValveState pressLineVentStateBang2;
@@ -200,8 +200,6 @@ TankPressControllerState priorState;
     
     // reset all configurable settings to defaults
         void resetAll();
-    // functions with executables defined in ValveClasses.cpp
-        void resetTimer();              // resets timer to zero, timer increments automatically in microseconds
     // autosequence get function
         void setCurrentAutosequenceTime(int64_t countdownIn) {currentAutosequenceTime = countdownIn;}
 

@@ -14,11 +14,6 @@ void PropulsionController::begin()
     }
 }
 
-void PropulsionController::resetTimer()
-{
-    timer = 0;
-}
-
 void PropulsionController::stateOperations()
 {
     

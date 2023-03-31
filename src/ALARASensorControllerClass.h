@@ -84,9 +84,6 @@ class ALARAV2SensorController
 
         void ALARAconfigurationSensorSet(ALARASN& thisALARA);
 
-    // functions with executables defined in ValveClasses.cpp
-        void resetTimer();              // resets timer to zero, timer increments automatically in microseconds
-
     // ----- THIS METHOD TO BE RUN EVERY LOOP ------
     // stateOperations will check the current state of the valve and perform any actions that need to be performed
     // for example, if the valve is commanded to open, this needs to be run so that the valve can start opening

@@ -30,12 +30,6 @@ void ALARAV2SensorController::begin()
     ALARAHP_SENSOR &HP10 = *setHP10;
 }
  */
-
-void ALARAV2SensorController::resetTimer()
-{
-    //timer = 0;
-}
-
 void ALARAV2SensorController::stateOperations()
 {
     switch (state)
