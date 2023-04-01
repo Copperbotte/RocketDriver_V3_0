@@ -1,5 +1,5 @@
-#ifndef CONTROLLERCLASS_H
-#define CONTROLLERCLASS_H
+#ifndef PROPCONTROLLERCLASS_H
+#define PROPCONTROLLERCLASS_H
 
 #include <Arduino.h>
 #include "ControllerStates.h"

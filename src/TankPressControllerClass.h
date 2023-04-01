@@ -7,6 +7,24 @@
 #include "ValveClass.h"
 #include "Base_Classes/Timer.hpp"
 
+class bangSensorPID
+{
+private:
+    float bangSensorEMA = 0;
+    float bangSensorIntegral = 0;
+    float bangSensorDerivative = 0;
+
+    bool nodeIDCheck = false;
+
+public:
+    void setInput(float proportionalValue, float integralValue, float derivativeValue);
+
+
+};
+
+
+         
+
 class TankPressController : public Timer
 {
     private:
@@ -17,7 +35,7 @@ class TankPressController : public Timer
         bool testPass = false;
 TankPressControllerState state;
 TankPressControllerState priorState;
-        int64_t currentAutosequenceTime;
+int64_t currentAutosequenceTime;
         SensorState sensorState;                    // Use one sensor state inside here to toggle all sensors on controller
         //elapsedMicros bangtimer;                        // timer for the valve, used for changing duty cycles, in MICROS
         ValveState pressLineVentStateBang1;
@@ -29,11 +47,13 @@ TankPressControllerState priorState;
         bool abortFlag = false;         //controller can trigger an abort by flipping this flag true
         bool ventFailsafeArm = false;   // for setting whether a tank controller has the vent failsafe armed
         bool ventFailsafeFlag = false;  //for making vent failsafe require successive controller loops to open vents
+
         float ventFailsafePressure;
-        float ventFailsafePressure_Default;
         float targetPcValue;
-        float targetPcValue_Default;
         float tankToChamberDp;
+
+        float ventFailsafePressure_Default;
+        float targetPcValue_Default;
         float tankToChamberDp_Default;
 
         //float targetValue_Default;
@@ -58,16 +78,21 @@ TankPressControllerState priorState;
         bool trustBangSensor1 = true;
         bool trustBangSensor2 = true;
         bool trustBangSensor3 = false;
-        float bangSensor1EMA = 0;   //primary PT
-        float bangSensor2EMA = 0;   //secondary PT
-        float bangSensor3EMA = 0;   //simulated PT
+float bangSensor1EMA = 0;   //primary PT
+float bangSensor1Integral = 0;   //primary PT
+float bangSensor1Derivative = 0;   //primary PT
+
+float bangSensor2EMA = 0;   //secondary PT
+float bangSensor2Integral = 0;   //secondary PT
+float bangSensor2Derivative = 0;   //secondary PT
+
+float bangSensor3EMA = 0;   //simulated PT
+float bangSensor3Integral = 0;   //simulated PT
+float bangSensor3Derivative = 0;   //simulated PT
+
+        //bangSensorPID PIDSensor1, PIDSensor2, PIDSensor3;
+
         float bangSensorWeightedEMA = 0;   //weighted ave/trusted value - currently crude use
-        float bangSensor1Integral = 0;   //primary PT
-        float bangSensor2Integral = 0;   //secondary PT
-        float bangSensor3Integral = 0;   //simulated PT
-        float bangSensor1Derivative = 0;   //primary PT
-        float bangSensor2Derivative = 0;   //secondary PT
-        float bangSensor3Derivative = 0;   //simulated PT
         
         float proportionalValue = 0;
         float integralValue = 0;
@@ -117,8 +142,8 @@ TankPressControllerState priorState;
         bool getIsBang(){return isSystemBang;}
         float getTargetValue(){return targetValue;}
         float getControllerThreshold(){return controllerThreshold;}
-        TankPressControllerState getState(){return state;}
-        TankPressControllerState getPriorState(){return priorState;}
+TankPressControllerState getState(){return state;}
+TankPressControllerState getPriorState(){return priorState;}
         SensorState getControllerSensorState(){return sensorState;}
         ValveState getPrimaryPressValveState(){return primaryPressValve.getState();}
         ValveState getPressLineVentState(){return pressLineVent.getState();}
@@ -154,24 +179,28 @@ TankPressControllerState priorState;
         float getKd(){return K_d;}
         float getPIDoutput(){return bangPIDoutput;}
 
+    // BAD MOVE THIS NO DO NOT KEEP THIS HERE THIS IS TEMPORARY NO BAD
+    // BE ORGANIZED THAT'S THE WHOLE POINT OF THIS REFACTOR - Joe
+    bangSensorPID PIDSensor1, PIDSensor2, PIDSensor3;
+
     // set functions, allows the setting of a variable
-        void setPIDSensorInput1(float proportionalValue, float integralValue, float derivativeValue);
-        void setPIDSensorInput2(float proportionalValue, float integralValue, float derivativeValue);
-        void setPIDSensorInput3(float proportionalValue, float integralValue, float derivativeValue);
+void setPIDSensorInput1(float proportionalValue, float integralValue, float derivativeValue);
+void setPIDSensorInput2(float proportionalValue, float integralValue, float derivativeValue);
+void setPIDSensorInput3(float proportionalValue, float integralValue, float derivativeValue);
 
         void resetIntegralCalc(bool resetIntIn){resetIntegralCalcBool = resetIntIn;}
     // set the Node ID Check bool function
         void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
     // controller state set function
-        void setState(TankPressControllerState newState)
-            {
-                if (newState != state)
-                {
-                    priorState = state;
-                    controllerConfigUpdate = true;
-                }
-                state = newState;
-            }        
+void setState(TankPressControllerState newState)
+{
+    if (newState != state)
+    {
+        priorState = state;
+        controllerConfigUpdate = true;
+    }
+    state = newState;
+}        
     // vent line setting - for bang bang with two tank controllers sharing vent line control
         void setPressVentLineStateBang1(ValveState ventLineSetIn) {pressLineVentStateBang1 = ventLineSetIn;}
     // vent line setting - for bang bang with two tank controllers sharing vent line control
@@ -200,6 +229,7 @@ TankPressControllerState priorState;
     
     // reset all configurable settings to defaults
         void resetAll();
+
     // autosequence get function
         void setCurrentAutosequenceTime(int64_t countdownIn) {currentAutosequenceTime = countdownIn;}
 

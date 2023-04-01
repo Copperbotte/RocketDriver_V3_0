@@ -260,8 +260,20 @@ else
     tankVent.controllerStateOperations(); */
 }
 
+void bangSensorPID::setInput(float proportionalValue, float integralValue, float derivativeValue)
+{
+    if (nodeIDCheck)
+    {
+        bangSensorEMA = proportionalValue;
+        bangSensorIntegral = integralValue;
+        bangSensorDerivative = derivativeValue;
+    }
+}
+
 void TankPressController::setPIDSensorInput1(float proportionalValue, float integralValue, float derivativeValue)
 {
+    PIDSensor1.setInput(proportionalValue, integralValue, derivativeValue);
+
     if (nodeIDCheck)
     {
     bangSensor1EMA = proportionalValue;
@@ -298,26 +310,26 @@ void TankPressController::PIDinputSetting()
 {
     if (trustBangSensor1)
     {
-    bangSensorWeightedEMA = bangSensor1EMA;
-    e_p = targetValue - bangSensor1EMA;
-    e_i = bangSensor1Integral;
-    e_d = bangSensor1Derivative;
+        bangSensorWeightedEMA = bangSensor1EMA;
+        e_p = targetValue - bangSensor1EMA;
+        e_i = bangSensor1Integral;
+        e_d = bangSensor1Derivative;
     }
-    if (!trustBangSensor1 && trustBangSensor2)
+    else if (trustBangSensor2)
     {
-    bangSensorWeightedEMA = bangSensor2EMA;
-    e_p = targetValue - bangSensor2EMA;
-    e_i = bangSensor2Integral;
-    e_d = bangSensor2Derivative;
+        bangSensorWeightedEMA = bangSensor2EMA;
+        e_p = targetValue - bangSensor2EMA;
+        e_i = bangSensor2Integral;
+        e_d = bangSensor2Derivative;
     }
-    if (trustBangSensor3 && !trustBangSensor1 && !trustBangSensor2)
+    else if (trustBangSensor3)
     {
-    bangSensorWeightedEMA = bangSensor3EMA;
-    e_p = targetValue - bangSensor3EMA;
-    e_i = bangSensor3Integral;
-    e_d = bangSensor3Derivative;
+        bangSensorWeightedEMA = bangSensor3EMA;
+        e_p = targetValue - bangSensor3EMA;
+        e_i = bangSensor3Integral;
+        e_d = bangSensor3Derivative;
     }
-    if (!trustBangSensor1 && !trustBangSensor2 && !trustBangSensor3)
+    else
     {
         // if controller doesn't trust ANY tank sensor, even the sim, trigger an abort
         abortFlag = true;
@@ -328,72 +340,62 @@ void TankPressController::PIDinputSetting()
 float TankPressController::PIDmath()
 {
     PIDinputSetting();
-  //timeStepPIDMath = 1;
-  funcOutput = 0;
-  p_rollingAve = 0;
-  P_p = 0;
-  P_i = 0;
-  P_d = 0;
-/*   e_p = 0;
-  //e_i = 0;
-  e_d = 0; */
-  //arrayMostRecentPositionPID = static_cast<int>(inputArrayPID[1]+0.5);
+    //timeStepPIDMath = 1;
+    funcOutput = 0;
+    p_rollingAve = 0;
+//P_p = 0;
+//P_i = 0;
+//P_d = 0;
+    /*   e_p = 0;
+    //e_i = 0;
+    e_d = 0; */
+    //arrayMostRecentPositionPID = static_cast<int>(inputArrayPID[1]+0.5);
 
-  // PID function calculations - new integral differenced int style
-/*   e_p = controllerSetPoint - p_rollingAve;    // proportional offset calculation
-  e_i += accumulatedI_PID_float(inputArrayPID, timeStepPIDMath, controllerSetPoint)* timeStepPIDMath;
-  //e_p = controllerSetPoint - inputArrayPID[arrayMostRecentPositionPID];    // proportional offset calculation
-  e_d = linearRegressionLeastSquared_PID(inputArrayPID, 5, timeStepPIDMath);    // derivative function calculation */
+    // PID function calculations - new integral differenced int style
+    /*   e_p = controllerSetPoint - p_rollingAve;    // proportional offset calculation
+    e_i += accumulatedI_PID_float(inputArrayPID, timeStepPIDMath, controllerSetPoint)* timeStepPIDMath;
+    //e_p = controllerSetPoint - inputArrayPID[arrayMostRecentPositionPID];    // proportional offset calculation
+    e_d = linearRegressionLeastSquared_PID(inputArrayPID, 5, timeStepPIDMath);    // derivative function calculation */
 
-  //
-  P_p = K_p*(e_p);
-  P_i = K_i*(e_i);
-  P_d = K_d*(e_d * controllerTimeStep);
+    //
+    P_p = K_p*(e_p);
+    P_i = K_i*(e_i);
+    P_d = K_d*(e_d * controllerTimeStep);
 
-if (isnan(P_p))
-{
-  P_p = 0;
-}
-if (isnan(P_i))
-{
-  P_i = 0;
-}
-if (isnan(P_d))
-{
-  P_d = 0;
-}
+    if (isnan(P_p)) P_p = 0;
+    if (isnan(P_i)) P_i = 0;
+    if (isnan(P_d)) P_d = 0;
+    
+    funcOutput = (P_p) - (P_i) - (P_d); //still not 100% sure on signs, particularly the d
 
-  funcOutput = (P_p) - (P_i) - (P_d); //still not 100% sure on signs, particularly the d
+    // normalizes units to be in PSI
+    //funcOutput = (K_p*(e_p)) - (K_i*(e_i/integrationSteps)) - (K_d*(e_d * timeStep)); //still not 100% sure on signs, particularly the d
 
+    if (PIDmathPrintFlag)
+    {
+        Serial.println("insidePID: ");
+        Serial.print(K_p);
+        Serial.print(" : ");
+        Serial.print(e_p);
+        Serial.print(" : ");
+        Serial.println(K_p*(e_p));
+        Serial.print(K_i);
+        Serial.print(" : ");
+        Serial.print(e_i);
+        Serial.print(" : ");
+        Serial.println(K_i*(e_i));
+        Serial.print(K_d);  
+        Serial.print(" : ");
+        Serial.print(e_d);  
+        Serial.print(" : ");
+        Serial.println(K_d*(e_d * timeStepPIDMath));  
+        Serial.println(funcOutput);
+    }
+        //Serial.print("insidePID p_rollingAve,");
+        //Serial.print(p_rollingAve);
+        //Serial.println(",");
 
-  // normalizes units to be in PSI
-  //funcOutput = (K_p*(e_p)) - (K_i*(e_i/integrationSteps)) - (K_d*(e_d * timeStep)); //still not 100% sure on signs, particularly the d
-
-  if (PIDmathPrintFlag)
-  {
-    Serial.println("insidePID: ");
-    Serial.print(K_p);
-    Serial.print(" : ");
-    Serial.print(e_p);
-    Serial.print(" : ");
-    Serial.println(K_p*(e_p));
-    Serial.print(K_i);
-    Serial.print(" : ");
-    Serial.print(e_i);
-    Serial.print(" : ");
-    Serial.println(K_i*(e_i));
-    Serial.print(K_d);  
-    Serial.print(" : ");
-    Serial.print(e_d);  
-    Serial.print(" : ");
-    Serial.println(K_d*(e_d * timeStepPIDMath));  
-    Serial.println(funcOutput);
-  }
-    //Serial.print("insidePID p_rollingAve,");
-    //Serial.print(p_rollingAve);
-    //Serial.println(",");
-
-  return funcOutput;
+    return funcOutput;
 }
 
 void TankPressController::setPcTarget(float PcTargetIn)
