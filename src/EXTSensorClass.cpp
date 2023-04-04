@@ -36,7 +36,9 @@ void MCUADCSetup(ADC& adc, ADC_REFERENCE refIn0, ADC_REFERENCE refIn1, uint8_t a
 
 
 // Initializer 1
-EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput, FluidSystemSimulation* setFluidSim, uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Off)
+EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput, FluidSystemSimulation* setFluidSim, uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default, 
+    float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0,
+    float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Off)
     : Sensor{setSensorID, setSensorNodeID, setADCinput}, fluidSim{*setFluidSim}, sampleRateSlowMode_Default{setSampleRateSlowMode_Default}, sampleRateMedMode_Default{setSampleRateMedMode_Default}, sampleRateFastMode_Default{setSampleRateFastMode_Default}
 {
   // setting stuff to defaults at initialization
@@ -52,7 +54,7 @@ EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t s
   linConvCoef2_m = linConvCoef2_m_Default = setLinConvCoef2_m_Default;
   linConvCoef2_b = linConvCoef2_b_Default = setLinConvCoef2_b_Default;
 
-  EMA = EMA_Default;
+  EMA_Enable = EMA_Enable_Default;
   alphaEMA = alphaEMA_Default;
   regressionSamples = regressionSamples_Default;
   maxIntegralSum = maxIntegralSum_Default = setMaxIntegralSum_Default;
@@ -79,7 +81,7 @@ EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t s
   linConvCoef2_m = linConvCoef2_m_Default = 0;
   linConvCoef2_b = linConvCoef2_b_Default = 0;
 
-  EMA = EMA_Default;
+  EMA_Enable = EMA_Enable_Default;
   alphaEMA = alphaEMA_Default;
   regressionSamples = regressionSamples_Default;
   maxIntegralSum = maxIntegralSum_Default = setMaxIntegralSum_Default;
@@ -115,7 +117,7 @@ void EXT_SENSOR::resetAll()
   linConvCoef2_m = linConvCoef2_m_Default;
   linConvCoef2_b = linConvCoef2_b_Default;
 
-  EMA = EMA_Default;
+  EMA_Enable = EMA_Enable_Default;
   alphaEMA = alphaEMA_Default;
   maxIntegralSum = maxIntegralSum_Default;
   minIntegralSum = minIntegralSum_Default;
@@ -134,14 +136,15 @@ if (getADCtype() == TeensyMCUADC)
             {
                 
                     currentRawValue = adc.analogRead(getADCinput());
-                    pullTimestamp = true;
+                    //pullTimestamp = true;
                     //setRollingSensorArrayRaw(currentRollingArrayPosition, currentRawValue);
                     /////linear conversions here, y = m*x + b
                     // This automatically stores converted value for the on board nodes
-                    priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
-                    currentConvertedValue = linConvCoef1_m*currentRawValue + linConvCoef1_b;
+                    ////priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
+                    ////currentConvertedValue = linConvCoef1_m*currentRawValue + linConvCoef1_b;
+                    linearConversion(currentRawValue); // Maps the voltage read by the ADC to the calibrated range.
                     writeToRollingArray(convertedValueArray, currentConvertedValue);
-                    exponentialMovingAverage();
+                    exponentialMovingAverage(currentConvertedValue);
                     accumulatedI_float();
                     //currentLinReg_a1 = linearRegressionLeastSquared_PID();
 
@@ -166,10 +169,11 @@ if (getADCtype() == TeensyMCUADC)
                 newSensorValueCheck_Log = true;
                 newSensorConvertedValueCheck_CAN = true;
                 //newSensorValueCheck = false;
-                newConversionCheck = true;
+                ////newConversionCheck = true;
                 //Serial.println("newSensorinREADafter");
                 //Serial.println(newSensorValueCheck);
                 resetTimer();
+                pullTimestamp = true;
             }
         }
     }
@@ -185,11 +189,11 @@ if (getADCtype() == simulatedInput)
                     //setRollingSensorArrayRaw(currentRollingArrayPosition, currentRawValue);
                     /////linear conversions here, y = m*x + b
                     // This automatically stores converted value for the on board nodes
-                    pullTimestamp = true;
+                    pullTimestamp = true; // I want to move this below resetTimer to be consistent. I'm unsure if I can with so many functions below. - Joe, 2023 April 1
                     priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
                     currentConvertedValue = fluidSim.analogRead(getADCinput());
                     writeToRollingArray(convertedValueArray, currentConvertedValue);
-                    exponentialMovingAverage();
+                    exponentialMovingAverage(currentConvertedValue);
                     accumulatedI_float();
                     resetTimer();
             }

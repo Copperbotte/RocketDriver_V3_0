@@ -27,7 +27,8 @@ class ALARAVRAIL_SENSOR : public Sensor
     // constructor 2 - simulated sensor object
 
     // Access functions defined in place
-    float getLinRegSlope(){currentLinReg_a1 = linearRegressionLeastSquared_PID(); return currentLinReg_a1;}
+//float getLinRegSlope(){currentLinReg_a1 = linearRegressionLeastSquared_PID(); return currentLinReg_a1;}
+    
 };
 
 

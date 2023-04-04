@@ -7,6 +7,8 @@
 #include "Adafruit_MCP9808.h"
 #include "ALARAUtilityFunctions.h"
 #include "Base_Classes/Timer.hpp"
+#include "Base_Classes/Sensor.hpp"
+
 
 //#include "thermocoupleT_K.h"
 //#pragma once // This pragma once shouldn't be required.
@@ -53,7 +55,7 @@ class RTD_BREAKOUT : public Timer // Timer doesn't have a reset here.  Should th
 
 };
 
-class THERMOCOUPLE : public Timer
+class THERMOCOUPLE : public Timer, public EMA, public LinearRegression
 {
     private:
         const uint32_t sensorID;
@@ -78,19 +80,20 @@ class THERMOCOUPLE : public Timer
         uint32_t currentRawValue1{};               // holds the current value for the sensor
         uint32_t currentRawValue2{};               // holds the current value for the sensor
 
-        float currentConvertedValue{};
-        float priorConvertedValue{};
-        bool EMA_Default = true;  //needs a set function still
-        bool EMA;  //needs a set function still
-        float priorEMAOutput = 0;
-        float alphaEMA_Default = 0.7; //1 is no weight to old values, 0 has no weight to new value and will brick
-        float alphaEMA;
-        float newEMAOutput = 0;
+// float currentConvertedValue{};
+// float priorConvertedValue{};
 
-        const uint32_t regressionSamples_Default = 5;
-        uint32_t regressionSamples = 5;
-        float convertedValueArray[5+3] = {};  //should be the same size as regression samples +3 for rolling array index stuff
-        float timeStep = 0.01; //timeStep in seconds, should be set based on sample rate to correct value this is a placeholder value
+// bool EMA_Default = true;  //needs a set function still
+// bool EMA_Enable;  //needs a set function still
+// float priorEMAOutput = 0;
+// float alphaEMA_Default = 0.7; //1 is no weight to old values, 0 has no weight to new value and will brick
+// float alphaEMA;
+// float newEMAOutput = 0;
+
+// const uint32_t regressionSamples_Default = 5;
+// uint32_t regressionSamples = 5;
+// float convertedValueArray[5+3] = {};  //should be the same size as regression samples +3 for rolling array index stuff
+// float timeStep = 0.01; //timeStep in seconds, should be set based on sample rate to correct value this is a placeholder value
 
     public:
         bool pullTimestamp = false;
@@ -123,13 +126,13 @@ class THERMOCOUPLE : public Timer
             }
         }
 
-        void setAlphaEMA(float alphaEMAIn){if(alphaEMAIn >0 && alphaEMAIn <=1){alphaEMA = alphaEMAIn;}}
+//void setAlphaEMA(float alphaEMAIn){if(alphaEMAIn >0 && alphaEMAIn <=1){alphaEMA = alphaEMAIn;}}
 //void resetTimer();                // resets timer to zero
         // reset all configurable settings to defaults
         void resetAll();
 
-    void exponentialMovingAverage();
-    float linearRegressionLeastSquared_PID();
+//void exponentialMovingAverage();
+//float linearRegressionLeastSquared_PID();
         // Constructor
         THERMOCOUPLE(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput1, uint8_t setADCinput2, TCType setTc, RTD_BREAKOUT* setTempsensor, uint16_t setRefVoltage = 1200);
 };

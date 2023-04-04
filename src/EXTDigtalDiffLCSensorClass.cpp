@@ -20,7 +20,7 @@ DIG_LC_SENSOR::DIG_LC_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uin
   linConvCoef2_m = linConvCoef2_m_Default = setLinConvCoef2_m_Default;
   linConvCoef2_b = linConvCoef2_b_Default = setLinConvCoef2_b_Default;
 
-  EMA = EMA_Default;
+  EMA_Enable = EMA_Enable_Default;
   alphaEMA = alphaEMA_Default;
   regressionSamples = regressionSamples_Default;
   maxIntegralSum = maxIntegralSum_Default = setMaxIntegralSum_Default;
@@ -60,7 +60,7 @@ void DIG_LC_SENSOR::resetAll()
   linConvCoef2_m = linConvCoef2_m_Default;
   linConvCoef2_b = linConvCoef2_b_Default;
 
-  EMA = EMA_Default;
+  EMA_Enable = EMA_Enable_Default;
   alphaEMA = alphaEMA_Default;
   maxIntegralSum = maxIntegralSum_Default;
   minIntegralSum = minIntegralSum_Default;
@@ -84,14 +84,15 @@ if (getADCtype() == TeensyMCUADC)
                     currentRawDiffValue = currentRawValue - currentRawValue2;
                 Serial.print(", currentDiffRawValue: ");
                 Serial.println(currentRawDiffValue);
-                    pullTimestamp = true;
+                    //pullTimestamp = true;
                     //setRollingSensorArrayRaw(currentRollingArrayPosition, currentRawValue);
                     /////linear conversions here, y = m*x + b
                     // This automatically stores converted value for the on board nodes
-                    priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
-                    currentConvertedValue = linConvCoef1_m*currentRawDiffValue + linConvCoef1_b;
+                    ////priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
+                    ////currentConvertedValue = linConvCoef1_m*currentRawDiffValue + linConvCoef1_b;
+                    linearConversion(currentRawDiffValue); // Maps the voltage read by the ADC to the calibrated range.
                     writeToRollingArray(convertedValueArray, currentConvertedValue);
-                    exponentialMovingAverage();
+                    exponentialMovingAverage(currentConvertedValue);
                     accumulatedI_float();
                     //currentLinReg_a1 = linearRegressionLeastSquared_PID();
 
@@ -116,10 +117,11 @@ if (getADCtype() == TeensyMCUADC)
                 newSensorValueCheck_Log = true;
                 newSensorConvertedValueCheck_CAN = true;
                 //newSensorValueCheck = false;
-                newConversionCheck = true;
+                ////newConversionCheck = true;
                 //Serial.println("newSensorinREADafter");
                 //Serial.println(newSensorValueCheck);
                 resetTimer();
+                pullTimestamp = true;
             }
         }
     }
@@ -145,18 +147,19 @@ void DIG_LC_SENSOR::stateOperations()
         timeStep = 1/sampleRate;
 }
 
-// This linear conversion has currentRawDiffValue present instead of currentRawValue.
-// Perhaps there's a way to consolodate both?  Maybe this should be a class on its own, with an input?
-void DIG_LC_SENSOR::linearConversion()
-{
-    /////linear conversions here, y = m*x + b
-    //if (newSensorValueCheck && newConversionCheck == false)
-    if (newConversionCheck == false)
-    {
-    //priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
-    currentConvertedValue = linConvCoef1_m*currentRawDiffValue + linConvCoef1_b;    //Initial Calibration
-    currentConvertedValue = linConvCoef2_m*currentConvertedValue + linConvCoef2_b;    //Secondary Calibration
-    newConversionCheck = true;
-    }
-}
 
+// // This linear conversion has currentRawDiffValue present instead of currentRawValue.
+// // Perhaps there's a way to consolodate both?  Maybe this should be a class on its own, with an input?
+// // - Joe, 2023 April 1
+// void DIG_LC_SENSOR::linearConversion()
+// {
+//     /////linear conversions here, y = m*x + b
+//     //if (newSensorValueCheck && newConversionCheck == false)
+//     if (newConversionCheck == false)
+//     {
+//     //priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
+//     currentConvertedValue = linConvCoef1_m*currentRawDiffValue + linConvCoef1_b;    //Initial Calibration
+//     currentConvertedValue = linConvCoef2_m*currentConvertedValue + linConvCoef2_b;    //Secondary Calibration
+//     newConversionCheck = true;
+//     }
+// }

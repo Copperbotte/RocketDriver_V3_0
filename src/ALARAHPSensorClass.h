@@ -37,7 +37,7 @@ class ALARAHP_SENSOR : public Sensor
     float getCurrentOutputValue(){return (deenergizeOffset - newEMAOutput);}
     float getCurrentOutputValue(bool resetConvertedRead){if (resetConvertedRead) {newConversionCheck = false;} return (deenergizeOffset - newEMAOutput);} //reads and clears new value bool
 
-    float getLinRegSlope(){currentLinReg_a1 = linearRegressionLeastSquared_PID(); return currentLinReg_a1;}
+//float getLinRegSlope(){currentLinReg_a1 = linearRegressionLeastSquared_PID(); return currentLinReg_a1;}
 
     void setDeenergizeOffset(ADC& adc, bool outputOverrideIn);
 };

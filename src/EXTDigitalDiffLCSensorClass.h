@@ -39,9 +39,9 @@ private:
     uint32_t getADCinput2(){return ADCinput2;}
     uint32_t getCurrentRawValue(bool input1, bool resetRawRead){if (resetRawRead) {newSensorValueCheck_CAN = false;} if (!input1) {return currentRawValue;} else{return currentRawValue2;};} //reads and clears new value bool
 
-    float getLinRegSlope(){currentLinReg_a1 = linearRegressionLeastSquared_PID(); return currentLinReg_a1;}
+//float getLinRegSlope(){currentLinReg_a1 = linearRegressionLeastSquared_PID(); return currentLinReg_a1;}
 
-    void linearConversion();          //Runs a linear sensor conversion 
+    //void linearConversion();          //Runs a linear sensor conversion 
 };
 
 

@@ -1,55 +1,89 @@
 #include "Sensor.hpp"
-/*
-Sensor::Sensor(uint32_t sensorID, uint32_t sensorNodeID):
-    _sensorID{sensorID}, _sensorNodeID{sensorNodeID}
+
+void LinearMap::linearConversion(uint32_t currentRaw)
 {
+    /////linear conversions here, y = m*x + b
+    //if (newSensorValueCheck && newConversionCheck == false)
+
+////////////////////////////////////////////////////////////////////////////////
+    //     Disabled this condition, since linearConversion is only ever used in
+    // read().  Maybe this should be inline too.  Only EXTDigitalDiffLCSensor
+    // appears to use Secondary Calibration in its linearConverstion, but
+    // nothing calls it.  Either set those values to 1 and 0, or disable the
+    // line.  Alternatively, give that class a specific secondary converstion
+    // function. - Joe, 2023 Apr 1
+    // 
+//if (newConversionCheck == false)
+//{
+    priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
+    currentConvertedValue = linConvCoef1_m*currentRaw + linConvCoef1_b;    //Initial Calibration
+    //currentConvertedValue = linConvCoef2_m*currentConvertedValue + linConvCoef2_b;    //Secondary Calibration
+    newConversionCheck = true;
+
+    /*      Serial.print("sensorID: ");
+            Serial.print(getSensorID());
+            Serial.print(", currentRawValue: ");
+            Serial.println(currentRawValue);
+            Serial.print(", currentConvertedValue: ");
+            Serial.println(currentConvertedValue); */
+//}
 }
 
-uint32_t Sensor::getSensorID() {return _sensorID;}
-uint32_t Sensor::getSensorNodeID() {return _sensorNodeID;}
-*/
-/*
-SENSORBASE::SENSORBASE(uint32_t sensorID, uint32_t sensorNodeID)
-//    
+void LinearMap::linearConversion_WithSecondary(uint32_t currentRaw)
 {
-}
-*/
+    /////linear conversions here, y = m*x + b
+    //if (newSensorValueCheck && newConversionCheck == false)
 
-/*
-SENSORBASE::SENSORBASE()
-//    : _sensorID{sensorID}, _sensorNodeID{sensorNodeID}
+////////////////////////////////////////////////////////////////////////////////
+    //     Disabled this condition, since linearConversion is only ever used in
+    // read().  Maybe this should be inline too.  Only EXTDigitalDiffLCSensor
+    // appears to use Secondary Calibration in its linearConverstion, but
+    // nothing calls it.  Either set those values to 1 and 0, or disable the
+    // line.  Alternatively, give that class a specific secondary converstion
+    // function. - Joe, 2023 Apr 1
+    // 
+//if (newConversionCheck == false)
+//{
+    priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
+    currentConvertedValue = linConvCoef1_m*currentRaw + linConvCoef1_b;    //Initial Calibration
+    currentConvertedValue = linConvCoef2_m*currentConvertedValue + linConvCoef2_b;    //Secondary Calibration
+    newConversionCheck = true;
+
+    /*      Serial.print("sensorID: ");
+            Serial.print(getSensorID());
+            Serial.print(", currentRawValue: ");
+            Serial.println(currentRawValue);
+            Serial.print(", currentConvertedValue: ");
+            Serial.println(currentConvertedValue); */
+//}
+}
+
+// This code, and the linear regression code were taken from the Thermocouple initially.
+void EMA::exponentialMovingAverage(float EMA_Input)
 {
+    //function written to accept and return floats
+    //alpha must be between 0 and 1, force overflows to max and min weights
+    
+    //Serial.print("alphaEMA");
+    //Serial.println(alphaEMA);
+    if (EMA_Enable)  //only EMA if EMA_Enable bool is true
+    {
+        // bounds EMA between 0 and 1 for valid formula
+        if (alphaEMA >= 1) alphaEMA = 1;
+        else if (alphaEMA <= 0) alphaEMA = 0;
+
+        //quick maffs
+        newEMAOutput = (alphaEMA*EMA_Input) + ((1 - alphaEMA)*(priorEMAOutput));
+        priorEMAOutput = newEMAOutput; // Isn't this backwards? priorEMAOutput is always newEMAOuptut. - Joe
+    }
+    else //EMA calc still runs this way but with no computation, just setting the values. Could possibly cut even this for performance.
+    {
+        newEMAOutput = EMA_Input;
+        priorEMAOutput = newEMAOutput;
+    }
 }
-*/
 
-//uint32_t SENSORBASE::getSensorID() {return _sensorID;}
-//uint32_t SENSORBASE::getSensorNodeID() {return _sensorNodeID;}
-
-// This virtual base class cannot be implemented here, since the sampleRate variables are default set in each class.
-// void Sensor::stateOperations()
-// {
-//     uint32_t sampleRate = 0;
-//     switch(sensorState)
-//     {
-//     case SensorState::Slow:   sampleRate = sampleRateSlowMode; break;
-//     case SensorState::Medium: sampleRate = sampleRateMedMode;  break;
-//     case SensorState::Fast:   sampleRate = sampleRateFastMode; break;
-//     case SensorState::Off:    sampleRate = 0; break;
-//     default: return;
-//     }
-// 
-//     setCurrentSampleRate(sampleRate);
-//     if(sensorState == SensorState::Off)
-//         timeStep = 1; //timeStep in seconds - shitty hack to make it not brick to a nan from dividing by zero
-//     else
-//         timeStep = 1/sampleRate;
-// }
-
-
-
-
-
-void Sensor::initializeLinReg(uint8_t arraySizeIn)
+void LinearRegression::initializeLinReg(uint8_t arraySizeIn)
 {
     if(!enableLinearRegressionCalc) //only initializes the array if it wasn't already
     {
@@ -77,51 +111,6 @@ void Sensor::initializeLinReg(uint8_t arraySizeIn)
   float a1LeastSquare = 0; */
 }
 
-void Sensor::linearConversion()
-{
-    /////linear conversions here, y = m*x + b
-    //if (newSensorValueCheck && newConversionCheck == false)
-    if (newConversionCheck == false)
-    {
-        //priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
-        currentConvertedValue = linConvCoef1_m*currentRawValue + linConvCoef1_b;    //Initial Calibration
-        currentConvertedValue = linConvCoef2_m*currentConvertedValue + linConvCoef2_b;    //Secondary Calibration
-        newConversionCheck = true;
-
-        /*      Serial.print("sensorID: ");
-                Serial.print(getSensorID());
-                Serial.print(", currentRawValue: ");
-                Serial.println(currentRawValue);
-                Serial.print(", currentConvertedValue: ");
-                Serial.println(currentConvertedValue); */
-    }
-}
-
-// This code, and the linear regression code were taken from the Thermocouple initially.
-void Sensor::exponentialMovingAverage()
-{
-    //function written to accept and return floats
-    //alpha must be between 0 and 1, force overflows to max and min weights
-    
-    //Serial.print("alphaEMA");
-    //Serial.println(alphaEMA);
-    if (EMA)  //only run if EMA bool is true
-    {
-        // bounds EMA between 0 and 1 for valid formula
-        if (alphaEMA >= 1) alphaEMA = 1;
-        else if (alphaEMA <= 0) alphaEMA = 0;
-
-        //quick maffs
-        newEMAOutput = (alphaEMA*currentConvertedValue) + ((1 - alphaEMA)*(priorEMAOutput));
-        priorEMAOutput = newEMAOutput;
-    }
-    else //EMA calc still runs this way but with no computation, just setting the values. Could possibly cut even this for performance.
-    {
-        newEMAOutput = currentConvertedValue;
-        priorEMAOutput = newEMAOutput;
-    }
-}
-
 // 2023 Feb 18
 // Current Authors: 
 //     Joseph Kessler (joseph.b.kessler@gmail.com)
@@ -132,8 +121,7 @@ void Sensor::exponentialMovingAverage()
 // although this function's job should be a single variable using PID, or an 
 // entirely other PID with a higher damping term.  Alternatively another PID to
 // act as an EMA.
-
-float Sensor::linearRegressionLeastSquared_PID()
+float LinearRegression::linearRegressionLeastSquared_PID()
 {
     uint32_t arrayIndexFirstValueLinReg = 0;
     uint32_t arrayWrapSizeLinReg = 0;
@@ -258,12 +246,18 @@ float Sensor::linearRegressionLeastSquared_PID()
 
 void Sensor::accumulatedI_float()
 {
-float accumIfuncOutput = 0;
-float timeStepAccumI = 0;
+    float timeStepAccumI = getTimer()/float(1000000);
+    accumulatedI(timeStepAccumI, currentConvertedValue, priorConvertedValue);
+}
+
+void IntegralError::accumulatedI(float timeStepAccumI, float currentValue, float priorValue)
+{
+//float accumIfuncOutput = 0;
+//float timeStepAccumI = 0;
     if (enableIntegralCalc)
     {
         //timeStepAccumI = (currentTimestampSeconds - priorTimestampSeconds) + ((currentTimestampMicros - priorTimestampMicros)*1000000); //calculates timestep between samples in S
-        timeStepAccumI = getTimer()/float(1000000);
+// timeStepAccumI = getTimer()/float(1000000);
         //timeStepAccumI = 0.01;
 /*         Serial.print(" ID: ");
         Serial.print(getSensorID());
@@ -281,7 +275,9 @@ float timeStepAccumI = 0;
         Serial.print("timeStepAccumI");
         Serial.println(timeStepAccumI,10); */
 
-        currentIntegralSum += timeStepAccumI * (((currentConvertedValue - targetValue) + (priorConvertedValue - targetValue))/2);
+        currentIntegralSum += timeStepAccumI * (((currentValue - targetValue) + (priorValue - targetValue))/2);
+
+        // Clamp output
         if (currentIntegralSum >= maxIntegralSum)
         {
           currentIntegralSum = maxIntegralSum;
