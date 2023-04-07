@@ -5,7 +5,8 @@
 
 // Initializer 1
 DIG_LC_SENSOR::DIG_LC_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput1, uint8_t setADCinput2, FluidSystemSimulation* setFluidSim, uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default, uint32_t setConversionSendRate_Default, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Off)
-                : Sensor{setSensorID, setSensorNodeID, setADCinput1}, ADCinput2{setADCinput2}, fluidSim{*setFluidSim}, sampleRateSlowMode_Default{setSampleRateSlowMode_Default}, sampleRateMedMode_Default{setSampleRateMedMode_Default}, sampleRateFastMode_Default{setSampleRateFastMode_Default}, conversionSendRate_Default{setConversionSendRate_Default}
+    : Sensor{setSensorID, setSensorNodeID, setADCinput1, sampleRateDefaults{setSampleRateSlowMode_Default, setSampleRateMedMode_Default, setSampleRateFastMode_Default, _SRD.sampleRateCalibrationMode_Default}},
+    ADCinput2{setADCinput2}, fluidSim{*setFluidSim}, conversionSendRate_Default{setConversionSendRate_Default}
 {
   // setting stuff to defaults at initialization
   sampleRateSlowMode = sampleRateSlowMode_Default;
@@ -127,26 +128,6 @@ if (getADCtype() == TeensyMCUADC)
     }
 
 }
-
-void DIG_LC_SENSOR::stateOperations()
-{
-    uint32_t sampleRate = 0;
-    switch(sensorState)
-    {
-    case SensorState::Slow:   sampleRate = sampleRateSlowMode; break;
-    case SensorState::Medium: sampleRate = sampleRateMedMode;  break;
-    case SensorState::Fast:   sampleRate = sampleRateFastMode; break;
-    case SensorState::Off:    sampleRate = 0; break;
-    default: return;
-    }
-
-    setCurrentSampleRate(sampleRate);
-    if(sensorState == SensorState::Off)
-        timeStep = 1; //timeStep in seconds - shitty hack to make it not brick to a nan from dividing by zero
-    else
-        timeStep = 1/sampleRate;
-}
-
 
 // // This linear conversion has currentRawDiffValue present instead of currentRawValue.
 // // Perhaps there's a way to consolodate both?  Maybe this should be a class on its own, with an input?

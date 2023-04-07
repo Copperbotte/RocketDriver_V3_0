@@ -39,7 +39,8 @@ void MCUADCSetup(ADC& adc, ADC_REFERENCE refIn0, ADC_REFERENCE refIn1, uint8_t a
 EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput, FluidSystemSimulation* setFluidSim, uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default, 
     float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0,
     float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Off)
-    : Sensor{setSensorID, setSensorNodeID, setADCinput}, fluidSim{*setFluidSim}, sampleRateSlowMode_Default{setSampleRateSlowMode_Default}, sampleRateMedMode_Default{setSampleRateMedMode_Default}, sampleRateFastMode_Default{setSampleRateFastMode_Default}
+    : Sensor{setSensorID, setSensorNodeID, setADCinput, sampleRateDefaults{setSampleRateSlowMode_Default, setSampleRateMedMode_Default, setSampleRateFastMode_Default, _SRD.sampleRateCalibrationMode_Default}},
+     fluidSim{*setFluidSim}
 {
   // setting stuff to defaults at initialization
   sampleRateSlowMode = sampleRateSlowMode_Default;
@@ -64,7 +65,7 @@ EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t s
 
 // Initializer 2
 EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput, FluidSystemSimulation* setFluidSim, float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, ADCType setSensorSource)
-    : Sensor{setSensorID, setSensorNodeID, setADCinput, setSensorSource}, fluidSim{*setFluidSim}
+    : Sensor{setSensorID, setSensorNodeID, setADCinput, _SRD, setSensorSource}, fluidSim{*setFluidSim}
 {
   // setting stuff to defaults at initialization
   sampleRateSlowMode = sampleRateSlowMode_Default;
@@ -200,23 +201,3 @@ if (getADCtype() == simulatedInput)
         }
     }
 }
-
-void EXT_SENSOR::stateOperations()
-{
-    uint32_t sampleRate = 0;
-    switch(sensorState)
-    {
-    case SensorState::Slow:   sampleRate = sampleRateSlowMode; break;
-    case SensorState::Medium: sampleRate = sampleRateMedMode;  break;
-    case SensorState::Fast:   sampleRate = sampleRateFastMode; break;
-    case SensorState::Off:    sampleRate = 0; break;
-    default: return;
-    }
-
-    setCurrentSampleRate(sampleRate);
-    if(sensorState == SensorState::Off)
-        timeStep = 1; //timeStep in seconds - shitty hack to make it not brick to a nan from dividing by zero
-    else
-        timeStep = 1/sampleRate;
-}
-

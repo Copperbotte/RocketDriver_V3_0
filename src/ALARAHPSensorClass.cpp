@@ -6,7 +6,7 @@
 
 // Initializer 1
 ALARAHP_SENSOR::ALARAHP_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Fast)
-    : Sensor{setSensorID, setSensorNodeID, setADCinput}
+    : Sensor{setSensorID, setSensorNodeID, setADCinput, _SRD}
 {
   // setting stuff to defaults at initialization
   sampleRateSlowMode = sampleRateSlowMode_Default;
@@ -106,23 +106,4 @@ void ALARAHP_SENSOR::setDeenergizeOffset(ADC& adc, bool outputOverrideIn)
   // while output override still has this running, update the deenergize offset
   deenergizeOffset = newEMAOutput;
   }
-}
-
-void ALARAHP_SENSOR::stateOperations()
-{
-    uint32_t sampleRate = 0;
-    switch(sensorState)
-    {
-    case SensorState::Slow:   sampleRate = sampleRateSlowMode; break;
-    case SensorState::Medium: sampleRate = sampleRateMedMode;  break;
-    case SensorState::Fast:   sampleRate = sampleRateFastMode; break;
-    case SensorState::Off:    sampleRate = 0; break;
-    default: return;
-    }
-
-    setCurrentSampleRate(sampleRate);
-    if(sensorState == SensorState::Off)
-        timeStep = 1; //timeStep in seconds - shitty hack to make it not brick to a nan from dividing by zero
-    else
-        timeStep = 1/sampleRate;
 }

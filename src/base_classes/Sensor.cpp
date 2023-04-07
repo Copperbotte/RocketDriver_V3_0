@@ -1,5 +1,29 @@
 #include "Sensor.hpp"
 
+////////////////////////////////////////////////////////////////////////////////
+// Common function for sensor state operations.
+//     This function was the same for all sensors, so this is supplied as the 
+// default. - Joe, 2023 April 6
+void Sensor::stateOperations()
+{
+    uint32_t sampleRate = 0;
+    switch(sensorState)
+    {
+    case SensorState::Slow:   sampleRate = sampleRateSlowMode; break;
+    case SensorState::Medium: sampleRate = sampleRateMedMode;  break;
+    case SensorState::Fast:   sampleRate = sampleRateFastMode; break;
+    case SensorState::Off:    sampleRate = 0; break;
+    default: return;
+    }
+
+    setCurrentSampleRate(sampleRate);
+    if(sensorState == SensorState::Off)
+        timeStep = 1; //timeStep in seconds - shitty hack to make it not brick to a nan from dividing by zero
+    else
+        timeStep = 1/sampleRate;
+}
+
+
 void LinearMap::linearConversion(uint32_t currentRaw)
 {
     /////linear conversions here, y = m*x + b

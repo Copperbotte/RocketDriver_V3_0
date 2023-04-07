@@ -184,6 +184,33 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+// Sample Rate defaults struct
+// This is seperate to allow for convenient inits using a constructor.
+// - Joe, 2023 April 6
+
+struct sampleRateDefaults
+{
+    const uint32_t sampleRateSlowMode_Default;        //the sample rate this given sensor will be read at
+    const uint32_t sampleRateMedMode_Default;         //the sample rate this given sensor will be read at
+    const uint32_t sampleRateFastMode_Default;        //the sample rate this given sensor will be read at
+    const uint32_t sampleRateCalibrationMode_Default; //the sample rate this given sensor will be read at
+
+    // Default constructor.  Must supply every field.
+    sampleRateDefaults(uint32_t slowMode, uint32_t medMode, uint32_t fastMode, uint32_t calibrationMode)
+    : sampleRateSlowMode_Default{slowMode}, sampleRateMedMode_Default{medMode},
+      sampleRateFastMode_Default{fastMode}, sampleRateCalibrationMode_Default{calibrationMode}
+    {}
+
+    // Copy constructor.
+    sampleRateDefaults(const sampleRateDefaults &defs)
+    : sampleRateSlowMode_Default{defs.sampleRateSlowMode_Default},
+      sampleRateMedMode_Default{defs.sampleRateMedMode_Default},
+      sampleRateFastMode_Default{defs.sampleRateFastMode_Default},
+      sampleRateCalibrationMode_Default{defs.sampleRateCalibrationMode_Default}
+    {}
+};
+
+////////////////////////////////////////////////////////////////////////////////
 // Base sensor class to hold the various derived classes.
 //     Currently, this class is the common elements of
 // EXTDigitalDiffLCSensorClass, ALARAVRailSensorClass, ALARAHPSensorClass, and
@@ -191,7 +218,7 @@ public:
 // than the items in protected.  Ideally, everything should have getters and 
 // setters defined in a seperate .cpp, but the linker is whining when I try.
 // - Joe
-class Sensor : public Timer, public LinearMap, public EMA, public LinearRegression, public IntegralError
+class Sensor : public Timer, public LinearMap, public EMA, public LinearRegression, public IntegralError, protected sampleRateDefaults
 {
 
 private:
@@ -209,6 +236,11 @@ protected:
     uint32_t sampleRateMedMode;         //the sample rate this given sensor will be read at
     uint32_t sampleRateFastMode;        //the sample rate this given sensor will be read at
     uint32_t sampleRateCalibrationMode; //the sample rate this given sensor will be read at
+
+// const uint32_t sampleRateSlowMode_Default;        //the sample rate this given sensor will be read at
+// const uint32_t sampleRateMedMode_Default;         //the sample rate this given sensor will be read at
+// const uint32_t sampleRateFastMode_Default;        //the sample rate this given sensor will be read at
+// const uint32_t sampleRateCalibrationMode_Default; //the sample rate this given sensor will be read at
 
     uint32_t _currentSampleRate = 10;         // Sample rates are in samples per second
     uint32_t currentRawValue{};               // holds the current value for the sensor
@@ -235,12 +267,12 @@ protected:
 
 public:
     //SENSORBASE(){};
-    Sensor(uint32_t sensorID,       uint32_t sensorNodeID,    uint8_t ADCinput)
-        : _sensorID{sensorID}, _sensorNodeID{sensorNodeID}, _ADCinput{ADCinput},
+    Sensor(uint32_t sensorID,       uint32_t sensorNodeID,    uint8_t ADCinput, const sampleRateDefaults&SRD) // The lack of a space here feels weird, but it compiles! - Joe, 2023 April 6
+        : _sensorID{sensorID}, _sensorNodeID{sensorNodeID}, _ADCinput{ADCinput},      sampleRateDefaults{SRD},
         LinearMap{} {};
 
-    Sensor(uint32_t sensorID,       uint32_t sensorNodeID,    uint8_t ADCinput,        ADCType sensorSource)
-        : _sensorID{sensorID}, _sensorNodeID{sensorNodeID}, _ADCinput{ADCinput}, _sensorSource{sensorSource},
+    Sensor(uint32_t sensorID,       uint32_t sensorNodeID,    uint8_t ADCinput, const sampleRateDefaults&SRD,        ADCType sensorSource)
+        : _sensorID{sensorID}, _sensorNodeID{sensorNodeID}, _ADCinput{ADCinput},      sampleRateDefaults{SRD}, _sensorSource{sensorSource},
         LinearMap{} {};
 
 
@@ -248,7 +280,7 @@ public:
     virtual void begin() = 0;                     //
     virtual void resetAll() = 0;
     virtual void read(ADC& adc) = 0;              // updates currentRawValue with current reading, using an activated ADC object
-    virtual void stateOperations() = 0;
+    void stateOperations(); // No longer virtual!
 
     // LinearMap group
     // Maps ADC read value to the calibrated range using linConvCoef.
