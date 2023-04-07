@@ -21,7 +21,7 @@ class ALARAVRAIL_SENSOR : public Sensor
   public:
     void begin();                     // run in setup to get pins going
     void resetAll();                  // reset all configurable settings to defaults
-    void read(ADC& adc);              // updates currentRawValue with current reading, using an activated ADC object
+//void read(ADC& adc);              // updates currentRawValue with current reading, using an activated ADC object
     
     // constructor 1 - standard MCU external ADC read
     ALARAVRAIL_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Slow);

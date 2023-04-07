@@ -9,7 +9,7 @@
 #include "States/SensorStates.hpp"
 #include "Timer.hpp"
 //#include "fluidSystemSimulation.h"
-//#include "ALARAUtilityFunctions.h"
+#include "ALARAUtilityFunctions.h"
 //#pragma once
 //#pragma GCC diagnostic ignored "-Wreorder" // go away cringe
 
@@ -120,7 +120,8 @@ public:
 //     I'm not actually sure what this class does? It doesn't look like any 
 // linear regression I've seen before.  Regardless, It's here for feature parity
 // during this refactor.  It also doesn't appear to have been completed.
-// - Joe, 2023 April 3
+//     Dan Morgan said that this is PID D term filtering! Used for the old Bang 
+// Bang controller. - Joe, 2023 April 6
 class LinearRegression
 {
 protected:
@@ -150,6 +151,8 @@ public:
 //     I'm not actually sure what this class does? It looks just like an 
 // integral error term of a PID controller, but without the controller.
 // - Joe, 2023 April 3
+//     Dan Morgan said that this is PID I term filtering! Used for the old Bang 
+// Bang controller. - Joe, 2023 April 6
 class IntegralError
 {
 protected:
@@ -279,7 +282,9 @@ public:
     bool pullTimestamp = false;
     virtual void begin() = 0;                     //
     virtual void resetAll() = 0;
-    virtual void read(ADC& adc) = 0;              // updates currentRawValue with current reading, using an activated ADC object
+    virtual void readRaw(ADC& adc);           // updates currentRawValue with current reading, using an activated ADC object
+    virtual void readSim(ADC& adc){};         // updates currentConvertedValue with a simulated reading.  Default does nothing.
+    virtual void read(ADC& adc);              // updates currentRawValue with current reading, using an activated ADC object
     void stateOperations(); // No longer virtual!
 
     // LinearMap group

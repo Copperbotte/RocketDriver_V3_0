@@ -75,7 +75,7 @@ void ALARAVRAIL_SENSOR::resetAll()
   EMA_Enable = EMA_Enable_Default;
   alphaEMA = alphaEMA_Default;
 }
-
+/*
 void ALARAVRAIL_SENSOR::read(ADC& adc)
 {
     //Add in sample rate code here to check if a sensor is up to be read
@@ -111,3 +111,4 @@ void ALARAVRAIL_SENSOR::read(ADC& adc)
       }
 
 }
+*/

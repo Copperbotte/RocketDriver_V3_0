@@ -23,6 +23,72 @@ void Sensor::stateOperations()
         timeStep = 1/sampleRate;
 }
 
+// I dont like linearConversion being in here, but the simulated input doesn't use it in EXTSensorClass. - Joe, 2023 April 6
+void Sensor::readRaw(ADC& adc)
+{
+    currentRawValue = adc.analogRead(getADCinput());
+    newSensorValueCheck_CAN = true;
+    newSensorValueCheck_Log = true;
+    newSensorConvertedValueCheck_CAN = true; // This looks like it never does anything.
+
+    ////pullTimestamp = true;
+    //setRollingSensorArrayRaw(currentRollingArrayPosition, currentRawValue);
+    /////linear conversions here, y = m*x + b
+    // This automatically stores converted value for the on board nodes
+    //// priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
+    //// currentConvertedValue = linConvCoef1_m*currentRawValue + linConvCoef1_b;
+    linearConversion(currentRawValue); // Maps the voltage read by the ADC to the calibrated range.
+}
+
+void Sensor::read(ADC& adc)
+{
+    //Add in sample rate code here to check if a sensor is up to be read
+    //This is also where alternate ADC sources would be used - I do have the RTD sensors over ITC right now
+    //I'll have to change how it's written though, right now it's ADC* adc which is specific to Teensy MCU ADC
+    if (getCurrentSampleRate() != 0)     //math says no divide by zero, use separate conditional for sample rate of 0
+    {
+        if (getTimer() >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
+        {
+            if (getADCtype() == TeensyMCUADC)
+                readRaw(adc);
+            if (getADCtype() == simulatedInput)
+                readSim(adc);
+            writeToRollingArray(convertedValueArray, currentConvertedValue); // Should this be on every sensor? is it slow? - Joe, 2023 April 6
+            exponentialMovingAverage(currentConvertedValue);
+            accumulatedI_float();
+            //currentLinReg_a1 = linearRegressionLeastSquared_PID();
+
+            //if (getSensorID() == 58)
+            //{
+            //Serial.print("sensorID: ");
+            //Serial.print(getSensorID());
+            //Serial.print(", currentRawValue: ");
+            //Serial.println(currentRawValue);
+            //Serial.print(", currentConvertedValue: ");
+            //Serial.println(currentConvertedValue); */
+            //}
+            //Serial.print("sensorID: ");
+            //Serial.print(getSensorID());
+            //Serial.print(", currentRawValue: ");
+            //Serial.println(currentRawValue);
+            //Serial.print(", currentRollingAverage: ");
+            //Serial.println(getCurrentRollingAverage()); */
+            //Serial.println("newSensorREADbefore");
+            //Serial.println(newSensorValueCheck);
+            ////newSensorValueCheck_CAN = true;
+            ////newSensorValueCheck_Log = true;
+            ////newSensorConvertedValueCheck_CAN = true;
+                
+            //newSensorValueCheck = false;
+            ////newConversionCheck = true;
+            //Serial.println("newSensorinREADafter");
+            //Serial.println(newSensorValueCheck);
+            resetTimer();
+            pullTimestamp = true;
+        }
+    }
+}
+
 
 void LinearMap::linearConversion(uint32_t currentRaw)
 {

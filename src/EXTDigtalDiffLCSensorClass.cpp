@@ -68,23 +68,48 @@ void DIG_LC_SENSOR::resetAll()
 
 }
 
+void DIG_LC_SENSOR::readRaw(ADC& adc)
+{
+    currentRawValue = adc.analogRead(getADCinput());
+    currentRawValue2 = adc.analogRead(getADCinput2());
+    currentRawDiffValue = currentRawValue - currentRawValue2;
+    newSensorValueCheck_CAN = true;
+    newSensorValueCheck_Log = true;
+    newSensorConvertedValueCheck_CAN = true;
+    Serial.print(", currentDiffRawValue: ");
+    Serial.println(currentRawDiffValue);
+
+    //pullTimestamp = true;
+    //setRollingSensorArrayRaw(currentRollingArrayPosition, currentRawValue);
+    /////linear conversions here, y = m*x + b
+    // This automatically stores converted value for the on board nodes
+    ////priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
+    ////currentConvertedValue = linConvCoef1_m*currentRawDiffValue + linConvCoef1_b;
+    linearConversion(currentRawDiffValue); // Maps the voltage read by the ADC to the calibrated range.
+}
+/*
 void DIG_LC_SENSOR::read(ADC& adc)
 {
     //Add in sample rate code here to check if a sensor is up to be read
     //This is also where alternate ADC sources would be used - I do have the RTD sensors over ITC right now
     //I'll have to change how it's written though, right now it's ADC* adc which is specific to Teensy MCU ADC
-if (getADCtype() == TeensyMCUADC)
-    {
+// if (getADCtype() == TeensyMCUADC)
+//     {
         if (getCurrentSampleRate() != 0)     //math says no divide by zero, use separate conditional for sample rate of 0
         {
         if (getTimer() >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
             {
-                
+                if (getADCtype() == TeensyMCUADC)
+                {
                     currentRawValue = adc.analogRead(getADCinput());
                     currentRawValue2 = adc.analogRead(getADCinput2());
                     currentRawDiffValue = currentRawValue - currentRawValue2;
+                    newSensorValueCheck_CAN = true;
+                    newSensorValueCheck_Log = true;
+                    newSensorConvertedValueCheck_CAN = true;
                 Serial.print(", currentDiffRawValue: ");
                 Serial.println(currentRawDiffValue);
+                
                     //pullTimestamp = true;
                     //setRollingSensorArrayRaw(currentRollingArrayPosition, currentRawValue);
                     /////linear conversions here, y = m*x + b
@@ -92,31 +117,32 @@ if (getADCtype() == TeensyMCUADC)
                     ////priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
                     ////currentConvertedValue = linConvCoef1_m*currentRawDiffValue + linConvCoef1_b;
                     linearConversion(currentRawDiffValue); // Maps the voltage read by the ADC to the calibrated range.
-                    writeToRollingArray(convertedValueArray, currentConvertedValue);
-                    exponentialMovingAverage(currentConvertedValue);
-                    accumulatedI_float();
-                    //currentLinReg_a1 = linearRegressionLeastSquared_PID();
+                }
+                writeToRollingArray(convertedValueArray, currentConvertedValue);
+                exponentialMovingAverage(currentConvertedValue);
+                accumulatedI_float();
+                //currentLinReg_a1 = linearRegressionLeastSquared_PID();
 
                 //if (getSensorID() == 58)
                 //{
-    /*             Serial.print("sensorID: ");
-                Serial.print(getSensorID());
-                Serial.print(", currentRawValue: ");
-                Serial.println(currentRawValue);
-                Serial.print(", currentConvertedValue: ");
-                Serial.println(currentConvertedValue); */
+                //Serial.print("sensorID: ");
+                //Serial.print(getSensorID());
+                //Serial.print(", currentRawValue: ");
+                //Serial.println(currentRawValue);
+                //Serial.print(", currentConvertedValue: ");
+                //Serial.println(currentConvertedValue); 
                 //}
-    /*             Serial.print("sensorID: ");
-                Serial.print(getSensorID());
-                Serial.print(", currentRawValue: ");
-                Serial.println(currentRawValue);
-                Serial.print(", currentRollingAverage: ");
-                Serial.println(getCurrentRollingAverage()); */
+                //Serial.print("sensorID: ");
+                //Serial.print(getSensorID());
+                //Serial.print(", currentRawValue: ");
+                //Serial.println(currentRawValue);
+                //Serial.print(", currentRollingAverage: ");
+                //Serial.println(getCurrentRollingAverage()); 
                 //Serial.println("newSensorREADbefore");
                 //Serial.println(newSensorValueCheck);
-                newSensorValueCheck_CAN = true;
-                newSensorValueCheck_Log = true;
-                newSensorConvertedValueCheck_CAN = true;
+                ////newSensorValueCheck_CAN = true;
+                ////newSensorValueCheck_Log = true;
+                ////newSensorConvertedValueCheck_CAN = true;
                 //newSensorValueCheck = false;
                 ////newConversionCheck = true;
                 //Serial.println("newSensorinREADafter");
@@ -125,9 +151,10 @@ if (getADCtype() == TeensyMCUADC)
                 pullTimestamp = true;
             }
         }
-    }
+//}
 
 }
+*/
 
 // // This linear conversion has currentRawDiffValue present instead of currentRawValue.
 // // Perhaps there's a way to consolodate both?  Maybe this should be a class on its own, with an input?

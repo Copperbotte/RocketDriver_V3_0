@@ -51,7 +51,7 @@ void ALARAHP_SENSOR::resetAll()
   EMA_Enable = EMA_Enable_Default;
   alphaEMA = alphaEMA_Default;
 }
-
+/*
 void ALARAHP_SENSOR::read(ADC& adc)
 {
     //Add in sample rate code here to check if a sensor is up to be read
@@ -87,7 +87,7 @@ void ALARAHP_SENSOR::read(ADC& adc)
       }
 
 }
-
+*/
 void ALARAHP_SENSOR::setDeenergizeOffset(ADC& adc, bool outputOverrideIn)
 {
   // read the value but don't flag it as a new value for any messages. This is purely for ripping off a bunch of calibration reads.
