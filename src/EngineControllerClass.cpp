@@ -87,7 +87,7 @@ void EngineController::setThrottleProgramPoint(uint16_t autoSequenceTimeMillisIn
     throttlePoint ptIn;
     //only can change throttle vector while controller isn't in active state
     //function should work correctly in any state, but normally do not want to be changing the throttleprogram once running
-    if(state == EngineControllerState::Passive) 
+    if(getState() == EngineControllerState::Passive) 
     {    
         //if(currentPcTargetIn >= 200 && currentPcTargetIn <= 600)
         //{
@@ -124,7 +124,7 @@ void EngineController::setThrottleProgramPoint(uint16_t autoSequenceTimeMillisIn
 
 void EngineController::throttleProgramReset()
 {
-    if(state == EngineControllerState::Passive)
+    if(getState() == EngineControllerState::Passive)
     { 
         // no input args == reset whole program
         throttleProgram.clear();
@@ -140,7 +140,7 @@ void EngineController::throttleProgramReset()
 
 void EngineController::throttleProgramReset(uint16_t autoSequenceTimeMillisIn)
 {
-    if(state == EngineControllerState::Passive)
+    if(getState() == EngineControllerState::Passive)
     {
     // autosequence time input arg == remove a point at that time if it exists
     for (auto i = throttleProgram.begin(); i != throttleProgram.end(); ++i)
@@ -193,7 +193,7 @@ void EngineController::autoSequenceTargetPcUpdate(bool runBool)
 void EngineController::stateOperations()
 {
     controllerUpdate = true;
-    switch (state)
+    switch (getState())
     {
     case EngineControllerState::Passive:
         testPass = false;
@@ -216,7 +216,7 @@ void EngineController::stateOperations()
         testPass = false;
         // Arming turns sensor read rates up to operational levels before opening valves
         autoSequenceTargetPcUpdate(true);
-        if (priorState != EngineControllerState::Armed)
+        if (getPriorState() != EngineControllerState::Armed)
         {
         pilotMVFuelValve.setState(ValveState::CloseCommanded);
         pilotMVLoxValve.setState(ValveState::CloseCommanded);
@@ -224,7 +224,8 @@ void EngineController::stateOperations()
         sensorState = SensorState::Fast;
         igniter1.setState(PyroState::OffCommanded, igniter1Actuation);
         igniter2.setState(PyroState::OffCommanded, igniter2Actuation);
-        priorState = EngineControllerState::Armed;
+        // priorState = EngineControllerState::Armed;
+        _setInitialValues(getState(), EngineControllerState::Armed);
         }
         break;
     case EngineControllerState::FiringAutosequence:
@@ -258,7 +259,7 @@ void EngineController::stateOperations()
         break;
     case EngineControllerState::Shutdown:
         testPass = false;
-        if (priorState != EngineControllerState::Shutdown)
+        if (getPriorState() != EngineControllerState::Shutdown)
         {
         sensorState = SensorState::Fast;
         pilotMVFuelValve.setState(ValveState::CloseCommanded);

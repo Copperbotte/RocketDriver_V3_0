@@ -79,7 +79,7 @@ void TankPressController::stateOperations()
     }
 
     // Controller State switch case
-    switch (state)
+    switch (getState())
     {
     case TankPressControllerState::Passive:
         testPass = false;
@@ -99,7 +99,7 @@ void TankPressController::stateOperations()
         //set abortFlag false when going to passive;
         abortFlag = false;
         //don't do shit
-        if (priorState != TankPressControllerState::Standby)
+        if (getPriorState() != TankPressControllerState::Standby)
         {
         primaryPressValve.setState(ValveState::CloseCommanded);
         pressLineVent.setState(ValveState::CloseCommanded);
@@ -110,7 +110,7 @@ void TankPressController::stateOperations()
     case TankPressControllerState::RegPressActive:
         testPass = false;
         //do shit
-        if (priorState != TankPressControllerState::RegPressActive)
+        if (getPriorState() != TankPressControllerState::RegPressActive)
         {
         sensorState = SensorState::Fast;
         primaryPressValve.setState(ValveState::OpenCommanded);
@@ -121,7 +121,7 @@ void TankPressController::stateOperations()
         break;
     case TankPressControllerState::Armed:
         testPass = false;
-        if (priorState != TankPressControllerState::Armed)
+        if (getPriorState() != TankPressControllerState::Armed)
         {
         // Arming turns sensor read rates up to operational levels before opening valves
         sensorState = SensorState::Fast;
@@ -135,7 +135,7 @@ void TankPressController::stateOperations()
         testPass = false;
         //set abortFlag false going into Vent to be able to vent out of an Abort from abortFlag
         abortFlag = false;
-        if (priorState != TankPressControllerState::PropTankVent)
+        if (getPriorState() != TankPressControllerState::PropTankVent)
         {
             //Serial.println("dis u? ");
         sensorState = SensorState::Fast;
@@ -148,7 +148,7 @@ void TankPressController::stateOperations()
         testPass = false;
         //set abortFlag false going into Vent to be able to vent out of an Abort from abortFlag
         abortFlag = false;
-        if (priorState != TankPressControllerState::HiVent)
+        if (getPriorState() != TankPressControllerState::HiVent)
         {
             //Serial.println("dis u? ");
         sensorState = SensorState::Fast;
@@ -159,7 +159,7 @@ void TankPressController::stateOperations()
         break;
     case TankPressControllerState::Abort:
         testPass = false;
-        if (priorState != TankPressControllerState::Abort)
+        if (getPriorState() != TankPressControllerState::Abort)
         {
         sensorState = SensorState::Fast;
         primaryPressValve.setState(ValveState::CloseCommanded);
@@ -170,7 +170,7 @@ void TankPressController::stateOperations()
         break;
     case TankPressControllerState::HiPressPassthroughVent:  //uhh what the fuck was this, the valve states are ???
         testPass = false;
-        if (priorState != TankPressControllerState::HiPressPassthroughVent)
+        if (getPriorState() != TankPressControllerState::HiPressPassthroughVent)
         {
         sensorState = SensorState::Fast;
         primaryPressValve.setState(ValveState::CloseCommanded);

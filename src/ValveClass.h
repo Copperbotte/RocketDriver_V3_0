@@ -26,7 +26,7 @@ enum ValveType
     NormalOpen,
 };
 
-class Valve : public StateMachine<ValveState>, public Timer
+class Valve : public StateMachine_Firetime<ValveState>, public Timer
 {
 
 private:

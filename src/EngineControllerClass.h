@@ -10,6 +10,7 @@
 using std::vector;
 #include <algorithm>
 #include "Base_Classes/Timer.hpp"
+#include "base_classes/state_machine.hpp"
 
 struct throttlePoint
 {
@@ -18,15 +19,15 @@ struct throttlePoint
 };
 
 
-class EngineController : public Timer
+class EngineController : public StateMachine_controllerConfig<EngineControllerState>, public Timer
 {
     private:
         const uint32_t controllerID;                          // Controller ID number 
         const uint8_t controllerNodeID;
         bool nodeIDCheck;                           // Whether this object should operate on this node
         bool testPass = false;
-        EngineControllerState state;
-        EngineControllerState priorState;
+// EngineControllerState state;
+// EngineControllerState priorState;
         SensorState sensorState;                    // Use one sensor state inside here to toggle all sensors on controller
         int64_t currentAutosequenceTime;
         bool abortFlag = false;         //controller can trigger an abort by flipping this flag true, sets the main vehicle state to abort
@@ -65,7 +66,7 @@ class EngineController : public Timer
         // controllerUpdate is for every controller cycle dynamic data
         bool controllerUpdate = false;
         // controllerConfigUpdate is for controller settings that only change from user input
-        bool controllerConfigUpdate = false;
+// bool controllerConfigUpdate = false;
 
         //uint32_t igniter1LiveOutTime = 500000;
         //uint32_t igniter2LiveOutTime = 500000;
@@ -95,8 +96,8 @@ class EngineController : public Timer
         uint32_t getControllerID(){return controllerID;}
         uint8_t getControllerNodeID(){return controllerNodeID;}
         bool getNodeIDCheck(){return nodeIDCheck;}
-        EngineControllerState getState(){return state;}
-        EngineControllerState getPriorState(){return priorState;}
+// EngineControllerState getState(){return state;}
+// EngineControllerState getPriorState(){return priorState;}
         SensorState getControllerSensorState(){return sensorState;}
         ValveState getPilotMVFuelValveState(){return pilotMVFuelValve.getState();}
         ValveState getPilotMVLoxValveState(){return pilotMVLoxValve.getState();}
@@ -115,15 +116,15 @@ class EngineController : public Timer
     // set the Node ID Check bool function
         void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
     // controller state set function
-        void setState(EngineControllerState newState)
-            {
-                if (newState != state)
-                {
-                    priorState = state;
-                    controllerConfigUpdate = true;
-                }
-                state = newState;
-            }
+// void setState(EngineControllerState newState)
+//     {
+//         if (newState != state)
+//         {
+//             priorState = state;
+//             controllerConfigUpdate = true;
+//         }
+//         state = newState;
+//     }
     //valve and pyro state set functions
         void setPilotMVFuelValveState(ValveState pilotMVFuelValveStateIn) {if (pilotMVFuelValveStateIn != ValveState::NullReturn){pilotMVFuelValve.setState(pilotMVFuelValveStateIn);}}
         void setPilotMVLoxValveState(ValveState pilotMVLoxValveStateIn) {if (pilotMVLoxValveStateIn != ValveState::NullReturn){pilotMVLoxValve.setState(pilotMVLoxValveStateIn);}}

@@ -32,7 +32,7 @@ void ALARAV2SensorController::begin()
  */
 void ALARAV2SensorController::stateOperations()
 {
-    switch (state)
+    switch (getState())
     {
     case ALARAV2SensorControllerState::Passive:
         sensorStateInternal = SensorState::Off;
@@ -71,7 +71,7 @@ void ALARAV2SensorController::ALARAconfigurationSensorSet(ALARASN& thisALARA)
         ALARA_3V3Rail_active = true;
     }
     if (static_cast<uint8_t>(thisALARA.boardRev) == 2)          // ALARA V2_1
-    {
+{
         ALARA_VINRail_active = true;
         ALARA_5VRail_active = true;
         ALARA_3V3Rail_active = true;

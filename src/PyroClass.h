@@ -6,7 +6,7 @@
 #include "base_classes/state_machine.hpp"
 #include "base_classes/Timer.hpp"
 
-class Pyro : public StateMachine<PyroState>, public Timer
+class Pyro : public StateMachine_Firetime<PyroState>, public Timer
 {
 private:
     const uint32_t pyroID = 99;

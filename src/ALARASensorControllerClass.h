@@ -3,20 +3,21 @@
 
 #include <Arduino.h>
 #include "ControllerStates.h"
+#include "base_classes/state_machine.hpp"
 #include "States/PyroStates.hpp"
 #include "States/SensorStates.hpp"
 #include "States/ValveStates.hpp"
 #include "ALARASNConfigurations.h"
 #include "ALARAHPSensorClass.h"
 
-class ALARAV2SensorController
+class ALARAV2SensorController : public StateMachine<ALARAV2SensorControllerState>
 {
     private:
         const uint32_t controllerID;                        // Controller ID number - not super useful right now? Maybe for state reporting.
         const uint8_t controllerNodeID;                     // node the controller is running on
         bool nodeIDCheck;                           // Whether this object should operate on this node
-        ALARAV2SensorControllerState state;
-        ALARAV2SensorControllerState priorState;
+// ALARAV2SensorControllerState state;
+// ALARAV2SensorControllerState priorState;
         SensorState sensorStateInternal;                    // Use one sensor state inside here to toggle all sensors on controller
         SensorState sensorStateGNC;                    // Use one sensor state inside here to toggle all sensors on controller
         SensorState sensorStateALARAHP;                    // Use one sensor state inside here to toggle all sensors on controller
@@ -58,20 +59,20 @@ class ALARAV2SensorController
         uint32_t getControllerID(){return controllerID;}
         uint8_t getControllerNodeID(){return controllerNodeID;}
         bool getNodeIDCheck(){return nodeIDCheck;}
-        ALARAV2SensorControllerState getState(){return state;}
+// ALARAV2SensorControllerState getState(){return state;}
 
     // set functions, allows the setting of a variable
     // set the Node ID Check bool function
         void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
     // controller state set function
-        void setState(ALARAV2SensorControllerState newState)
-            {
-                if (newState != state)
-                {
-                    priorState = state;
-                }
-                state = newState;
-            }
+// void setState(ALARAV2SensorControllerState newState)
+// {
+//     if (newState != state)
+//     {
+//         priorState = state;
+//     }
+//     state = newState;
+// }
     // sensor bool set functions
         void setBNO055_active(bool ALARAsensorSetIN) {BNO055_active = ALARAsensorSetIN;}
         void setBMI085_active(bool ALARAsensorSetIN) {BMI085_active = ALARAsensorSetIN;}

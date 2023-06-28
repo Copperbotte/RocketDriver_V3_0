@@ -6,6 +6,7 @@
 #include "States/SensorStates.hpp"
 #include "ValveClass.h"
 #include "Base_Classes/Timer.hpp"
+#include "base_classes/state_machine.hpp"
 
 class bangSensorPID
 {
@@ -25,7 +26,7 @@ public:
 
          
 
-class TankPressController : public Timer
+class TankPressController : public StateMachine_controllerConfig<TankPressControllerState>, public Timer
 {
     private:
         const uint32_t controllerID;                          // Controller ID number 
@@ -33,8 +34,8 @@ class TankPressController : public Timer
         bool nodeIDCheck;                           // Whether this object should operate on this node
         bool isSystemBang;
         bool testPass = false;
-TankPressControllerState state;
-TankPressControllerState priorState;
+//TankPressControllerState state;
+//TankPressControllerState priorState;
 int64_t currentAutosequenceTime;
         SensorState sensorState;                    // Use one sensor state inside here to toggle all sensors on controller
         //elapsedMicros bangtimer;                        // timer for the valve, used for changing duty cycles, in MICROS
@@ -114,7 +115,7 @@ float bangSensor3Derivative = 0;   //simulated PT
         bool resetIntegralCalcBool = false;
 
         bool controllerUpdate = false;
-        bool controllerConfigUpdate = false;
+//bool controllerConfigUpdate = false;
         elapsedMillis quasistaticUpdateTimer;
         bool quasistaticControllerUpdate = false;
         bool isWaterFlowSetup = true;
@@ -142,8 +143,8 @@ float bangSensor3Derivative = 0;   //simulated PT
         bool getIsBang(){return isSystemBang;}
         float getTargetValue(){return targetValue;}
         float getControllerThreshold(){return controllerThreshold;}
-TankPressControllerState getState(){return state;}
-TankPressControllerState getPriorState(){return priorState;}
+//TankPressControllerState getState(){return state;}
+//TankPressControllerState getPriorState(){return priorState;}
         SensorState getControllerSensorState(){return sensorState;}
         ValveState getPrimaryPressValveState(){return primaryPressValve.getState();}
         ValveState getPressLineVentState(){return pressLineVent.getState();}
@@ -154,7 +155,7 @@ TankPressControllerState getPriorState(){return priorState;}
         bool getVentFailsafeArm(){return ventFailsafeArm;}
 
         bool getControllerUpdate(){return controllerUpdate;}
-        bool getControllerConfigUpdate(){return controllerConfigUpdate;}
+//bool getControllerConfigUpdate(){return controllerConfigUpdate;}
         bool getQuasistaticControllerUpdate(){return quasistaticControllerUpdate;}
         void setQuasistaticControllerUpdate(bool quasistaticControllerUpdateIn){quasistaticControllerUpdate = quasistaticControllerUpdateIn;}
         elapsedMillis getQuasistaticUpdateTimer(){return quasistaticUpdateTimer;}
@@ -192,15 +193,15 @@ void setPIDSensorInput3(float proportionalValue, float integralValue, float deri
     // set the Node ID Check bool function
         void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
     // controller state set function
-void setState(TankPressControllerState newState)
-{
-    if (newState != state)
-    {
-        priorState = state;
-        controllerConfigUpdate = true;
-    }
-    state = newState;
-}        
+// void setState(TankPressControllerState newState)
+// {
+//     if (newState != state)
+//     {
+//         priorState = state;
+//         controllerConfigUpdate = true;
+//     }
+//     state = newState;
+// }        
     // vent line setting - for bang bang with two tank controllers sharing vent line control
         void setPressVentLineStateBang1(ValveState ventLineSetIn) {pressLineVentStateBang1 = ventLineSetIn;}
     // vent line setting - for bang bang with two tank controllers sharing vent line control
@@ -247,7 +248,7 @@ void setState(TankPressControllerState newState)
         void setControllerTargetValue(float controllerSetPointIn){targetValue = controllerSetPointIn;}
     // set function for controllerUpdateBool that indicates if a new controller calc has been run
         void setControllerUpdate(bool controllerUpdateIn){controllerUpdate = controllerUpdateIn;}
-        void setControllerConfigUpdate(bool controllerConfigUpdateIn){controllerConfigUpdate = controllerConfigUpdateIn;}
+//void setControllerConfigUpdate(bool controllerConfigUpdateIn){controllerConfigUpdate = controllerConfigUpdateIn;}
         void ventPressureCheck();
 };
 
