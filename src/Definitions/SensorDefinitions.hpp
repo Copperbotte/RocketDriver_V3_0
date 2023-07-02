@@ -1,10 +1,10 @@
 #ifndef SENSORDEFINITIONS_H
 #define SENSORDEFINITIONS_H
 
-#include "ALARAHPSensorClass.h"
-#include "ALARAVRailSensorClass.h"
-#include "EXTSensorClass.h"
-#include "EXTDigitalDiffLCSensorClass.h"
+#include "Sensors/ALARAHPSensorClass.h"
+#include "Sensors/ALARAVRailSensorClass.h"
+#include "Sensors/EXTSensorClass.h"
+#include "Sensors/EXTDigitalDiffLCSensorClass.h"
 #include "TemperatureSensorClass.h"
 #include <array>
 #include "ALARApinDefines.h"

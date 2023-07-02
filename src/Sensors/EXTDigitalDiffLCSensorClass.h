@@ -5,10 +5,10 @@
 #include <string>
 #include <bitset>
 #include <ADC.h>
-#include "States/SensorStates.hpp"
-#include "Base_Classes/Sensor.hpp"
-#include "fluidSystemSimulation.h"
-#include "ALARAUtilityFunctions.h"
+#include "../States/SensorStates.hpp"
+#include "../Base_Classes/Sensor.hpp"
+#include "../fluidSystemSimulation.h"
+#include "../ALARAUtilityFunctions.h"
 
 class DIG_LC_SENSOR : public Sensor
 {

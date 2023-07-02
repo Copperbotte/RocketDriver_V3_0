@@ -8,7 +8,7 @@
 #include "States/SensorStates.hpp"
 #include "States/ValveStates.hpp"
 #include "ALARASNConfigurations.h"
-#include "ALARAHPSensorClass.h"
+#include "Sensors/ALARAHPSensorClass.h"
 
 class ALARAV2SensorController : public StateMachine<ALARAV2SensorControllerState>
 {
