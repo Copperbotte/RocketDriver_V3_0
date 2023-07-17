@@ -1,10 +1,10 @@
 #ifndef TANKPRESSCONTROLLERDEFINITIONS_H
 #define TANKPRESSCONTROLLERDEFINITIONS_H
 
-#include "TankPressControllerClass.h"
+#include "./Controllers/TankPressControllerClass.h"
 #include <array>
-#include "ALARApinDefines.h"
-#include "Definitions/PyroDefinitions.hpp"
+#include "./ALARApinDefines.h"
+#include "./Definitions/PyroDefinitions.hpp"
 
 #ifdef PASABANG
 #define NUM_TANKPRESSCONTROLLERS 3

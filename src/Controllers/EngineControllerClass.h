@@ -2,15 +2,15 @@
 #define ENGINECONTROLLERCLASS_H
 
 #include <Arduino.h>
-#include "ControllerStates.h"
-#include "States/SensorStates.hpp"
-#include "ValveClass.h"
-#include "PyroClass.h"
+#include "./States/ControllerStates.h"
+#include "./States/SensorStates.hpp"
+#include "./ValveClass.h"
+#include "./PyroClass.h"
 #include <vector>
 using std::vector;
 #include <algorithm>
-#include "Base_Classes/Timer.hpp"
-#include "base_classes/state_machine.hpp"
+#include "./Base_Classes/Timer.hpp"
+#include "./Base_classes/state_machine.hpp"
 
 struct throttlePoint
 {

@@ -1,9 +1,9 @@
 #ifndef VALVEDEFINITIONS_H
 #define VALVEDEFINITIONS_H
 
-#include "ValveClass.h"
+#include "./ValveClass.h"
 #include <array>
-#include "ALARApinDefines.h"
+#include "./ALARApinDefines.h"
 #pragma once
 
 #ifdef PASABANG

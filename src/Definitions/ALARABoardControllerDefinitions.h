@@ -1,7 +1,7 @@
 #ifndef ALARABOARDCONTROLLERDEFINITIONS_H
 #define ALARABOARDCONTROLLERDEFINITIONS_H
-#include "ALARABoardControllerClass.h"
-#include "ALARApinDefines.h"
+#include "./Controllers/ALARABoardControllerClass.h"
+#include "./ALARApinDefines.h"
 
 ALARAbuzzer buzzerr(ALARA_BUZZ);
 // Library using default B000000 (A5-A0) i2c address, and default Wire @400kHz

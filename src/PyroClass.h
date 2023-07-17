@@ -1,10 +1,10 @@
 #ifndef PyroClass_H
 #define PyroClass_H
 
-#include "states/PyroStates.hpp"
+#include "./States/PyroStates.hpp"
 #include <Arduino.h>
-#include "base_classes/state_machine.hpp"
-#include "base_classes/Timer.hpp"
+#include "./Base_Classes/state_machine.hpp"
+#include "./Base_Classes/Timer.hpp"
 
 class Pyro : public StateMachine_Firetime<PyroState>, public Timer
 {

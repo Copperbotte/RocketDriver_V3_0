@@ -1,14 +1,14 @@
 #ifndef SENSORDEFINITIONS_H
 #define SENSORDEFINITIONS_H
 
-#include "Sensors/ALARAHPSensorClass.h"
-#include "Sensors/ALARAVRailSensorClass.h"
-#include "Sensors/EXTSensorClass.h"
-#include "Sensors/EXTDigitalDiffLCSensorClass.h"
-#include "TemperatureSensorClass.h"
+#include "./Sensors/ALARAHPSensorClass.h"
+#include "./Sensors/ALARAVRailSensorClass.h"
+#include "./Sensors/EXTSensorClass.h"
+#include "./Sensors/EXTDigitalDiffLCSensorClass.h"
+#include "./TemperatureSensorClass.h"
 #include <array>
-#include "ALARApinDefines.h"
-#include "fluidSimulationDefinitions.h"
+#include "./ALARApinDefines.h"
+#include "./fluidSimulationDefinitions.h"
 
 #ifdef PASABANG
 // define number of sensors here

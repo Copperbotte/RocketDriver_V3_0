@@ -1,7 +1,7 @@
 #ifndef RGBLEDCOLORDEFINITIONS_H
 #define RGBLEDCOLORDEFINITIONS_H
 
-#include "ALARABoardControllerClass.h"
+#include "./Controllers/ALARABoardControllerClass.h"
 
 // Definitions for color presets of 12bit PWM driven RGB LEDs wired for values to be inverted (0 = full on, 4096 off)
 

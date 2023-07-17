@@ -1,9 +1,9 @@
 #ifndef PYRODEFINITIONS_H
 #define PYRODEFINITIONS_H
 
-#include "PyroClass.h"
+#include "./PyroClass.h"
 #include <array>
-#include "ALARApinDefines.h"
+#include "./ALARApinDefines.h"
 #pragma once
 
 #ifdef PASABANG

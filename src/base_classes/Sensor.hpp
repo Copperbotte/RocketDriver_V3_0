@@ -6,10 +6,10 @@
 #include <string>
 #include <bitset>
 #include <ADC.h>
-#include "States/SensorStates.hpp"
+#include "./States/SensorStates.hpp"
 #include "Timer.hpp"
 //#include "fluidSystemSimulation.h"
-#include "ALARAUtilityFunctions.h"
+#include "./ALARAUtilityFunctions.h"
 //#pragma once
 //#pragma GCC diagnostic ignored "-Wreorder" // go away cringe
 

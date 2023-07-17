@@ -7,14 +7,14 @@
 #include "ValveClass.h"
 #include "PyroClass.h"
 #include "AutoSequenceClass.h"
-#include "Sensors/EXTSensorClass.h"
-#include "Sensors/ALARAHPSensorClass.h"
-#include "TankPressControllerClass.h"
-#include "EngineControllerClass.h"
+#include "./Sensors/EXTSensorClass.h"
+#include "./Sensors/ALARAHPSensorClass.h"
+#include "./Controllers/TankPressControllerClass.h"
+#include "./Controllers/EngineControllerClass.h"
 #include "configurationSet.h"
-#include "ALARABoardControllerClass.h"
+#include "./Controllers/ALARABoardControllerClass.h"
 #include "fluidSystemSimulation.h"
-#include "ALARABoardControllerClass.h"
+#include "./Controllers/ALARABoardControllerClass.h"
 #include <array>
 
 #ifdef PASABANG

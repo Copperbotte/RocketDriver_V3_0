@@ -2,13 +2,13 @@
 #define ALARASENSORCONTROLLERCLASS_H
 
 #include <Arduino.h>
-#include "ControllerStates.h"
-#include "base_classes/state_machine.hpp"
-#include "States/PyroStates.hpp"
-#include "States/SensorStates.hpp"
-#include "States/ValveStates.hpp"
-#include "ALARASNConfigurations.h"
-#include "Sensors/ALARAHPSensorClass.h"
+#include "./States/ControllerStates.h"
+#include "./base_classes/state_machine.hpp"
+#include "./States/PyroStates.hpp"
+#include "./States/SensorStates.hpp"
+#include "./States/ValveStates.hpp"
+#include "./ALARASNConfigurations.h"
+#include "./Sensors/ALARAHPSensorClass.h"
 
 class ALARAV2SensorController : public StateMachine<ALARAV2SensorControllerState>
 {

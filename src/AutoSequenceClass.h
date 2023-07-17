@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include "AutoSequenceStates.h"
-#include "Base_Classes/Timer.hpp"
+#include "./Base_Classes/Timer.hpp"
 
 class AutoSequence : public Timer
 {

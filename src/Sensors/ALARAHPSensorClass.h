@@ -5,8 +5,8 @@
 #include <string>
 #include <bitset>
 #include <ADC.h>
-#include "../States/SensorStates.hpp"
-#include "../Base_Classes/Sensor.hpp"
+#include "./States/SensorStates.hpp"
+#include "./Base_Classes/Sensor.hpp"
 //#include "ALARAUtilityFunctions.h"
 
 class ALARAHP_SENSOR : public Sensor

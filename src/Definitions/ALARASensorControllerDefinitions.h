@@ -1,7 +1,7 @@
 #ifndef ALARASENSORCONTROLLERDEFINITIONS_H
 #define ALARASENSORCONTROLLERDEFINITIONS_H
 
-#include "ALARASensorControllerClass.h"
+#include "./Controllers/ALARASensorControllerClass.h"
 #include <array>
 
 #ifdef PASABANG

@@ -2,8 +2,8 @@
 #define PROPCONTROLLERCLASS_H
 
 #include <Arduino.h>
-#include "ControllerStates.h"
-#include "Base_Classes/Timer.hpp"
+#include "./States/ControllerStates.h"
+#include "./Base_Classes/Timer.hpp"
 
 class PropulsionController : public Timer
 {

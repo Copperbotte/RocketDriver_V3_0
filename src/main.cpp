@@ -7,14 +7,14 @@
 // Use top level define conditional to determine which system the code is operating
 // Maintain definition header sets for a given propulsion system
 #include "ControlFunctions.h"
-#include "Definitions/ValveDefinitions.hpp"
-#include "Definitions/PyroDefinitions.hpp"
+#include "./Definitions/ValveDefinitions.hpp"
+#include "./Definitions/PyroDefinitions.hpp"
 #include "AutoSequenceDefinitions.h"
-#include "Definitions/SensorDefinitions.hpp"
-#include "TankPressControllerDefinitions.h"
-#include "EngineControllerDefinitions.h"
+#include "./Definitions/SensorDefinitions.hpp"
+#include "./Definitions/TankPressControllerDefinitions.h"
+#include "./Definitions/EngineControllerDefinitions.h"
 #include "ControlFunctions.h"
-#include "ALARASensorControllerDefinitions.h"
+#include "./Definitions/ALARASensorControllerDefinitions.h"
 // -------------------------------------------------------------
 
 // ----- "COTS" includes ----- //
@@ -26,7 +26,7 @@
 #include <kinetis_flexcan.h>
 #include <WireKinetis.h>
 #include <Wire.h>
-#include "Adafruit_MCP9808.h"
+//#include "Adafruit_MCP9808.h" //  Where is this file? - Joe, 2023 July 15
 #include <InternalTemperature.h>
 #include <array>
 #include <string>
@@ -36,8 +36,8 @@ using std::string;
 #include <IntervalTimer.h>
 
 #include "ALARAUtilityFunctions.h"
-#include "ALARABoardControllerClass.h"
-#include "ALARABoardControllerDefinitions.h"
+#include "./Controllers/ALARABoardControllerClass.h"
+#include "./Definitions/ALARABoardControllerDefinitions.h"
 //#include "ToMillisTimeTracker.h"
 #include "CANRead.h"
 #include "CANWrite.h"

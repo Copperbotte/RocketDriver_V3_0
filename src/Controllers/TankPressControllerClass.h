@@ -2,11 +2,11 @@
 #define TANKPRESSCONTROLLERCLASS_H
 
 #include <Arduino.h>
-#include "ControllerStates.h"
-#include "States/SensorStates.hpp"
-#include "ValveClass.h"
-#include "Base_Classes/Timer.hpp"
-#include "base_classes/state_machine.hpp"
+#include "./States/ControllerStates.h"
+#include "./States/SensorStates.hpp"
+#include "./ValveClass.h"
+#include "./Base_Classes/Timer.hpp"
+#include "./base_classes/state_machine.hpp"
 
 class bangSensorPID
 {
