@@ -2,12 +2,19 @@
 #include <Arduino.h>
 
 TankPressController::TankPressController(uint32_t setControllerID, uint8_t setControllerNodeID, Valve* setPrimaryPressValve, Valve* setPressLineVent, Valve* setTankVent, float setVentFailsafePressure_Default, bool setVentFailsafeArm = false, bool setIsSystemBang, bool setNodeIDCheck) 
-                                        : controllerID{setControllerID}, controllerNodeID{setControllerNodeID}, primaryPressValve{*setPrimaryPressValve}, pressLineVent{*setPressLineVent}, tankVent{*setTankVent}, ventFailsafePressure_Default{setVentFailsafePressure_Default}, ventFailsafeArm{setVentFailsafeArm}, isSystemBang{setIsSystemBang}, nodeIDCheck{setNodeIDCheck}
+//    : Controller{setControllerID}, controllerNodeID{setControllerNodeID}, primaryPressValve{*setPrimaryPressValve}, pressLineVent{*setPressLineVent}, tankVent{*setTankVent}, ventFailsafePressure_Default{setVentFailsafePressure_Default}, ventFailsafeArm{setVentFailsafeArm}, isSystemBang{setIsSystemBang}, nodeIDCheck{setNodeIDCheck}
+    : Controller{setControllerID, setControllerNodeID, setNodeIDCheck}, primaryPressValve{*setPrimaryPressValve}, pressLineVent{*setPressLineVent}, tankVent{*setTankVent}, ventFailsafePressure_Default{setVentFailsafePressure_Default}, ventFailsafeArm{setVentFailsafeArm}, isSystemBang{setIsSystemBang}
 {
     // Instantiation stuff?
+
+    // The compiler is whining at me if these are a constructor - Joe 2023 Sept 29
+    PIDSensor1.name = "bang1";
+    PIDSensor2.name = "bang2";
+    PIDSensor3.name = "bang3";
 }
 TankPressController::TankPressController(uint32_t setControllerID, uint8_t setControllerNodeID, Valve* setPrimaryPressValve, Valve* setPressLineVent, Valve* setTankVent, float setTargetPcValue_Default, float setTankToChamberDp_Default, float setVentFailsafePressure_Default, float set_K_p_Default, float set_K_i_Default, float set_K_d_Default, float setControllerThreshold_Default, bool setVentFailsafeArm = false, bool setIsSystemBang, bool setNodeIDCheck) 
-                                        : controllerID{setControllerID}, controllerNodeID{setControllerNodeID}, primaryPressValve{*setPrimaryPressValve}, pressLineVent{*setPressLineVent}, tankVent{*setTankVent}, targetPcValue_Default{setTargetPcValue_Default}, tankToChamberDp_Default{setTankToChamberDp_Default}, ventFailsafePressure_Default{setVentFailsafePressure_Default}, K_p_Default{set_K_p_Default}, K_i_Default{set_K_i_Default}, K_d_Default{set_K_d_Default}, controllerThreshold_Default{setControllerThreshold_Default}, ventFailsafeArm{setVentFailsafeArm}, isSystemBang{setIsSystemBang}, nodeIDCheck{setNodeIDCheck}
+//    : Controller{setControllerID}, controllerNodeID{setControllerNodeID}, primaryPressValve{*setPrimaryPressValve}, pressLineVent{*setPressLineVent}, tankVent{*setTankVent}, targetPcValue_Default{setTargetPcValue_Default}, tankToChamberDp_Default{setTankToChamberDp_Default}, ventFailsafePressure_Default{setVentFailsafePressure_Default}, K_p_Default{set_K_p_Default}, K_i_Default{set_K_i_Default}, K_d_Default{set_K_d_Default}, controllerThreshold_Default{setControllerThreshold_Default}, ventFailsafeArm{setVentFailsafeArm}, isSystemBang{setIsSystemBang}, nodeIDCheck{setNodeIDCheck}
+    : Controller{setControllerID, setControllerNodeID, setNodeIDCheck}, primaryPressValve{*setPrimaryPressValve}, pressLineVent{*setPressLineVent}, tankVent{*setTankVent}, targetPcValue_Default{setTargetPcValue_Default}, tankToChamberDp_Default{setTankToChamberDp_Default}, ventFailsafePressure_Default{setVentFailsafePressure_Default}, K_p_Default{set_K_p_Default}, K_i_Default{set_K_i_Default}, K_d_Default{set_K_d_Default}, controllerThreshold_Default{setControllerThreshold_Default}, ventFailsafeArm{setVentFailsafeArm}, isSystemBang{setIsSystemBang}
 {
     // Instantiate operational values from the default values given
     // Allows a reset to defaults after having changed settings via config messages
@@ -29,7 +36,10 @@ TankPressController::TankPressController(uint32_t setControllerID, uint8_t setCo
     K_i = 0;
     //TankPressController::setK_i(0);
 
-
+    // The compiler is whining at me if these are a constructor - Joe 2023 Sept 29
+    PIDSensor1.name = "bang1";
+    PIDSensor2.name = "bang2";
+    PIDSensor3.name = "bang3";
 }
 
 void TankPressController::begin()
@@ -52,7 +62,7 @@ void TankPressController::ventPressureCheck()
         tankVent.setState(ValveState::OpenCommanded);
         }
         ventFailsafeFlag = true;
-        //Serial.print(bangSensor1EMA);
+        //Serial.print(PIDSensor1.getEMA()); //bangSensor1EMA);
         //Serial.print(" : ");
         //Serial.println(ventFailsafePressure);
     }
@@ -267,67 +277,75 @@ void bangSensorPID::setInput(float proportionalValue, float integralValue, float
         bangSensorEMA = proportionalValue;
         bangSensorIntegral = integralValue;
         bangSensorDerivative = derivativeValue;
+        
+        //Serial.print(name);
+        //Serial.print(" ins: ");
+        //Serial.print(bangSensorEMA);
+        //Serial.print(" : ");
+        //Serial.print(bangSensorIntegral);
+        //Serial.print(" : ");
+        //Serial.println(bangSensorDerivative);
     }
 }
 
-void TankPressController::setPIDSensorInput1(float proportionalValue, float integralValue, float derivativeValue)
-{
-    PIDSensor1.setInput(proportionalValue, integralValue, derivativeValue);
-
-    if (nodeIDCheck)
-    {
-    bangSensor1EMA = proportionalValue;
-    bangSensor1Integral = integralValue;
-    bangSensor1Derivative = derivativeValue;
-    }
-}
-void TankPressController::setPIDSensorInput2(float proportionalValue, float integralValue, float derivativeValue)
-{
-    if (nodeIDCheck)
-    {
-    bangSensor2EMA = proportionalValue;
-    bangSensor2Integral = integralValue;
-    bangSensor2Derivative = derivativeValue;
-    }
-}
-void TankPressController::setPIDSensorInput3(float proportionalValue, float integralValue, float derivativeValue)
-{
-    if (nodeIDCheck)
-    {
-    bangSensor3EMA = proportionalValue;
-    bangSensor3Integral = integralValue;
-    bangSensor3Derivative = derivativeValue;
-/*     Serial.print("bang3 ins: ");
-    Serial.print(bangSensor3EMA);
-    Serial.print(" : ");
-    Serial.print(bangSensor3Integral);
-    Serial.print(" : ");
-    Serial.println(bangSensor3Derivative); */
-    }
-}
+//void TankPressController::setPIDSensorInput1(float proportionalValue, float integralValue, float derivativeValue)
+//{
+//    PIDSensor1.setInput(proportionalValue, integralValue, derivativeValue);
+//
+//    if (nodeIDCheck)
+//    {
+//    bangSensor1EMA = proportionalValue;
+//    bangSensor1Integral = integralValue;
+//    bangSensor1Derivative = derivativeValue;
+//    }
+//}
+//void TankPressController::setPIDSensorInput2(float proportionalValue, float integralValue, float derivativeValue)
+//{
+//    if (nodeIDCheck)
+//    {
+//    bangSensor2EMA = proportionalValue;
+//    bangSensor2Integral = integralValue;
+//    bangSensor2Derivative = derivativeValue;
+//    }
+//}
+//void TankPressController::setPIDSensorInput3(float proportionalValue, float integralValue, float derivativeValue)
+//{
+//    if (nodeIDCheck)
+//    {
+//    bangSensor3EMA = proportionalValue;
+//    bangSensor3Integral = integralValue;
+//    bangSensor3Derivative = derivativeValue;
+///*     Serial.print("bang3 ins: ");
+//    Serial.print(bangSensor3EMA);
+//    Serial.print(" : ");
+//    Serial.print(bangSensor3Integral);
+//    Serial.print(" : ");
+//    Serial.println(bangSensor3Derivative); */
+//    }
+//}
 
 void TankPressController::PIDinputSetting()
 {
     if (trustBangSensor1)
     {
-        bangSensorWeightedEMA = bangSensor1EMA;
-        e_p = targetValue - bangSensor1EMA;
-        e_i = bangSensor1Integral;
-        e_d = bangSensor1Derivative;
+        bangSensorWeightedEMA = PIDSensor1.getEMA(); //bangSensor1EMA;
+        e_p = targetValue - PIDSensor1.getEMA(); //bangSensor1EMA;
+        e_i = PIDSensor1.getIntegral(); //bangSensor1Integral;
+        e_d = PIDSensor1.getIntegral(); //bangSensor1Derivative;
     }
     else if (trustBangSensor2)
     {
-        bangSensorWeightedEMA = bangSensor2EMA;
-        e_p = targetValue - bangSensor2EMA;
-        e_i = bangSensor2Integral;
-        e_d = bangSensor2Derivative;
+        bangSensorWeightedEMA = PIDSensor2.getEMA(); //bangSensor2EMA;
+        e_p = targetValue - PIDSensor2.getEMA(); //bangSensor2EMA;
+        e_i = PIDSensor2.getIntegral(); //bangSensor2Integral;
+        e_d = PIDSensor2.getDerivative(); //bangSensor2Derivative;
     }
     else if (trustBangSensor3)
     {
-        bangSensorWeightedEMA = bangSensor3EMA;
-        e_p = targetValue - bangSensor3EMA;
-        e_i = bangSensor3Integral;
-        e_d = bangSensor3Derivative;
+        bangSensorWeightedEMA = PIDSensor3.getEMA(); //bangSensor3EMA;
+        e_p = targetValue - PIDSensor3.getEMA(); //bangSensor3EMA;
+        e_i = PIDSensor3.getIntegral(); //bangSensor3Integral;
+        e_d = PIDSensor3.getDerivative(); //bangSensor3Derivative;
     }
     else
     {

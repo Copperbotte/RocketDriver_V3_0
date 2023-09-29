@@ -7,19 +7,19 @@
 
 class PropulsionController : public Timer
 {
-    private:
-        const uint8_t controllerNodeID;
-        bool nodeIDCheck;                           // Whether this object should operate on this node
-        ControllerState state;
-        ControllerState priorState;
+private:
+    const uint8_t controllerNodeID;
+    bool nodeIDCheck;                           // Whether this object should operate on this node
+    ControllerState state;
+    ControllerState priorState;
 
-        uint32_t targetValue;
-        uint32_t deadbandHighPoint;
-        uint32_t deadbandLowPoint;
-        uint32_t valveMinimumEnergizeTime;
-        uint32_t valveMinimumDeenergizeTime;
+    uint32_t targetValue;
+    uint32_t deadbandHighPoint;
+    uint32_t deadbandLowPoint;
+    uint32_t valveMinimumEnergizeTime;
+    uint32_t valveMinimumDeenergizeTime;
 
-    public:
+public:
 
     // constructor
         PropulsionController(uint8_t setControllerNodeID, uint32_t setTargetValue, bool setNodeIDCheck = false);

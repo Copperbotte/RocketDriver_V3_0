@@ -2,7 +2,8 @@
 #include <Arduino.h>
 
 EngineController::EngineController(uint32_t setControllerID, uint8_t setControllerNodeID, float setCurrentPcTarget_Default, Valve* setPilotMVFuelValve, Valve* setPilotMVLoxValve, Valve* setPneumaticVent, Pyro* setIgniter1, Pyro* setIgniter2, int64_t setFuelMVAutosequenceActuation_Default, int64_t setLoxMVAutosequenceActuation_Default, int64_t setIgniter1Actuation_Default, int64_t setIgniter2Actuation_Default, bool setNodeIDCheck) 
-                                        : controllerID{setControllerID}, controllerNodeID{setControllerNodeID}, currentPcTarget_Default{setCurrentPcTarget_Default}, pilotMVFuelValve{*setPilotMVFuelValve}, pilotMVLoxValve{*setPilotMVLoxValve}, pneumaticVent{*setPneumaticVent}, igniter1{*setIgniter1}, igniter2{*setIgniter2}, fuelMVAutosequenceActuation_Default{setFuelMVAutosequenceActuation_Default}, loxMVAutosequenceActuation_Default{setLoxMVAutosequenceActuation_Default}, igniter1Actuation_Default{setIgniter1Actuation_Default}, igniter2Actuation_Default{setIgniter2Actuation_Default}, nodeIDCheck{setNodeIDCheck}
+//    : Controller{setControllerID}, controllerNodeID{setControllerNodeID}, currentPcTarget_Default{setCurrentPcTarget_Default}, pilotMVFuelValve{*setPilotMVFuelValve}, pilotMVLoxValve{*setPilotMVLoxValve}, pneumaticVent{*setPneumaticVent}, igniter1{*setIgniter1}, igniter2{*setIgniter2}, fuelMVAutosequenceActuation_Default{setFuelMVAutosequenceActuation_Default}, loxMVAutosequenceActuation_Default{setLoxMVAutosequenceActuation_Default}, igniter1Actuation_Default{setIgniter1Actuation_Default}, igniter2Actuation_Default{setIgniter2Actuation_Default}, nodeIDCheck{setNodeIDCheck}
+    : Controller{setControllerID, setControllerNodeID, setNodeIDCheck}, currentPcTarget_Default{setCurrentPcTarget_Default}, pilotMVFuelValve{*setPilotMVFuelValve}, pilotMVLoxValve{*setPilotMVLoxValve}, pneumaticVent{*setPneumaticVent}, igniter1{*setIgniter1}, igniter2{*setIgniter2}, fuelMVAutosequenceActuation_Default{setFuelMVAutosequenceActuation_Default}, loxMVAutosequenceActuation_Default{setLoxMVAutosequenceActuation_Default}, igniter1Actuation_Default{setIgniter1Actuation_Default}, igniter2Actuation_Default{setIgniter2Actuation_Default}
 {
     fuelMVAutosequenceActuation = fuelMVAutosequenceActuation_Default;
     loxMVAutosequenceActuation = loxMVAutosequenceActuation_Default;
@@ -195,7 +196,7 @@ void EngineController::stateOperations()
     controllerUpdate = true;
     switch (getState())
     {
-    case EngineControllerState::Passive:
+    case EngineControllerState::Passive: //stateOperation_Passive(); break; // Potential atomic workaround to replace this switch statement - Joe Kessler, 2023 Sept 19
         testPass = false;
         //don't do shit
         throttleProgramPos = throttleProgram.begin(); //sets/resets throttle program iterator

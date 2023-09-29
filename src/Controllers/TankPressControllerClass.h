@@ -7,6 +7,8 @@
 #include "./ValveClass.h"
 #include "./Base_Classes/Timer.hpp"
 #include "./base_classes/state_machine.hpp"
+#include "./Base_Classes/Controller.hpp"
+#include <string>
 
 class bangSensorPID
 {
@@ -15,29 +17,31 @@ private:
     float bangSensorIntegral = 0;
     float bangSensorDerivative = 0;
 
-    bool nodeIDCheck = false;
+    bool nodeIDCheck = false; // Does this need a nodeIDCheck? I can't remember why I put this here. - Joe 2023 September 29
 
 public:
-    void setInput(float proportionalValue, float integralValue, float derivativeValue);
 
+    String name; // Debug string for Serial.prints in setInput.  Likely unnecessary. - Joe 2023 Sept 29 
+
+    void setInput(float proportionalValue, float integralValue, float derivativeValue);
+    float getEMA(){return bangSensorEMA;}
+    float getIntegral(){return bangSensorIntegral;}
+    float getDerivative(){return bangSensorDerivative;}
 
 };
 
-
-         
-
-class TankPressController : public StateMachine_controllerConfig<TankPressControllerState>, public Timer
+class TankPressController : public Controller<TankPressControllerState>, public Timer
 {
-    private:
-        const uint32_t controllerID;                          // Controller ID number 
-        const uint8_t controllerNodeID;
-        bool nodeIDCheck;                           // Whether this object should operate on this node
+private:
+//const uint32_t controllerID;                          // Controller ID number 
+//const uint8_t controllerNodeID;
+//bool nodeIDCheck;                           // Whether this object should operate on this node
         bool isSystemBang;
-        bool testPass = false;
+//bool testPass = false;
 //TankPressControllerState state;
 //TankPressControllerState priorState;
-int64_t currentAutosequenceTime;
-        SensorState sensorState;                    // Use one sensor state inside here to toggle all sensors on controller
+//int64_t currentAutosequenceTime;
+//SensorState sensorState;                    // Use one sensor state inside here to toggle all sensors on controller
         //elapsedMicros bangtimer;                        // timer for the valve, used for changing duty cycles, in MICROS
         ValveState pressLineVentStateBang1;
         ValveState pressLineVentStateBang2;
@@ -79,17 +83,17 @@ int64_t currentAutosequenceTime;
         bool trustBangSensor1 = true;
         bool trustBangSensor2 = true;
         bool trustBangSensor3 = false;
-float bangSensor1EMA = 0;   //primary PT
-float bangSensor1Integral = 0;   //primary PT
-float bangSensor1Derivative = 0;   //primary PT
-
-float bangSensor2EMA = 0;   //secondary PT
-float bangSensor2Integral = 0;   //secondary PT
-float bangSensor2Derivative = 0;   //secondary PT
-
-float bangSensor3EMA = 0;   //simulated PT
-float bangSensor3Integral = 0;   //simulated PT
-float bangSensor3Derivative = 0;   //simulated PT
+//float bangSensor1EMA = 0;   //primary PT
+//float bangSensor1Integral = 0;   //primary PT
+//float bangSensor1Derivative = 0;   //primary PT
+//
+//float bangSensor2EMA = 0;   //secondary PT
+//float bangSensor2Integral = 0;   //secondary PT
+//float bangSensor2Derivative = 0;   //secondary PT
+//
+//float bangSensor3EMA = 0;   //simulated PT
+//float bangSensor3Integral = 0;   //simulated PT
+//float bangSensor3Derivative = 0;   //simulated PT
 
         //bangSensorPID PIDSensor1, PIDSensor2, PIDSensor3;
 
@@ -120,7 +124,7 @@ float bangSensor3Derivative = 0;   //simulated PT
         bool quasistaticControllerUpdate = false;
         bool isWaterFlowSetup = true;
 
-    public:
+public:
         elapsedMicros bangtimer;                        // timer for the valve, used for changing duty cycles, in MICROS
         uint32_t valveMinimumEnergizeTime_Default = 75000;      // in MICROS
         uint32_t valveMinimumDeenergizeTime_Default = 50000;    // in MICROS
@@ -132,20 +136,20 @@ float bangSensor3Derivative = 0;   //simulated PT
     // constructor - tank bangers
         TankPressController(uint32_t controllerID, uint8_t setControllerNodeID, Valve* setPrimaryPressValve, Valve* setPressLineVent, Valve* setTankVent, float setTargetPcValue_Default, float setTankToChamberDp_Default, float setVentFailsafePressure_Default, float set_K_p_Default, float set_K_i_Default, float set_K_d_Default, float setControllerThreshold_Default, bool setVentFailsafeArm = false, bool isSystemBang = false, bool setNodeIDCheck = false);
     // a start up method, to set pins from within setup()
-        void begin();
+void begin();
 
     // access functions defined in place
 
     // get functions, return the current value of that variable
-        uint32_t getControllerID(){return controllerID;}
-        uint8_t getControllerNodeID(){return controllerNodeID;}
-        bool getNodeIDCheck(){return nodeIDCheck;}
+//uint32_t getControllerID(){return controllerID;}
+//uint8_t getControllerNodeID(){return controllerNodeID;}
+//bool getNodeIDCheck(){return nodeIDCheck;}
         bool getIsBang(){return isSystemBang;}
         float getTargetValue(){return targetValue;}
         float getControllerThreshold(){return controllerThreshold;}
 //TankPressControllerState getState(){return state;}
 //TankPressControllerState getPriorState(){return priorState;}
-        SensorState getControllerSensorState(){return sensorState;}
+//SensorState getControllerSensorState(){return sensorState;}
         ValveState getPrimaryPressValveState(){return primaryPressValve.getState();}
         ValveState getPressLineVentState(){return pressLineVent.getState();}
         ValveState getTankVentState(){return tankVent.getState();}
@@ -159,7 +163,7 @@ float bangSensor3Derivative = 0;   //simulated PT
         bool getQuasistaticControllerUpdate(){return quasistaticControllerUpdate;}
         void setQuasistaticControllerUpdate(bool quasistaticControllerUpdateIn){quasistaticControllerUpdate = quasistaticControllerUpdateIn;}
         elapsedMillis getQuasistaticUpdateTimer(){return quasistaticUpdateTimer;}
-        bool getAbortFlag(){return abortFlag;}
+bool getAbortFlag(){return abortFlag;}
 
         bool getResetIntegralCalcBool()
             {
@@ -182,16 +186,18 @@ float bangSensor3Derivative = 0;   //simulated PT
 
     // BAD MOVE THIS NO DO NOT KEEP THIS HERE THIS IS TEMPORARY NO BAD
     // BE ORGANIZED THAT'S THE WHOLE POINT OF THIS REFACTOR - Joe
-    bangSensorPID PIDSensor1, PIDSensor2, PIDSensor3;
+    bangSensorPID PIDSensor1; //primary PT
+    bangSensorPID PIDSensor2; //secondary PT
+    bangSensorPID PIDSensor3; //simulated PT
 
     // set functions, allows the setting of a variable
-void setPIDSensorInput1(float proportionalValue, float integralValue, float derivativeValue);
-void setPIDSensorInput2(float proportionalValue, float integralValue, float derivativeValue);
-void setPIDSensorInput3(float proportionalValue, float integralValue, float derivativeValue);
+//void setPIDSensorInput1(float proportionalValue, float integralValue, float derivativeValue);
+//void setPIDSensorInput2(float proportionalValue, float integralValue, float derivativeValue);
+//void setPIDSensorInput3(float proportionalValue, float integralValue, float derivativeValue);
 
         void resetIntegralCalc(bool resetIntIn){resetIntegralCalcBool = resetIntIn;}
     // set the Node ID Check bool function
-        void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
+void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
     // controller state set function
 // void setState(TankPressControllerState newState)
 // {
@@ -226,20 +232,20 @@ void setPIDSensorInput3(float proportionalValue, float integralValue, float deri
         void setValveMinimumEnergizeTime(uint32_t valveMinimumEnergizeTimeIn){if(valveMinimumEnergizeTimeIn >= 0 && valveMinimumEnergizeTimeIn <= 10000){valveMinimumEnergizeTime = valveMinimumEnergizeTimeIn;controllerConfigUpdate = true;}}
         void setValveMinimumDeenergizeTime(uint32_t valveMinimumDeenergizeTimeIn){if(valveMinimumDeenergizeTimeIn >= 0 && valveMinimumDeenergizeTimeIn <= 10000){valveMinimumDeenergizeTime = valveMinimumDeenergizeTimeIn;controllerConfigUpdate = true;}}
 
-        void setPcTarget(float PcTargetIn);
+void setPcTarget(float PcTargetIn);
     
     // reset all configurable settings to defaults
         void resetAll();
 
     // autosequence get function
-        void setCurrentAutosequenceTime(int64_t countdownIn) {currentAutosequenceTime = countdownIn;}
+void setCurrentAutosequenceTime(int64_t countdownIn) {currentAutosequenceTime = countdownIn;}
 
 
     // ----- THIS METHOD TO BE RUN EVERY LOOP ------
     // stateOperations will check the current state of the valve and perform any actions that need to be performed
     // for example, if the valve is commanded to open, this needs to be run so that the valve can start opening
     // and it needs to be run every loop so that once enough time has pass the 
-        void stateOperations();
+void stateOperations();
 
         void PIDinputSetting(); //logic for which input source to use for PID values
         float PIDmath();

@@ -10,7 +10,8 @@
 using std::vector;
 #include <algorithm>
 #include "./Base_Classes/Timer.hpp"
-#include "./Base_classes/state_machine.hpp"
+#include "./Base_Classes/state_machine.hpp"
+#include "./Base_Classes/Controller.hpp"
 
 struct throttlePoint
 {
@@ -19,17 +20,17 @@ struct throttlePoint
 };
 
 
-class EngineController : public StateMachine_controllerConfig<EngineControllerState>, public Timer
+class EngineController : public Controller<EngineControllerState>, public Timer
 {
-    private:
-        const uint32_t controllerID;                          // Controller ID number 
-        const uint8_t controllerNodeID;
-        bool nodeIDCheck;                           // Whether this object should operate on this node
-        bool testPass = false;
+private:
+//const uint32_t controllerID;                          // Controller ID number 
+//const uint8_t controllerNodeID;
+//bool nodeIDCheck;                           // Whether this object should operate on this node
+//bool testPass = false;
 // EngineControllerState state;
 // EngineControllerState priorState;
-        SensorState sensorState;                    // Use one sensor state inside here to toggle all sensors on controller
-        int64_t currentAutosequenceTime;
+//int64_t currentAutosequenceTime;
+//SensorState sensorState;                    // Use one sensor state inside here to toggle all sensors on controller
         bool abortFlag = false;         //controller can trigger an abort by flipping this flag true, sets the main vehicle state to abort
         bool deviceCommand = false;     // only send the direct device state commands while true
         int64_t fuelMVAutosequenceActuation_Default;
@@ -74,7 +75,7 @@ class EngineController : public StateMachine_controllerConfig<EngineControllerSt
         //elapsedMicros igniter2timer = 0;
     //vector<throttlePoint> throttleProgram;
 
-    public:
+public:
     // Eventually make the throttle program private and setup get functions that return the iterator so I can use for loops still
     vector<throttlePoint> throttleProgram;
     //std::size_t throttleProgramPos;
@@ -88,24 +89,24 @@ class EngineController : public StateMachine_controllerConfig<EngineControllerSt
             int64_t setFuelMVAutosequenceActuation_Default = 0, int64_t setLoxMVAutosequenceActuation_Default = 0, int64_t setIgniter1Actuation_Default = 0,
             int64_t setIgniter2Actuation_Default = 0, bool setNodeIDCheck = false);
     // a start up method, to set pins from within setup()
-        void begin();
+void begin();
 
     // access functions defined in place
 
     // get functions, return the current value of that variable
-        uint32_t getControllerID(){return controllerID;}
-        uint8_t getControllerNodeID(){return controllerNodeID;}
-        bool getNodeIDCheck(){return nodeIDCheck;}
+//uint32_t getControllerID(){return controllerID;}
+//uint8_t getControllerNodeID(){return controllerNodeID;}
+//bool getNodeIDCheck(){return nodeIDCheck;}
 // EngineControllerState getState(){return state;}
 // EngineControllerState getPriorState(){return priorState;}
-        SensorState getControllerSensorState(){return sensorState;}
+//SensorState getControllerSensorState(){return sensorState;}
         ValveState getPilotMVFuelValveState(){return pilotMVFuelValve.getState();}
         ValveState getPilotMVLoxValveState(){return pilotMVLoxValve.getState();}
         PyroState getIgniter1State(){return igniter1.getState();}
         PyroState getIgniter2State(){return igniter2.getState();}
         ValveState getPneumaticVentState(){return pneumaticVent.getState();}
         float getCurrentPcTarget(){return currentPcTarget;}
-        bool getAbortFlag(){return abortFlag;}
+bool getAbortFlag(){return abortFlag;}
         int32_t getFuelMVAutosequenceActuation(){return static_cast<int32_t>(fuelMVAutosequenceActuation);}
         int32_t getLoxMVAutosequenceActuation(){return static_cast<int32_t>(loxMVAutosequenceActuation);}
         int32_t getIgniter1Actuation(){return static_cast<int32_t>(igniter1Actuation);}
@@ -114,7 +115,7 @@ class EngineController : public StateMachine_controllerConfig<EngineControllerSt
         bool getControllerConfigUpdate(){return controllerConfigUpdate;}
     // set functions, allows the setting of a variable
     // set the Node ID Check bool function
-        void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
+void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
     // controller state set function
 // void setState(EngineControllerState newState)
 //     {
@@ -142,7 +143,7 @@ class EngineController : public StateMachine_controllerConfig<EngineControllerSt
         void setLoxMVAutosequenceActuation(int32_t actuationTimeIn){if(actuationTimeIn >= -10000000 && actuationTimeIn <= 10000000){loxMVAutosequenceActuation = static_cast<int64_t>(actuationTimeIn);controllerConfigUpdate = true;}}
         void setIgniter1Actuation(int32_t actuationTimeIn){if(actuationTimeIn >= -10000000 && actuationTimeIn <= 10000000){igniter1Actuation = static_cast<int64_t>(actuationTimeIn);controllerConfigUpdate = true;}}
         void setIgniter2Actuation(int32_t actuationTimeIn){if(actuationTimeIn >= -10000000 && actuationTimeIn <= 10000000){igniter2Actuation = static_cast<int64_t>(actuationTimeIn);controllerConfigUpdate = true;}}
-        void setPcTarget(float currentPcTargetIn){if(currentPcTargetIn >= 200 && currentPcTargetIn <= 600){currentPcTarget = currentPcTargetIn;}}
+void setPcTarget(float currentPcTargetIn){if(currentPcTargetIn >= 200 && currentPcTargetIn <= 600){currentPcTarget = currentPcTargetIn;}}
     // throttle program set point function
         bool throttlePointCheck(throttlePoint &pt, vector<throttlePoint> &throttleProgram);
         void setThrottleProgramPoint(uint16_t autoSequenceTimeMillisIn, uint16_t currentPcTargetIn);
@@ -150,8 +151,8 @@ class EngineController : public StateMachine_controllerConfig<EngineControllerSt
         void throttleProgramReset(uint16_t autoSequenceTimeMillisIn);
         void autoSequenceTargetPcUpdate(bool runBool);
     // autosequence get function
-        void setCurrentAutosequenceTime(int64_t countdownIn) {currentAutosequenceTime = countdownIn;}
-        void setControllerUpdate(bool controllerUpdateIn){controllerUpdate = controllerUpdateIn;}
+void setCurrentAutosequenceTime(int64_t countdownIn) {currentAutosequenceTime = countdownIn;}
+void setControllerUpdate(bool controllerUpdateIn){controllerUpdate = controllerUpdateIn;}
         void setControllerConfigUpdate(bool controllerConfigUpdateIn){controllerConfigUpdate = controllerConfigUpdateIn;}
         
     // reset all configurable settings to defaults
@@ -161,7 +162,7 @@ class EngineController : public StateMachine_controllerConfig<EngineControllerSt
     // stateOperations will check the current state of the valve and perform any actions that need to be performed
     // for example, if the valve is commanded to open, this needs to be run so that the valve can start opening
     // and it needs to be run every loop so that once enough time has pass the 
-        void stateOperations();
+void stateOperations();
 
 };
 

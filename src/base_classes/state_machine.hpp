@@ -2,6 +2,8 @@
 #ifndef BASECLASS_STATEMACHINE_H_
 #define BASECLASS_STATEMACHINE_H_
 
+#include <Arduino.h>
+
 // 2023 Feb 10
 // Current Authors: 
 //     Joseph Kessler (joseph.b.kessler@gmail.com)
@@ -19,8 +21,8 @@ private:
     StateType _state;
     StateType _priorState;                           // Tracks the valve state
 
-//protected:
-public:
+//protected: 
+public: // I was having issues with this being set to protected.
     // Sets the initial values during a constructor, or overrides both states.
     // Please do not use this outside a constructor.
     void _setInitialValues(StateType state, StateType priorState)

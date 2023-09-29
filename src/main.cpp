@@ -26,7 +26,7 @@
 #include <kinetis_flexcan.h>
 #include <WireKinetis.h>
 #include <Wire.h>
-//#include "Adafruit_MCP9808.h" //  Where is this file? - Joe, 2023 July 15
+#include "Adafruit_MCP9808.h" //  Where is this file? - Joe, 2023 July 15
 #include <InternalTemperature.h>
 #include <array>
 #include <string>
