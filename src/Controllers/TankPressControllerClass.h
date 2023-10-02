@@ -53,27 +53,31 @@ private:
         bool ventFailsafeArm = false;   // for setting whether a tank controller has the vent failsafe armed
         bool ventFailsafeFlag = false;  //for making vent failsafe require successive controller loops to open vents
 
+        float ventFailsafePressure_Default;
         float ventFailsafePressure;
+
+        float targetPcValue_Default;
         float targetPcValue;
+
+        float tankToChamberDp_Default;
         float tankToChamberDp;
 
-        float ventFailsafePressure_Default;
-        float targetPcValue_Default;
-        float tankToChamberDp_Default;
-
         //float targetValue_Default;
-        float K_p_Default = 1;
-        float K_i_Default = 0; //initial Ki, KEEP 0 for tank press
-        float K_i_run_Default = 0; //bang run Ki
-        float K_d_Default = 0;
-        float controllerThreshold_Default = 1;
-
-        
         float targetValue;
+
+        float K_p_Default = 1;
         float K_p = 1;
+
+        float K_i_Default = 0; //initial Ki, KEEP 0 for tank press
         float K_i = 0; //initial Ki, KEEP 0 for tank press
+
+        float K_i_run_Default = 0; //bang run Ki
         float K_i_run = 0; //bang run Ki
+
+        float K_d_Default = 0;
         float K_d = 0;
+
+        float controllerThreshold_Default = 1;
         float controllerThreshold = 1;
         float bangPIDoutput;
 
@@ -127,8 +131,9 @@ private:
 public:
         elapsedMicros bangtimer;                        // timer for the valve, used for changing duty cycles, in MICROS
         uint32_t valveMinimumEnergizeTime_Default = 75000;      // in MICROS
-        uint32_t valveMinimumDeenergizeTime_Default = 50000;    // in MICROS
         uint32_t valveMinimumEnergizeTime;      // in MICROS
+
+        uint32_t valveMinimumDeenergizeTime_Default = 50000;    // in MICROS
         uint32_t valveMinimumDeenergizeTime;    // in MICROS
 
     // constructor - hipress

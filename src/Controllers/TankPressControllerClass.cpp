@@ -88,13 +88,130 @@ void TankPressController::stateOperations()
     bangPIDoutput = PIDmath();
     }
 
-    // Controller State switch case
-    switch (getState())
+    ////////////////////////////////////////////////////////////////////////////
+    //     I'm breaking the following switch statement into a set of switch 
+    // statements to rearrange state logic with state selection.  The underlying
+    // logic should be invariant under this change, but if this change makes it
+    // harder to read, please revert the change.
+    // - Joe Kessler, 2023 September 29
+
+    TankPressControllerState CurrentState = getState();
+
+    // Handle pre state check flags
+    switch (CurrentState)
     {
     case TankPressControllerState::Passive:
         testPass = false;
         //set abortFlag false when going to passive;
         abortFlag = false;
+        break;
+    case TankPressControllerState::Standby:
+        testPass = false;
+        //set abortFlag false when going to passive;
+        abortFlag = false;
+        break;
+    case TankPressControllerState::RegPressActive:
+        testPass = false;
+        break;
+    case TankPressControllerState::Armed:
+        testPass = false;
+        break;
+    case TankPressControllerState::PropTankVent:
+        testPass = false;
+        //set abortFlag false going into Vent to be able to vent out of an Abort from abortFlag
+        abortFlag = false;
+        break;
+    case TankPressControllerState::HiVent:
+        testPass = false;
+        //set abortFlag false going into Vent to be able to vent out of an Abort from abortFlag
+        abortFlag = false;
+        break;
+    case TankPressControllerState::Abort:
+        testPass = false;
+        break;
+    case TankPressControllerState::HiPressPassthroughVent:  //uhh what the fuck was this, the valve states are ???
+        testPass = false;
+        break;
+    case TankPressControllerState::TestPassthrough:
+        testPass = true;
+        break;
+    case TankPressControllerState::OffNominalPassthrough:
+        testPass = true;
+        break;
+    case TankPressControllerState::AutosequenceCommanded:
+        testPass = false;
+        break;
+    case TankPressControllerState::BangBangActive:
+        testPass = false;
+        break;
+    default:
+        break;
+    }
+
+    // Handle whether the state has changed
+    if(getPriorState() != CurrentState)
+    {
+        switch (CurrentState)
+        {
+        case TankPressControllerState::Standby:
+            //don't do shit
+            primaryPressValve.setState(ValveState::CloseCommanded);
+            pressLineVent.setState(    ValveState::CloseCommanded);
+            tankVent.setState(         ValveState::CloseCommanded);
+            sensorState = SensorState::Slow;
+            break;
+        case TankPressControllerState::RegPressActive:
+            //do shit
+            sensorState = SensorState::Fast;
+            primaryPressValve.setState(ValveState::OpenCommanded);
+            pressLineVent.setState(    ValveState::CloseCommanded);
+            tankVent.setState(         ValveState::CloseCommanded);
+            ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
+            break;
+        case TankPressControllerState::Armed:
+            // Arming turns sensor read rates up to operational levels before opening valves
+            sensorState = SensorState::Fast;
+            primaryPressValve.setState(ValveState::CloseCommanded);
+            pressLineVent.setState(    ValveState::CloseCommanded);
+            tankVent.setState(         ValveState::CloseCommanded);
+            break;
+        case TankPressControllerState::PropTankVent:
+            //Serial.println("dis u? ");
+            sensorState = SensorState::Fast;
+            primaryPressValve.setState(ValveState::CloseCommanded);
+            pressLineVent.setState(    ValveState::OpenCommanded);
+            tankVent.setState(         ValveState::OpenCommanded);
+            break;
+        case TankPressControllerState::HiVent:
+            //Serial.println("dis u? ");
+            sensorState = SensorState::Fast;
+            primaryPressValve.setState(ValveState::CloseCommanded);
+            pressLineVent.setState(    ValveState::OpenCommanded);
+            tankVent.setState(         ValveState::OpenCommanded);
+            break;
+        case TankPressControllerState::Abort:
+            sensorState = SensorState::Fast;
+            primaryPressValve.setState(ValveState::CloseCommanded);
+            pressLineVent.setState(    ValveState::CloseCommanded);
+            tankVent.setState(         ValveState::CloseCommanded);
+            ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
+            break;
+        case TankPressControllerState::HiPressPassthroughVent:  //uhh what the fuck was this, the valve states are ???
+            sensorState = SensorState::Fast;
+            primaryPressValve.setState(ValveState::CloseCommanded);
+            pressLineVent.setState(    ValveState::OpenCommanded);
+            tankVent.setState(         ValveState::CloseCommanded);
+            ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
+            break;
+        default:
+            break;
+        }
+    }
+
+    // Previous state irrelevant
+    switch (CurrentState)
+    {
+    case TankPressControllerState::Passive:
         //don't do shit
         //if (priorState != TankPressControllerState::Passive)
         //{
@@ -104,108 +221,21 @@ void TankPressController::stateOperations()
         sensorState = SensorState::Slow;
         //}
         break;
-    case TankPressControllerState::Standby:
-        testPass = false;
-        //set abortFlag false when going to passive;
-        abortFlag = false;
-        //don't do shit
-        if (getPriorState() != TankPressControllerState::Standby)
-        {
-        primaryPressValve.setState(ValveState::CloseCommanded);
-        pressLineVent.setState(ValveState::CloseCommanded);
-        tankVent.setState(ValveState::CloseCommanded);
-        sensorState = SensorState::Slow;
-        }
-        break;
-    case TankPressControllerState::RegPressActive:
-        testPass = false;
-        //do shit
-        if (getPriorState() != TankPressControllerState::RegPressActive)
-        {
-        sensorState = SensorState::Fast;
-        primaryPressValve.setState(ValveState::OpenCommanded);
-        pressLineVent.setState(ValveState::CloseCommanded);
-        tankVent.setState(ValveState::CloseCommanded);
-        ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
-        }
-        break;
     case TankPressControllerState::Armed:
-        testPass = false;
-        if (getPriorState() != TankPressControllerState::Armed)
-        {
-        // Arming turns sensor read rates up to operational levels before opening valves
-        sensorState = SensorState::Fast;
-        primaryPressValve.setState(ValveState::CloseCommanded);
-        pressLineVent.setState(ValveState::CloseCommanded);
-        tankVent.setState(ValveState::CloseCommanded);
-        }
+        // Armed had this function outside its state check.  Should all states do this? - Joe, 2023 September 29
         ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
-        break;
-    case TankPressControllerState::PropTankVent:
-        testPass = false;
-        //set abortFlag false going into Vent to be able to vent out of an Abort from abortFlag
-        abortFlag = false;
-        if (getPriorState() != TankPressControllerState::PropTankVent)
-        {
-            //Serial.println("dis u? ");
-        sensorState = SensorState::Fast;
-        primaryPressValve.setState(ValveState::CloseCommanded);
-        pressLineVent.setState(ValveState::OpenCommanded);
-        tankVent.setState(ValveState::OpenCommanded);
-        }
-        break;
-    case TankPressControllerState::HiVent:
-        testPass = false;
-        //set abortFlag false going into Vent to be able to vent out of an Abort from abortFlag
-        abortFlag = false;
-        if (getPriorState() != TankPressControllerState::HiVent)
-        {
-            //Serial.println("dis u? ");
-        sensorState = SensorState::Fast;
-        primaryPressValve.setState(ValveState::CloseCommanded);
-        pressLineVent.setState(ValveState::OpenCommanded);
-        tankVent.setState(ValveState::OpenCommanded);
-        }
-        break;
-    case TankPressControllerState::Abort:
-        testPass = false;
-        if (getPriorState() != TankPressControllerState::Abort)
-        {
-        sensorState = SensorState::Fast;
-        primaryPressValve.setState(ValveState::CloseCommanded);
-        pressLineVent.setState(ValveState::CloseCommanded);
-        tankVent.setState(ValveState::CloseCommanded);
-        ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
-        }
-        break;
-    case TankPressControllerState::HiPressPassthroughVent:  //uhh what the fuck was this, the valve states are ???
-        testPass = false;
-        if (getPriorState() != TankPressControllerState::HiPressPassthroughVent)
-        {
-        sensorState = SensorState::Fast;
-        primaryPressValve.setState(ValveState::CloseCommanded);
-        pressLineVent.setState(ValveState::OpenCommanded);
-        tankVent.setState(ValveState::CloseCommanded);
-        ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
-        }
         break;
     case TankPressControllerState::TestPassthrough:
         sensorState = SensorState::Slow;
-        //
-        testPass = true;
         break;
     case TankPressControllerState::OffNominalPassthrough:
-        //
-        testPass = true;
         ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
         break;
     case TankPressControllerState::AutosequenceCommanded:
-        testPass = false;
         // If specific press routine is on autosequence, include a state switch on timer in here
         ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
         break;
     case TankPressControllerState::BangBangActive:
-        testPass = false;
         //minimum bang time lockouts, once they are up the valves go to plain Open/Closed states which unlocks them to be commanded again
         if (primaryPressValve.getState() == ValveState::BangingOpen || primaryPressValve.getState() == ValveState::BangOpenProcess)
         {
@@ -247,6 +277,166 @@ void TankPressController::stateOperations()
     default:
         break;
     }
+
+    // Controller State switch case
+//    switch (CurrentState)
+//    {
+//    case TankPressControllerState::Passive:
+//        testPass = false;
+//        //set abortFlag false when going to passive;
+//        abortFlag = false;
+//        //don't do shit
+//        //if (priorState != TankPressControllerState::Passive)
+//        //{
+//        //primaryPressValve.setState(ValveState::CloseCommanded);
+//        //pressLineVent.setState(ValveState::CloseCommanded);
+//        //tankVent.setState(ValveState::CloseCommanded);
+//        sensorState = SensorState::Slow;
+//        //}
+//        break;
+//    case TankPressControllerState::Standby:
+//        testPass = false;
+//        //set abortFlag false when going to passive;
+//        abortFlag = false;
+//        //don't do shit
+//        if (getPriorState() != TankPressControllerState::Standby)
+//        {
+//        primaryPressValve.setState(ValveState::CloseCommanded);
+//        pressLineVent.setState(ValveState::CloseCommanded);
+//        tankVent.setState(ValveState::CloseCommanded);
+//        sensorState = SensorState::Slow;
+//        }
+//        break;
+//    case TankPressControllerState::RegPressActive:
+//        testPass = false;
+//        //do shit
+//        if (getPriorState() != TankPressControllerState::RegPressActive)
+//        {
+//        sensorState = SensorState::Fast;
+//        primaryPressValve.setState(ValveState::OpenCommanded);
+//        pressLineVent.setState(ValveState::CloseCommanded);
+//        tankVent.setState(ValveState::CloseCommanded);
+//        ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
+//        }
+//        break;
+//    case TankPressControllerState::Armed:
+//        testPass = false;
+//        if (getPriorState() != TankPressControllerState::Armed)
+//        {
+//        // Arming turns sensor read rates up to operational levels before opening valves
+//        sensorState = SensorState::Fast;
+//        primaryPressValve.setState(ValveState::CloseCommanded);
+//        pressLineVent.setState(ValveState::CloseCommanded);
+//        tankVent.setState(ValveState::CloseCommanded);
+//        }
+//        ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
+//        break;
+//    case TankPressControllerState::PropTankVent:
+//        testPass = false;
+//        //set abortFlag false going into Vent to be able to vent out of an Abort from abortFlag
+//        abortFlag = false;
+//        if (getPriorState() != TankPressControllerState::PropTankVent)
+//        {
+//            //Serial.println("dis u? ");
+//        sensorState = SensorState::Fast;
+//        primaryPressValve.setState(ValveState::CloseCommanded);
+//        pressLineVent.setState(ValveState::OpenCommanded);
+//        tankVent.setState(ValveState::OpenCommanded);
+//        }
+//        break;
+//    case TankPressControllerState::HiVent:
+//        testPass = false;
+//        //set abortFlag false going into Vent to be able to vent out of an Abort from abortFlag
+//        abortFlag = false;
+//        if (getPriorState() != TankPressControllerState::HiVent)
+//        {
+//            //Serial.println("dis u? ");
+//        sensorState = SensorState::Fast;
+//        primaryPressValve.setState(ValveState::CloseCommanded);
+//        pressLineVent.setState(ValveState::OpenCommanded);
+//        tankVent.setState(ValveState::OpenCommanded);
+//        }
+//        break;
+//    case TankPressControllerState::Abort:
+//        testPass = false;
+//        if (getPriorState() != TankPressControllerState::Abort)
+//        {
+//        sensorState = SensorState::Fast;
+//        primaryPressValve.setState(ValveState::CloseCommanded);
+//        pressLineVent.setState(ValveState::CloseCommanded);
+//        tankVent.setState(ValveState::CloseCommanded);
+//        ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
+//        }
+//        break;
+//    case TankPressControllerState::HiPressPassthroughVent:  //uhh what the fuck was this, the valve states are ???
+//        testPass = false;
+//        if (getPriorState() != TankPressControllerState::HiPressPassthroughVent)
+//        {
+//        sensorState = SensorState::Fast;
+//        primaryPressValve.setState(ValveState::CloseCommanded);
+//        pressLineVent.setState(ValveState::OpenCommanded);
+//        tankVent.setState(ValveState::CloseCommanded);
+//        ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
+//        }
+//        break;
+//    case TankPressControllerState::TestPassthrough:
+//        sensorState = SensorState::Slow;
+//        //
+//        testPass = true;
+//        break;
+//    case TankPressControllerState::OffNominalPassthrough:
+//        //
+//        testPass = true;
+//        ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
+//        break;
+//    case TankPressControllerState::AutosequenceCommanded:
+//        testPass = false;
+//        // If specific press routine is on autosequence, include a state switch on timer in here
+//        ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
+//        break;
+//    case TankPressControllerState::BangBangActive:
+//        testPass = false;
+//        //minimum bang time lockouts, once they are up the valves go to plain Open/Closed states which unlocks them to be commanded again
+//        if (primaryPressValve.getState() == ValveState::BangingOpen || primaryPressValve.getState() == ValveState::BangOpenProcess)
+//        {
+//            if (bangtimer >= valveMinimumEnergizeTime)    // X ms opening/closing time
+//            {
+//            primaryPressValve.setState(ValveState::Open);
+//            }
+//        }
+//        if (primaryPressValve.getState() == ValveState::BangingClosed)
+//        {
+//            if (bangtimer >= valveMinimumDeenergizeTime)    // X ms opening/closing time
+//            {
+//            primaryPressValve.setState(ValveState::Closed);
+//            }
+//        }
+//        // Update ValveState if Open/Closed based on PID controller output
+//        if (bangPIDoutput > (controllerThreshold))
+//        {
+//            //open valve
+//            if (primaryPressValve.getState() == ValveState::Closed)
+//            {
+//            primaryPressValve.setState(ValveState::BangOpenCommanded);
+//            bangtimer = 0;
+//            }
+//            
+//        }
+//        if (bangPIDoutput < ((-1)*controllerThreshold))
+//        {
+//            //close valve
+//            if (primaryPressValve.getState() == ValveState::Open)
+//            {
+//            primaryPressValve.setState(ValveState::BangCloseCommanded);
+//            bangtimer = 0;
+//            }
+//        }
+//        sensorState = SensorState::Fast;
+//        ventPressureCheck();    //overpress failsafe, opens vent above failsafe pressure. Does not change controller state, only does pressure relief
+//        break;
+//    default:
+//        break;
+//    }
 
 //External bangbang vent line logic
 /* if (pressLineVentStateBang1 != pressLineVentStateBang2)
@@ -353,6 +543,19 @@ void TankPressController::PIDinputSetting()
         abortFlag = true;
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//     This appears to be a PID controller that's been partially disassembled.
+// I'm not going to repair it much, instead I'm going to package this into its 
+// own class and include it with this controller.  Its unlikely we need this
+// here, instead of being with the collection of classes used in Sensors.hpp.
+// 
+//     The K terms appear to be the PID constants.  I believe the P terms are 
+// the individual outputs, before being summed as funcOutput.  The E terms 
+// appear to be the PID inputs, selected through PIDinputSetting().
+// 
+// - Joe Kessler 2023 October 1
+////////////////////////////////////////////////////////////////////////////////
 
 //float PIDmath(float inputArrayPID[], float controllerSetPoint, float timeStepPIDMath, float integrationSteps, float errorThreshold, float K_p, float K_i, float K_d)
 float TankPressController::PIDmath()

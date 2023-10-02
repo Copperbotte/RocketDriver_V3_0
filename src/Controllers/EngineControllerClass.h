@@ -34,18 +34,21 @@ private:
         bool abortFlag = false;         //controller can trigger an abort by flipping this flag true, sets the main vehicle state to abort
         bool deviceCommand = false;     // only send the direct device state commands while true
         int64_t fuelMVAutosequenceActuation_Default;
-        int64_t loxMVAutosequenceActuation_Default;
-        int64_t igniter1Actuation_Default;
-        int64_t igniter2Actuation_Default;
-
         int64_t fuelMVAutosequenceActuation;
+
+        int64_t loxMVAutosequenceActuation_Default;
         int64_t loxMVAutosequenceActuation;
+
+        int64_t igniter1Actuation_Default;
         int64_t igniter1Actuation;
+
+        int64_t igniter2Actuation_Default;
         int64_t igniter2Actuation;
         
         // add Pc targets here, needs a way to do throttle program
-        float currentPcTarget;
         float currentPcTarget_Default;
+        float currentPcTarget;
+
         //I'm thinking 2D array with times and target Pc, write throttle function to work with arbitrary number of given points
         // sort values at Fire arm
 
