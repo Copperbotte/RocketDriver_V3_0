@@ -438,7 +438,7 @@ bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std:
                 samplesRemaining = false;
             }
             // Grab sensor values
-                if (sensor->getSensorNodeID() == propulsionNodeIDIn && sensor->getNewSensorConversionCheck()) // if on this node and a new value to send
+                if (sensor->getSensorNodeID() == propulsionNodeIDIn && sensor->__linearMap.getNewSensorConversionCheck()) // if on this node and a new value to send
                 {
                     //timestamp format is single seconds digits, measured down to micros precision
                     currentIteratoinTimeStamp = ((sensor->getTimestampSeconds() % 10)*1000000) + sensor->getTimestampMicros();
@@ -457,7 +457,7 @@ bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std:
                     // for Teensy ADC cast the raw int down to 16 bits
                     if (sensor->getADCtype() == ADCType::TeensyMCUADC)
                     {
-                        sensorReadStruct.sensorConvertedValue[i] = static_cast<uint16_t>((sensor->getCurrentConvertedValue(true)*10)+ 0.5);
+                        sensorReadStruct.sensorConvertedValue[i] = static_cast<uint16_t>((sensor->__linearMap.getCurrentConvertedValue(true)*10)+ 0.5);
                     }
 
 
@@ -552,7 +552,7 @@ bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std:
                 samplesRemaining = false;
             }
             // Grab sensor values
-                if (sensor->getSensorNodeID() == propulsionNodeIDIn && sensor->getNewSensorConversionCheck()) // if on this node and a new value to send
+                if (sensor->getSensorNodeID() == propulsionNodeIDIn && sensor->__linearMap.getNewSensorConversionCheck()) // if on this node and a new value to send
                 {
                     //timestamp format is single seconds digits, measured down to micros precision
                     currentIteratoinTimeStamp = ((sensor->getTimestampSeconds() % 10)*1000000) + sensor->getTimestampMicros();

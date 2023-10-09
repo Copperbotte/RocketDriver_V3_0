@@ -5,7 +5,9 @@
 
 // Initializer 1
 DIG_LC_SENSOR::DIG_LC_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput1, uint8_t setADCinput2, FluidSystemSimulation* setFluidSim, uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default, uint32_t setConversionSendRate_Default, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Off)
-    : Sensor{setSensorID, setSensorNodeID, setADCinput1, sampleRateDefaults{setSampleRateSlowMode_Default, setSampleRateMedMode_Default, setSampleRateFastMode_Default, _SRD.sampleRateCalibrationMode_Default}},
+  : Sensor{setSensorID, setSensorNodeID, setADCinput1, sampleRateDefaults{setSampleRateSlowMode_Default, setSampleRateMedMode_Default, setSampleRateFastMode_Default, _SRD.sampleRateCalibrationMode_Default},
+    LinearMap{setLinConvCoef1_m_Default, setLinConvCoef1_b_Default, setLinConvCoef2_m_Default, setLinConvCoef2_b_Default},
+    EMA{}, LinearRegression{}, IntegralError{setMinIntegralSum_Default, setMaxIntegralSum_Default, false}},
     ADCinput2{setADCinput2}, fluidSim{*setFluidSim}, conversionSendRate_Default{setConversionSendRate_Default}
 {
   // setting stuff to defaults at initialization
@@ -16,16 +18,16 @@ DIG_LC_SENSOR::DIG_LC_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uin
   conversionSendRate = conversionSendRate_Default;
   _currentSampleRate = setCurrentSampleRate;
 
-  linConvCoef1_m = linConvCoef1_m_Default = setLinConvCoef1_m_Default;
-  linConvCoef1_b = linConvCoef1_b_Default = setLinConvCoef1_b_Default;
-  linConvCoef2_m = linConvCoef2_m_Default = setLinConvCoef2_m_Default;
-  linConvCoef2_b = linConvCoef2_b_Default = setLinConvCoef2_b_Default;
+// linConvCoef1_m = linConvCoef1_m_Default = setLinConvCoef1_m_Default;
+// linConvCoef1_b = linConvCoef1_b_Default = setLinConvCoef1_b_Default;
+// linConvCoef2_m = linConvCoef2_m_Default = setLinConvCoef2_m_Default;
+// linConvCoef2_b = linConvCoef2_b_Default = setLinConvCoef2_b_Default;
 
-  EMA_Enable = EMA_Enable_Default;
-  alphaEMA = alphaEMA_Default;
-  regressionSamples = regressionSamples_Default;
-  maxIntegralSum = maxIntegralSum_Default = setMaxIntegralSum_Default;
-  minIntegralSum = minIntegralSum_Default = setMinIntegralSum_Default;
+// EMA_Enable = EMA_Enable_Default;
+// alphaEMA = alphaEMA_Default;
+// regressionSamples = regressionSamples_Default;
+// maxIntegralSum = maxIntegralSum_Default = setMaxIntegralSum_Default;
+// minIntegralSum = minIntegralSum_Default = setMinIntegralSum_Default;
   sensorState = setSensorState;
 }
 
@@ -36,9 +38,10 @@ void DIG_LC_SENSOR::begin()
     if (nodeIDCheck)
     {
         //rolling array setup
-        convertedValueArray[0] = {3};
-        convertedValueArray[1] = {3};
-        convertedValueArray[2] = {static_cast<float>(regressionSamples)};
+        __linearReg.initConvertedValueArray(3,3,static_cast<float>(__linearReg.getRegressionSamples()));
+// convertedValueArray[0] = {3};
+// convertedValueArray[1] = {3};
+// convertedValueArray[2] = {static_cast<float>(regressionSamples)};
     }
     if (nodeIDCheck && getADCtype() == TeensyMCUADC)
     {
@@ -56,15 +59,18 @@ void DIG_LC_SENSOR::resetAll()
   sampleRateCalibrationMode = sampleRateCalibrationMode_Default;
   conversionSendRate = conversionSendRate_Default;
 
-  linConvCoef1_m = linConvCoef1_m_Default;
-  linConvCoef1_b = linConvCoef1_b_Default;
-  linConvCoef2_m = linConvCoef2_m_Default;
-  linConvCoef2_b = linConvCoef2_b_Default;
+  resetAllComponents();
+// __linearMap.resetAll();
+// __ema.resetAll();
+// linConvCoef1_m = linConvCoef1_m_Default;
+// linConvCoef1_b = linConvCoef1_b_Default;
+// linConvCoef2_m = linConvCoef2_m_Default;
+// linConvCoef2_b = linConvCoef2_b_Default;
 
-  EMA_Enable = EMA_Enable_Default;
-  alphaEMA = alphaEMA_Default;
-  maxIntegralSum = maxIntegralSum_Default;
-  minIntegralSum = minIntegralSum_Default;
+// EMA_Enable = EMA_Enable_Default;
+// alphaEMA = alphaEMA_Default;
+// maxIntegralSum = maxIntegralSum_Default;
+// minIntegralSum = minIntegralSum_Default;
 
 }
 
@@ -85,7 +91,7 @@ void DIG_LC_SENSOR::readRaw(ADC& adc)
     // This automatically stores converted value for the on board nodes
     ////priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
     ////currentConvertedValue = linConvCoef1_m*currentRawDiffValue + linConvCoef1_b;
-    linearConversion(currentRawDiffValue); // Maps the voltage read by the ADC to the calibrated range.
+    __linearMap.linearConversion(currentRawDiffValue); // Maps the voltage read by the ADC to the calibrated range.
 }
 /*
 void DIG_LC_SENSOR::read(ADC& adc)

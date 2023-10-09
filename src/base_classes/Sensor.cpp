@@ -18,9 +18,9 @@ void Sensor::stateOperations()
 
     setCurrentSampleRate(sampleRate);
     if(sensorState == SensorState::Off)
-        timeStep = 1; //timeStep in seconds - shitty hack to make it not brick to a nan from dividing by zero
+        __linearReg.setTimeStep(1); //timeStep in seconds - shitty hack to make it not brick to a nan from dividing by zero
     else
-        timeStep = 1/sampleRate;
+        __linearReg.setTimeStep(1/sampleRate);
 }
 
 // I dont like linearConversion being in here, but the simulated input doesn't use it in EXTSensorClass. - Joe, 2023 April 6
@@ -37,7 +37,7 @@ void Sensor::readRaw(ADC& adc)
     // This automatically stores converted value for the on board nodes
     //// priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
     //// currentConvertedValue = linConvCoef1_m*currentRawValue + linConvCoef1_b;
-    linearConversion(currentRawValue); // Maps the voltage read by the ADC to the calibrated range.
+    __linearMap.linearConversion(currentRawValue); // Maps the voltage read by the ADC to the calibrated range.
 }
 
 void Sensor::read(ADC& adc)
@@ -47,14 +47,14 @@ void Sensor::read(ADC& adc)
     //I'll have to change how it's written though, right now it's ADC* adc which is specific to Teensy MCU ADC
     if (getCurrentSampleRate() != 0)     //math says no divide by zero, use separate conditional for sample rate of 0
     {
-        if (getTimer() >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
+        if (__timer.getTimer() >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
         {
             if (getADCtype() == TeensyMCUADC)
                 readRaw(adc);
             if (getADCtype() == simulatedInput)
                 readSim(adc);
-            writeToRollingArray(convertedValueArray, currentConvertedValue); // Should this be on every sensor? is it slow? - Joe, 2023 April 6
-            exponentialMovingAverage(currentConvertedValue);
+            writeToRollingArray(__linearReg.getConvertedValueArrayPtr(), __linearMap.getCurrentConvertedValue()); // Should this be on every sensor? is it slow? - Joe, 2023 April 6
+            __ema.exponentialMovingAverage(__linearMap.getCurrentConvertedValue());
             accumulatedI_float();
             //currentLinReg_a1 = linearRegressionLeastSquared_PID();
 
@@ -83,7 +83,7 @@ void Sensor::read(ADC& adc)
             ////newConversionCheck = true;
             //Serial.println("newSensorinREADafter");
             //Serial.println(newSensorValueCheck);
-            resetTimer();
+            __timer.resetTimer();
             pullTimestamp = true;
         }
     }
@@ -156,33 +156,33 @@ void EMA::exponentialMovingAverage(float EMA_Input)
     
     //Serial.print("alphaEMA");
     //Serial.println(alphaEMA);
-    if (EMA_Enable)  //only EMA if EMA_Enable bool is true
+    if (_EMA_Enable)  //only EMA if EMA_Enable bool is true
     {
         // bounds EMA between 0 and 1 for valid formula
-        if (alphaEMA >= 1) alphaEMA = 1;
-        else if (alphaEMA <= 0) alphaEMA = 0;
+        if (_alphaEMA >= 1) _alphaEMA = 1;
+        else if (_alphaEMA <= 0) _alphaEMA = 0;
 
         //quick maffs
-        newEMAOutput = (alphaEMA*EMA_Input) + ((1 - alphaEMA)*(priorEMAOutput));
-        priorEMAOutput = newEMAOutput; // Isn't this backwards? priorEMAOutput is always newEMAOuptut. - Joe
+        _newEMAOutput = (_alphaEMA*EMA_Input) + ((1 - _alphaEMA)*(_priorEMAOutput));
+        _priorEMAOutput = _newEMAOutput; // Isn't this backwards? priorEMAOutput is always newEMAOuptut. - Joe
     }
     else //EMA calc still runs this way but with no computation, just setting the values. Could possibly cut even this for performance.
     {
-        newEMAOutput = EMA_Input;
-        priorEMAOutput = newEMAOutput;
+        _newEMAOutput = EMA_Input;
+        _priorEMAOutput = _newEMAOutput;
     }
 }
 
 void LinearRegression::initializeLinReg(uint8_t arraySizeIn)
 {
-    if(!enableLinearRegressionCalc) //only initializes the array if it wasn't already
+    if(!_enableLinearRegressionCalc) //only initializes the array if it wasn't already
     {
-        enableLinearRegressionCalc = true;
+        _enableLinearRegressionCalc = true;
         //delete[]convertedValueArray;  //destroys the old version of the array
         //float convertedValueArray[arraySizeIn+3] = {};
         //rolling array setup
-        convertedValueArray[0] = {3};
-        convertedValueArray[1] = {3};
+        _convertedValueArray[0] = {3};
+        _convertedValueArray[1] = {3};
         //convertedValueArray[2] = {static_cast<float>(arraySizeIn)};
     }
 
@@ -243,14 +243,14 @@ float LinearRegression::linearRegressionLeastSquared_PID()
     // !!!!! - index[1] = array index for the starting point which is most recent entry, with next most recent the next highest index and so on
     // !!!!! - index[2] = size of value entries
     // Not sure if I've updated the math to use the first value in the numerical part instead of just manually subtracting to make it work for when it's 3
-    arrayIndexFirstValueLinReg = static_cast<uint32_t>(convertedValueArray[0]+0.5);
-    arrayMostRecentPositionLinReg = static_cast<uint32_t>(convertedValueArray[1]+0.5);
-    sizeInputArrayLinReg = static_cast<uint32_t>(convertedValueArray[2]+0.5);
+    arrayIndexFirstValueLinReg = static_cast<uint32_t>(_convertedValueArray[0]+0.5);
+    arrayMostRecentPositionLinReg = static_cast<uint32_t>(_convertedValueArray[1]+0.5);
+    sizeInputArrayLinReg = static_cast<uint32_t>(_convertedValueArray[2]+0.5);
     
     // if statement to handle case where the input Array is smaller than the set number of terms to integrate over
-    if (sizeInputArrayLinReg < regressionSamples)
+    if (sizeInputArrayLinReg < _regressionSamples)
         regression_n = sizeInputArrayLinReg;
-    else regression_n = regressionSamples;
+    else regression_n = _regressionSamples;
     // determine the overwrap value, if any
     //arrayWrapSizeLinReg =  (-1) * ((arrayMostRecentPositionLinReg - regression_n) - 1); //old array method
     arrayWrapSizeLinReg =  regression_n - ((arrayMostRecentPositionLinReg) - (arrayIndexFirstValueLinReg) + 1);
@@ -259,7 +259,7 @@ float LinearRegression::linearRegressionLeastSquared_PID()
     // 
         //Serial.print("timeStep: ");
         //Serial.println(timeStep);
-    timeStep = 0.01;
+    _timeStep = 0.01;
     //dont think I need below with new methods
     /*     if (arrayWrapSizeLinReg <= 0)    // when there is no wrap required, calculated value will be zero or negative. Set to zero.
         {
@@ -271,11 +271,11 @@ float LinearRegression::linearRegressionLeastSquared_PID()
     {
         for (int i = arrayMostRecentPositionLinReg; i > (arrayIndexFirstValueLinReg - 1); i--)
         {
-            float dX = (i - (arrayMostRecentPositionLinReg - regression_n + 1))*timeStep;
+            float dX = (i - (arrayMostRecentPositionLinReg - regression_n + 1))*_timeStep;
             sumX += dX;
             sumXX += dX*dX;
-            sumY += convertedValueArray[i];
-            sumXY += convertedValueArray[i] * dX;
+            sumY += _convertedValueArray[i];
+            sumXY += _convertedValueArray[i] * dX;
         /*       Serial.print("DOES THIS EVER HAPPEN1: ");
             Serial.print(i);
             Serial.print(" : ");
@@ -285,11 +285,11 @@ float LinearRegression::linearRegressionLeastSquared_PID()
 
         for (int i = (sizeInputArrayLinReg + arrayIndexFirstValueLinReg - 1); i > (sizeInputArrayLinReg + arrayIndexFirstValueLinReg - 1 - arrayWrapSizeLinReg); i--)
         {
-            float dX = (i + (arrayWrapSizeLinReg) - (sizeInputArrayLinReg) - 3)*timeStep;
+            float dX = (i + (arrayWrapSizeLinReg) - (sizeInputArrayLinReg) - 3)*_timeStep;
             sumX += dX;
             sumXX += dX*dX;
-            sumY += convertedValueArray[i];
-            sumXY += (convertedValueArray[i] * dX);
+            sumY += _convertedValueArray[i];
+            sumXY += (_convertedValueArray[i] * dX);
         /*       Serial.print("DOES THIS EVER HAPPEN2: ");
             Serial.print(i);
             Serial.print(" : ");
@@ -301,11 +301,11 @@ float LinearRegression::linearRegressionLeastSquared_PID()
     {
         for (int i = arrayMostRecentPositionLinReg; i > (arrayMostRecentPositionLinReg - regression_n); i--)
         {
-            float dX = (i - (arrayMostRecentPositionLinReg - regression_n + 1))*timeStep;
+            float dX = (i - (arrayMostRecentPositionLinReg - regression_n + 1))*_timeStep;
             sumX += dX;
             sumXX += dX*dX;
-            sumY += convertedValueArray[i];
-            sumXY += convertedValueArray[i] * dX;
+            sumY += _convertedValueArray[i];
+            sumXY += _convertedValueArray[i] * dX;
         /*       Serial.print("DOES THIS EVER HAPPEN: ");
             Serial.print(i);
             Serial.print(" : ");
@@ -336,15 +336,15 @@ float LinearRegression::linearRegressionLeastSquared_PID()
 
 void Sensor::accumulatedI_float()
 {
-    float timeStepAccumI = getTimer()/float(1000000);
-    accumulatedI(timeStepAccumI, currentConvertedValue, priorConvertedValue);
+    float timeStepAccumI = __timer.getTimer()/float(1000000);
+    __IErr.accumulatedI(timeStepAccumI, __linearMap.getCurrentConvertedValue(), __linearMap.getPriorConvertedValue());
 }
 
 void IntegralError::accumulatedI(float timeStepAccumI, float currentValue, float priorValue)
 {
 //float accumIfuncOutput = 0;
 //float timeStepAccumI = 0;
-    if (enableIntegralCalc)
+    if (_enableIntegralCalc)
     {
         //timeStepAccumI = (currentTimestampSeconds - priorTimestampSeconds) + ((currentTimestampMicros - priorTimestampMicros)*1000000); //calculates timestep between samples in S
 // timeStepAccumI = getTimer()/float(1000000);
@@ -365,16 +365,16 @@ void IntegralError::accumulatedI(float timeStepAccumI, float currentValue, float
         Serial.print("timeStepAccumI");
         Serial.println(timeStepAccumI,10); */
 
-        currentIntegralSum += timeStepAccumI * (((currentValue - targetValue) + (priorValue - targetValue))/2);
+        _currentIntegralSum += timeStepAccumI * (((currentValue - _targetValue) + (priorValue - _targetValue))/2);
 
         // Clamp output
-        if (currentIntegralSum >= maxIntegralSum)
+        if (_currentIntegralSum >= _maxIntegralSum)
         {
-          currentIntegralSum = maxIntegralSum;
+            _currentIntegralSum = _maxIntegralSum;
         }
-        else if (currentIntegralSum <= minIntegralSum)
+        else if (_currentIntegralSum <= _minIntegralSum)
         {
-          currentIntegralSum = minIntegralSum;
+            _currentIntegralSum = _minIntegralSum;
         }
     }
 }

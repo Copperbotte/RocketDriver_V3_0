@@ -26,7 +26,9 @@
 
 // Initializer 2
 ALARAVRAIL_SENSOR::ALARAVRAIL_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Slow)
-    : Sensor{setSensorID, setSensorNodeID, setADCinput, _SRD}
+    : Sensor{setSensorID, setSensorNodeID, setADCinput, _SRD,
+        LinearMap{setLinConvCoef1_m_Default, setLinConvCoef1_b_Default, setLinConvCoef2_m_Default, setLinConvCoef2_b_Default},
+        EMA{}, LinearRegression{}, IntegralError{}}
 {
   // setting stuff to defaults at initialization
   sampleRateSlowMode = sampleRateSlowMode_Default;
@@ -35,19 +37,19 @@ ALARAVRAIL_SENSOR::ALARAVRAIL_SENSOR(uint32_t setSensorID, uint32_t setSensorNod
   sampleRateCalibrationMode = sampleRateCalibrationMode_Default;
   _currentSampleRate = setCurrentSampleRate;
 
-  linConvCoef1_m = linConvCoef1_m_Default = setLinConvCoef1_m_Default;
-  linConvCoef1_b = linConvCoef1_b_Default = setLinConvCoef1_b_Default;
-  linConvCoef2_m = linConvCoef2_m_Default = setLinConvCoef2_m_Default;
-  linConvCoef2_b = linConvCoef2_b_Default = setLinConvCoef2_b_Default;
+// linConvCoef1_m = linConvCoef1_m_Default = setLinConvCoef1_m_Default;
+// linConvCoef1_b = linConvCoef1_b_Default = setLinConvCoef1_b_Default;
+// linConvCoef2_m = linConvCoef2_m_Default = setLinConvCoef2_m_Default;
+// linConvCoef2_b = linConvCoef2_b_Default = setLinConvCoef2_b_Default;
 
-  EMA_Enable = EMA_Enable_Default;
-  alphaEMA = alphaEMA_Default;
-  regressionSamples = regressionSamples_Default;
+// EMA_Enable = EMA_Enable_Default;
+// alphaEMA = alphaEMA_Default;
+// regressionSamples = regressionSamples_Default;
   sensorState = setSensorState;
 
   // This allows the code to be shared, but disables the clipping check.
-  maxIntegralSum = maxIntegralSum_Default = std::numeric_limits<float>::max();
-  minIntegralSum = minIntegralSum_Default = std::numeric_limits<float>::lowest();
+// maxIntegralSum = maxIntegralSum_Default = std::numeric_limits<float>::max();
+// minIntegralSum = minIntegralSum_Default = std::numeric_limits<float>::lowest();
 }
 
 
@@ -67,13 +69,17 @@ void ALARAVRAIL_SENSOR::resetAll()
   sampleRateFastMode = sampleRateFastMode_Default;
   sampleRateCalibrationMode = sampleRateCalibrationMode_Default;
 
-  linConvCoef1_m = linConvCoef1_m_Default;
-  linConvCoef1_b = linConvCoef1_b_Default;
-  linConvCoef2_m = linConvCoef2_m_Default;
-  linConvCoef2_b = linConvCoef2_b_Default;
+  resetAllComponents();
+// __linearMap.resetAll();
+// __ema.resetAll();
 
-  EMA_Enable = EMA_Enable_Default;
-  alphaEMA = alphaEMA_Default;
+// linConvCoef1_m = linConvCoef1_m_Default;
+// linConvCoef1_b = linConvCoef1_b_Default;
+// linConvCoef2_m = linConvCoef2_m_Default;
+// linConvCoef2_b = linConvCoef2_b_Default;
+
+// EMA_Enable = EMA_Enable_Default;
+// alphaEMA = alphaEMA_Default;
 }
 /*
 void ALARAVRAIL_SENSOR::read(ADC& adc)

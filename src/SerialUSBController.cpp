@@ -183,9 +183,9 @@ void SerialUSBController::propulsionNodeStatusPrints(VehicleState& currentVehicl
             //Serial.print(sensor->getTimestampMicros());
 
             Serial.print( ": converted: ");
-            Serial.print(sensor->getCurrentConvertedValue(),10);
+            Serial.print(sensor->__linearMap.getCurrentConvertedValue(),10);
             Serial.print( ": EMA: ");
-            Serial.print(sensor->getEMAConvertedValue(),10);
+            Serial.print(sensor->__ema.getEMAConvertedValue(),10);
             //Serial.print( ": Integral Enabled: ");
             //Serial.print(sensor->getEnableIntegralCalc());
             //Serial.print( ": I: ");
@@ -217,9 +217,9 @@ void SerialUSBController::propulsionNodeStatusPrints(VehicleState& currentVehicl
             Serial.print( ": raw value: ");
             Serial.print(sensor->getCurrentRawValue());
             Serial.print( ": converted: ");
-            Serial.print(static_cast<float>(sensor->getCurrentConvertedValue()));
+            Serial.print(static_cast<float>(sensor->__linearMap.getCurrentConvertedValue()));
             Serial.print( ": EMA: ");
-            Serial.print(sensor->getEMAConvertedValue(),10);
+            Serial.print(sensor->__ema.getEMAConvertedValue(),10);
             Serial.print( ": Deenergize offset: ");
             Serial.print(sensor->getDeengergizeOffsetValue(),10);
             Serial.print( ": Offset EMA output: ");
@@ -298,15 +298,15 @@ void SerialUSBController::propulsionNodeCSVStreamPrints(VehicleState& currentVeh
     //Serial.print( ": timestamp uS: ");
     //Serial.print(sensor->getTimestampMicros());
 
-    Serial.print(static_cast<float>(sensor->getCurrentConvertedValue()));
+    Serial.print(static_cast<float>(sensor->__linearMap.getCurrentConvertedValue()));
     Serial.print(", ");   // comma delimeter
-    Serial.print(sensor->getEMAConvertedValue(),5);
+    Serial.print(sensor->__ema.getEMAConvertedValue(),5);
     Serial.print(", ");   // comma delimeter
-    Serial.print(sensor->getIntegralSum(),5);
-    if (sensor->getEnableLinearRegressionCalc())
+    Serial.print(sensor->__IErr.getIntegralSum(),5);
+    if (sensor->__linearReg.getEnableLinearRegressionCalc())
     {
     Serial.print(", ");   // comma delimeter
-    Serial.print(sensor->getLinRegSlope(),5);
+    Serial.print(sensor->__linearReg.getLinRegSlope(),5);
     Serial.print(", ");   // comma delimeter
     }
     else 

@@ -39,8 +39,10 @@ void MCUADCSetup(ADC& adc, ADC_REFERENCE refIn0, ADC_REFERENCE refIn1, uint8_t a
 EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput, FluidSystemSimulation* setFluidSim, uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default, 
     float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0,
     float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Off)
-    : Sensor{setSensorID, setSensorNodeID, setADCinput, sampleRateDefaults{setSampleRateSlowMode_Default, setSampleRateMedMode_Default, setSampleRateFastMode_Default, _SRD.sampleRateCalibrationMode_Default}},
-     fluidSim{*setFluidSim}
+    : Sensor{setSensorID, setSensorNodeID, setADCinput, sampleRateDefaults{setSampleRateSlowMode_Default, setSampleRateMedMode_Default, setSampleRateFastMode_Default, _SRD.sampleRateCalibrationMode_Default},
+        LinearMap{setLinConvCoef1_m_Default, setLinConvCoef1_b_Default, setLinConvCoef2_m_Default, setLinConvCoef2_b_Default},
+        EMA{}, LinearRegression{}, IntegralError{setMinIntegralSum_Default, setMaxIntegralSum_Default, false}},
+      fluidSim{*setFluidSim}
 {
   // setting stuff to defaults at initialization
   sampleRateSlowMode = sampleRateSlowMode_Default;
@@ -50,22 +52,26 @@ EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t s
 
   _currentSampleRate = setCurrentSampleRate;
 
-  linConvCoef1_m = linConvCoef1_m_Default = setLinConvCoef1_m_Default;
-  linConvCoef1_b = linConvCoef1_b_Default = setLinConvCoef1_b_Default;
-  linConvCoef2_m = linConvCoef2_m_Default = setLinConvCoef2_m_Default;
-  linConvCoef2_b = linConvCoef2_b_Default = setLinConvCoef2_b_Default;
+// linConvCoef1_m = linConvCoef1_m_Default = setLinConvCoef1_m_Default;
+// linConvCoef1_b = linConvCoef1_b_Default = setLinConvCoef1_b_Default;
+// linConvCoef2_m = linConvCoef2_m_Default = setLinConvCoef2_m_Default;
+// linConvCoef2_b = linConvCoef2_b_Default = setLinConvCoef2_b_Default;
 
-  EMA_Enable = EMA_Enable_Default;
-  alphaEMA = alphaEMA_Default;
-  regressionSamples = regressionSamples_Default;
-  maxIntegralSum = maxIntegralSum_Default = setMaxIntegralSum_Default;
-  minIntegralSum = minIntegralSum_Default = setMinIntegralSum_Default;
+// EMA_Enable = EMA_Enable_Default;
+// alphaEMA = alphaEMA_Default;
+// regressionSamples = regressionSamples_Default;
+// maxIntegralSum = maxIntegralSum_Default = setMaxIntegralSum_Default;
+// minIntegralSum = minIntegralSum_Default = setMinIntegralSum_Default;
   sensorState = SensorState::Fast;
 }
 
 // Initializer 2
 EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput, FluidSystemSimulation* setFluidSim, float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, ADCType setSensorSource)
-    : Sensor{setSensorID, setSensorNodeID, setADCinput, _SRD, setSensorSource}, fluidSim{*setFluidSim}
+    : Sensor{setSensorID, setSensorNodeID, setADCinput, _SRD,
+        LinearMap{}, EMA{}, LinearRegression{},
+        IntegralError{setMinIntegralSum_Default, setMaxIntegralSum_Default, false},
+        setSensorSource},
+      fluidSim{*setFluidSim}
 {
   // setting stuff to defaults at initialization
   sampleRateSlowMode = sampleRateSlowMode_Default;
@@ -77,16 +83,16 @@ EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t s
   sensorState = SensorState::Slow;
 
   // I have no idea what these defaults are.  Is this constructor even used?
-  linConvCoef1_m = linConvCoef1_m_Default = 0;
-  linConvCoef1_b = linConvCoef1_b_Default = 0;
-  linConvCoef2_m = linConvCoef2_m_Default = 0;
-  linConvCoef2_b = linConvCoef2_b_Default = 0;
+// linConvCoef1_m = linConvCoef1_m_Default = 0;
+// linConvCoef1_b = linConvCoef1_b_Default = 0;
+// linConvCoef2_m = linConvCoef2_m_Default = 0;
+// linConvCoef2_b = linConvCoef2_b_Default = 0;
 
-  EMA_Enable = EMA_Enable_Default;
-  alphaEMA = alphaEMA_Default;
-  regressionSamples = regressionSamples_Default;
-  maxIntegralSum = maxIntegralSum_Default = setMaxIntegralSum_Default;
-  minIntegralSum = minIntegralSum_Default = setMinIntegralSum_Default;
+// EMA_Enable = EMA_Enable_Default;
+// alphaEMA = alphaEMA_Default;
+// regressionSamples = regressionSamples_Default;
+// maxIntegralSum = maxIntegralSum_Default = setMaxIntegralSum_Default;
+// minIntegralSum = minIntegralSum_Default = setMinIntegralSum_Default;
 }
 
 void EXT_SENSOR::begin()
@@ -95,9 +101,10 @@ void EXT_SENSOR::begin()
     if (nodeIDCheck)
     {
         //rolling array setup
-        convertedValueArray[0] = {3};
-        convertedValueArray[1] = {3};
-        convertedValueArray[2] = {static_cast<float>(regressionSamples)};
+        __linearReg.initConvertedValueArray(3,3,static_cast<float>(__linearReg.getRegressionSamples()));
+//convertedValueArray[0] = {3};
+//convertedValueArray[1] = {3};
+//convertedValueArray[2] = {static_cast<float>(regressionSamples)};
     }
     if (nodeIDCheck && getADCtype() == TeensyMCUADC)
     {
@@ -113,20 +120,25 @@ void EXT_SENSOR::resetAll()
   sampleRateFastMode = sampleRateFastMode_Default;
   sampleRateCalibrationMode = sampleRateCalibrationMode_Default;
 
-  linConvCoef1_m = linConvCoef1_m_Default;
-  linConvCoef1_b = linConvCoef1_b_Default;
-  linConvCoef2_m = linConvCoef2_m_Default;
-  linConvCoef2_b = linConvCoef2_b_Default;
+  resetAllComponents();
+// __linearMap.resetAll();
+// __ema.resetAll();
 
-  EMA_Enable = EMA_Enable_Default;
-  alphaEMA = alphaEMA_Default;
-  maxIntegralSum = maxIntegralSum_Default;
-  minIntegralSum = minIntegralSum_Default;
+// linConvCoef1_m = linConvCoef1_m_Default;
+// linConvCoef1_b = linConvCoef1_b_Default;
+// linConvCoef2_m = linConvCoef2_m_Default;
+// linConvCoef2_b = linConvCoef2_b_Default;
+
+// EMA_Enable = EMA_Enable_Default;
+// alphaEMA = alphaEMA_Default;
+// maxIntegralSum = maxIntegralSum_Default;
+// minIntegralSum = minIntegralSum_Default;
 }
 
 void EXT_SENSOR::readSim(ADC& adc)
 {
-    currentConvertedValue = fluidSim.analogRead(getADCinput());
+    float currentConvertedValue = fluidSim.analogRead(getADCinput());
+    __linearMap._overrideValues(__linearMap.getPriorConvertedValue(), currentConvertedValue);
 }
 
 /*

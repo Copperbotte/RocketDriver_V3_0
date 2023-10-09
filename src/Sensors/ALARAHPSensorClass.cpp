@@ -6,7 +6,9 @@
 
 // Initializer 1
 ALARAHP_SENSOR::ALARAHP_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Fast)
-    : Sensor{setSensorID, setSensorNodeID, setADCinput, _SRD}
+    : Sensor{setSensorID, setSensorNodeID, setADCinput, _SRD,
+        LinearMap{setLinConvCoef1_m_Default, setLinConvCoef1_b_Default, setLinConvCoef2_m_Default, setLinConvCoef2_b_Default},
+        EMA{}, LinearRegression{}, IntegralError{}}
 {
   // setting stuff to defaults at initialization
   sampleRateSlowMode = sampleRateSlowMode_Default;
@@ -15,14 +17,14 @@ ALARAHP_SENSOR::ALARAHP_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, u
   sampleRateCalibrationMode = sampleRateCalibrationMode_Default;
   _currentSampleRate = setCurrentSampleRate;
   
-  linConvCoef1_m = linConvCoef1_m_Default = setLinConvCoef1_m_Default;
-  linConvCoef1_b = linConvCoef1_b_Default = setLinConvCoef1_b_Default;
-  linConvCoef2_m = linConvCoef2_m_Default = setLinConvCoef2_m_Default;
-  linConvCoef2_b = linConvCoef2_b_Default = setLinConvCoef2_b_Default;
+// linConvCoef1_m = linConvCoef1_m_Default = setLinConvCoef1_m_Default;
+// linConvCoef1_b = linConvCoef1_b_Default = setLinConvCoef1_b_Default;
+// linConvCoef2_m = linConvCoef2_m_Default = setLinConvCoef2_m_Default;
+// linConvCoef2_b = linConvCoef2_b_Default = setLinConvCoef2_b_Default;
 
-  EMA_Enable = EMA_Enable_Default;
-  alphaEMA = alphaEMA_Default;
-  regressionSamples = regressionSamples_Default;
+// EMA_Enable = EMA_Enable_Default;
+// alphaEMA = alphaEMA_Default;
+// regressionSamples = regressionSamples_Default;
   sensorState = setSensorState;
 }
 
@@ -43,13 +45,17 @@ void ALARAHP_SENSOR::resetAll()
   sampleRateFastMode = sampleRateFastMode_Default;
   sampleRateCalibrationMode = sampleRateCalibrationMode_Default;
 
-  linConvCoef1_m = linConvCoef1_m_Default;
-  linConvCoef1_b = linConvCoef1_b_Default;
-  linConvCoef2_m = linConvCoef2_m_Default;
-  linConvCoef2_b = linConvCoef2_b_Default;
+  resetAllComponents();
+// __linearMap.resetAll();
+// __ema.resetAll();
 
-  EMA_Enable = EMA_Enable_Default;
-  alphaEMA = alphaEMA_Default;
+// linConvCoef1_m = linConvCoef1_m_Default;
+// linConvCoef1_b = linConvCoef1_b_Default;
+// linConvCoef2_m = linConvCoef2_m_Default;
+// linConvCoef2_b = linConvCoef2_b_Default;
+
+// EMA_Enable = EMA_Enable_Default;
+// alphaEMA = alphaEMA_Default;
 }
 /*
 void ALARAHP_SENSOR::read(ADC& adc)
@@ -98,12 +104,16 @@ void ALARAHP_SENSOR::setDeenergizeOffset(ADC& adc, bool outputOverrideIn)
       {
         currentRawValue = adc.analogRead(getADCinput());
         /////linear conversions here, y = m*x + b
-        priorConvertedValue = currentConvertedValue;
-        currentConvertedValue = linConvCoef1_m*currentRawValue + linConvCoef1_b;
-        exponentialMovingAverage(currentConvertedValue);
+        //priorConvertedValue = currentConvertedValue;
+        //currentConvertedValue = linConvCoef1_m*currentRawValue + linConvCoef1_b;
+        bool newConversionCheck_temp = __linearMap.getNewSensorConversionCheck();
+        __linearMap.linearConversion(currentRawValue);
+        __linearMap.setNewConversionCheck(newConversionCheck_temp);
+
+        __ema.exponentialMovingAverage(__linearMap.getCurrentConvertedValue());
         OffsetFunctimer = 0;
       }
   // while output override still has this running, update the deenergize offset
-  deenergizeOffset = newEMAOutput;
+  deenergizeOffset = __ema.getEMAConvertedValue();
   }
 }

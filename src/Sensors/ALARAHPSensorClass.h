@@ -36,8 +36,8 @@ class ALARAHP_SENSOR : public Sensor
     // Access functions defined in place
     
     float getDeengergizeOffsetValue(){return deenergizeOffset;}
-    float getCurrentOutputValue(){return (deenergizeOffset - newEMAOutput);}
-    float getCurrentOutputValue(bool resetConvertedRead){if (resetConvertedRead) {newConversionCheck = false;} return (deenergizeOffset - newEMAOutput);} //reads and clears new value bool
+    float getCurrentOutputValue(){return (deenergizeOffset - __ema.getEMAConvertedValue());}
+    float getCurrentOutputValue(bool resetConvertedRead){if (resetConvertedRead) {__linearMap.setNewConversionCheck(false);} return (deenergizeOffset - __ema.getEMAConvertedValue());} //reads and clears new value bool
 
 //float getLinRegSlope(){currentLinReg_a1 = linearRegressionLeastSquared_PID(); return currentLinReg_a1;}
 

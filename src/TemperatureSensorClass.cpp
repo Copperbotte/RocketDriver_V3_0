@@ -94,9 +94,10 @@ void THERMOCOUPLE::begin()
         pinMode(ADCinput1, INPUT);
         pinMode(ADCinput2, INPUT);
         //rolling array setup
-        convertedValueArray[0] = {3};
-        convertedValueArray[1] = {3};
-        convertedValueArray[2] = {static_cast<float>(regressionSamples)};
+        initConvertedValueArray(3,3,static_cast<float>(getRegressionSamples()));
+// convertedValueArray[0] = {3};
+// convertedValueArray[1] = {3};
+// convertedValueArray[2] = {static_cast<float>(regressionSamples)};
     }
 }
 
