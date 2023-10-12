@@ -3,9 +3,10 @@
 
 #include <Arduino.h>
 #include "./States/ControllerStates.h"
+#include "./Base_Classes/Task_Begin.hpp"
 #include "./Base_Classes/Timer.hpp"
 
-class PropulsionController : public Timer
+class PropulsionController : public Timer, public Task_Begin
 {
 private:
     const uint8_t controllerNodeID;
@@ -24,7 +25,7 @@ public:
     // constructor
         PropulsionController(uint8_t setControllerNodeID, uint32_t setTargetValue, bool setNodeIDCheck = false);
     // a start up method, to set pins from within setup()
-        void begin();
+    void begin();
 
     // access functions defined in place
 

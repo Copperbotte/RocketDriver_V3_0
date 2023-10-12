@@ -3,8 +3,12 @@
 
 #include <Arduino.h>
 #include "./States/ValveStates.hpp"
+#include "./Base_Classes/ID.hpp"
 #include "./Base_Classes/State_Machine.hpp"
+#include "./Base_Classes/Task_Begin.hpp"
+#include "./Base_Classes/Task_Iterator.hpp"
 #include "./Base_Classes/Timer.hpp"
+
 
 // This class defines the Valve Object that will be used to represent and actuate the valves
 // Run begin to set the pins
@@ -26,12 +30,14 @@ enum ValveType
     NormalOpen,
 };
 
-class Valve : public StateMachine_Firetime<ValveState>, public Timer
+#define VALVEID_DEFAULT 99
+
+class Valve : public StateMachine_Firetime<ValveState>, public Timer, public Task_Iterator, public Task_Begin_Pins
 {
 
 private:
-    const uint32_t valveID = 99;                          // Valve ID number 
-    const uint8_t valveNodeID = 99;                      // NodeID the valve is controlled by
+// const uint32_t valveID = 99;                          // Valve ID number 
+// const uint8_t valveNodeID = 99;                      // NodeID the valve is controlled by
     ValveType valveType_Default;                  // sets the valve type, either normal closed or normal open
     ValveType valveType;                  // sets the valve type, either normal closed or normal open
     const u_int8_t ALARA_HP_Channel = 0;
@@ -65,10 +71,11 @@ public:
     void begin(uint8_t pinArrayIn[][11]);
 
     // access functions defined in place
+    idClass ID;
 
     // get functions, return the current value of that variable
-    uint32_t getValveID(){return valveID;}
-    uint8_t getValveNodeID(){return valveNodeID;}
+// uint32_t getValveID(){return valveID;}
+// uint8_t getValveNodeID(){return valveNodeID;}
     ValveType getValveType(){return valveType;}
     uint8_t getHPChannel(){return ALARA_HP_Channel;}
     uint8_t getPinPWM(){return pinPWM;}
@@ -87,7 +94,7 @@ public:
         else {return ValveState::NullReturn;}
     }
 
-    bool getNodeIDCheck(){return nodeIDCheck;}
+// bool getNodeIDCheck(){return nodeIDCheck;}
     bool getAbortHaltDeviceBool(){return abortHaltDeviceBool;}
 
     //every time a state is set, the timer should reset
@@ -98,7 +105,7 @@ public:
  //           currentAutosequenceTime = timeSetIn;
  //       }
     // set the Node ID Check bool function
-    void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
+// void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
     //set functions 
     void setValveType(uint8_t typeIn){if (typeIn == 0 || typeIn == 1) {valveType = static_cast<ValveType>(typeIn);}}
     void setFullDutyTime(uint32_t fullDutyTimeIn){if (fullDutyTimeIn <= 10000) {fullDutyTime = fullDutyTimeIn;}}
@@ -118,6 +125,9 @@ public:
 
     // Sensor pull in function for control
     //void controlSensorFetch(uint16_t updateControlSensor1Value){controlSensor1Value = updateControlSensor1Value;}
+
+    // Main loop task iterator helper
+    void runTasks(uint8_t& nodeIDReadIn, bool& outputOverride, AutoSequence& autoSequence);
 };
 
 #endif

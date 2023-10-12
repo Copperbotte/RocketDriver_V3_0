@@ -55,7 +55,7 @@ ALARAVRAIL_SENSOR::ALARAVRAIL_SENSOR(uint32_t setSensorID, uint32_t setSensorNod
 
 void ALARAVRAIL_SENSOR::begin()
 {
-    if (nodeIDCheck)
+    if (ID.getNodeIDCheck())
     {
         pinMode(getADCinput(), INPUT);
     }

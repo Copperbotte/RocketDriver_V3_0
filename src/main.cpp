@@ -169,6 +169,10 @@ uint16_t nodeIDAddress1{22};
 uint16_t nodeIDAddress2{23};
 uint16_t nodeIDAddress3{24};
 
+////////////////////////////////////////////////////////////////////////////////
+
+//     Main function call.  Is ran on power on once, followed by a while(true) 
+// on loop.  
 //-------------------------------------------------------//
 void setup() {
     /////////////////////////////////////////////////////
@@ -256,25 +260,27 @@ void setup() {
 
     // -----Run Valve PropulsionSysNodeID Check-----
     // ID Check verifies that the right devices are attached to the right ALARA.
-    ValveNodeIDCheck(valveArray, PropulsionSysNodeID);
-    PyroNodeIDCheck(pyroArray, PropulsionSysNodeID);
-    SensorNodeIDCheck(sensorArray, PropulsionSysNodeID);
-    SensorNodeIDCheck(HPsensorArray, PropulsionSysNodeID);
+    nodeIDCheck(valveArray, PropulsionSysNodeID);
+    nodeIDCheck(pyroArray, PropulsionSysNodeID);
+    nodeIDCheck(sensorArray, PropulsionSysNodeID);
+    nodeIDCheck(sensorArray, 6); //Logger nodeID so it generates array for all sensors
+    nodeIDCheck(HPsensorArray, PropulsionSysNodeID);
+    nodeIDCheck(HPsensorArray, 6); //Logger nodeID so it generates array for all sensors
     //SensorNodeIDCheck(TCsensorArray, PropulsionSysNodeID);
 
     // -----Run Valve Setup-----
-    valveSetUp(valveArray, ALARA_HP_Array);
-    pyroSetUp(pyroArray, ALARA_HP_Array);
-    engineControllerSetup(engineControllerArray);
-    tankPressControllerSetup(tankPressControllerArray);
+    setUp(valveArray, ALARA_HP_Array);
+    setUp(pyroArray, ALARA_HP_Array);
+    setUp(engineControllerArray);
+    setUp(tankPressControllerArray);
 
     // -----Run AutoSequence Setup-----
-    autoSequenceSetUp(autoSequenceArray);
+    setUp(autoSequenceArray);
     
     // -----Run Sensor Setup -----
-    sensorSetUp(sensorArray);
-    sensorSetUp(HPsensorArray);
-    sensorSetUp(TCsensorArray);
+    setUp(sensorArray);
+    setUp(HPsensorArray);
+    setUp(TCsensorArray);
     #ifdef TEENSY3_X
     coldJunctionRenegade.begin();
     #endif
@@ -327,7 +333,7 @@ void setup() {
 void loop() 
 {
     // Lazy "SensorTasks" for the RTD sensor
-    if (coldJunctionRenegade.getSensorNodeID() == PropulsionSysNodeID)
+    if (coldJunctionRenegade.ID.getNodeID() == PropulsionSysNodeID)
     {
         coldJunctionRenegade.read();
     }
@@ -416,8 +422,10 @@ void loop()
 
     cli(); // disables interrupts to ensure complete propulsion output state is driven
 
-    valveTasks(valveArray, PropulsionSysNodeID, outputOverride, *autoSequenceArray.at(0));
-    pyroTasks(pyroArray, PropulsionSysNodeID, outputOverride, *autoSequenceArray.at(0));
+//valveTasks(valveArray, PropulsionSysNodeID, outputOverride, *autoSequenceArray.at(0));
+//pyroTasks(pyroArray, PropulsionSysNodeID, outputOverride, *autoSequenceArray.at(0));
+    runTasks(valveArray, PropulsionSysNodeID, outputOverride, *autoSequenceArray.at(0));
+    runTasks( pyroArray, PropulsionSysNodeID, outputOverride, *autoSequenceArray.at(0));
     //MUST KEEP HP OVERRIDE AFTER VALVE/PYRO TASKS
     #ifdef ALARAV2_1
     ALARAHPOverride(ALARA_HP_Array, outputOverride);
@@ -431,9 +439,9 @@ void loop()
     // Updates sensors.
     // 
 
-    sensorTasks(sensorArray, *adc, PropulsionSysNodeID, rocketDriverSeconds, rocketDriverMicros);
+    sensorTasks(         sensorArray, *adc, PropulsionSysNodeID, rocketDriverSeconds, rocketDriverMicros);
     ALARAHPsensorTasks(HPsensorArray, *adc, PropulsionSysNodeID, rocketDriverSeconds, rocketDriverMicros, outputOverride);
-    TCsensorTasks(TCsensorArray, *adc, PropulsionSysNodeID, rocketDriverSeconds, rocketDriverMicros);
+    TCsensorTasks(     TCsensorArray, *adc, PropulsionSysNodeID, rocketDriverSeconds, rocketDriverMicros);
     DEBUG_SPRINT_PASS("Sensor Tasks");
 
     /////////////////////////

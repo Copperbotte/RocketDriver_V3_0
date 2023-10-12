@@ -13,6 +13,29 @@
     // This function takes the array of pointers that point to the valve objects, and then calls the .stateOperations() method for each valve
     // Make sure valveArray is an array of pointers, as defined in ValveDefinitions.h
 template <typename T, std::size_t size>
+void runTasks(const std::array<T, size>& Array, uint8_t& nodeIDReadIn, bool& outputOverride, AutoSequence& mainAutoSequence)
+{
+    if (!outputOverride)    //bool will block all stateOps
+    {
+        // iterate through the array and run the lambda method
+        for(auto valve : Array)
+        {
+            valve->runTasks(nodeIDReadIn, outputOverride, mainAutoSequence);
+// if (valve->ID.getNodeID() == nodeIDReadIn)
+// {
+//     valve->setCurrentAutoSequenceTime(mainAutoSequence.getCurrentCountdown());
+//     valve->controllerStateOperations();
+//     valve->ioStateOperations();
+// }
+        }
+    }
+}
+
+/*
+//  CALL THIS FUNCTION EVERY LOOP 
+    // This function takes the array of pointers that point to the valve objects, and then calls the .stateOperations() method for each valve
+    // Make sure valveArray is an array of pointers, as defined in ValveDefinitions.h
+template <typename T, std::size_t size>
 void valveTasks(const std::array<T, size>& valveArray, uint8_t& nodeIDReadIn, bool& outputOverride, AutoSequence& mainAutoSequence)
 {
     if (!outputOverride)    //bool will block all stateOps
@@ -20,7 +43,7 @@ void valveTasks(const std::array<T, size>& valveArray, uint8_t& nodeIDReadIn, bo
         // iterate through valve array and run the stateOperations method
         for(auto valve : valveArray)
         {
-            if (valve->getValveNodeID() == nodeIDReadIn)
+            if (valve->ID.getNodeID() == nodeIDReadIn)
             {
                 valve->setCurrentAutoSequenceTime(mainAutoSequence.getCurrentCountdown());
                 valve->controllerStateOperations();
@@ -47,7 +70,7 @@ void pyroTasks(const std::array<T, size>& pyroArray, uint8_t& nodeIDReadIn, bool
         }
     }
 }
-
+*/
 template <typename T, std::size_t size>
 void tankPressControllerTasks(const std::array<T, size>& tankPressControllerArray, uint8_t& nodeIDReadIn, AutoSequence& ignitionAutoSequenceRef)
 {
@@ -100,7 +123,7 @@ void sensorTasks(const std::array<T, size>& sensorArray, ADC& adc, uint8_t& node
     for(auto sensor : sensorArray)
     {
     
-        if (sensor->getSensorNodeID() == nodeIDReadIn)
+        if (sensor->ID.getNodeID() == nodeIDReadIn)
         {
             sensor->stateOperations();
             //Serial.print("LoopRan");
@@ -124,7 +147,7 @@ void ALARAHPsensorTasks(const std::array<T, size>& sensorArray, ADC& adc, uint8_
     for(auto sensor : sensorArray)
     {
     
-        if (sensor->getSensorNodeID() == nodeIDReadIn)
+        if (sensor->ID.getNodeID() == nodeIDReadIn)
         {
             sensor->stateOperations();
             //Serial.println("LoopRan for HP sensor tasks: ");
@@ -148,7 +171,7 @@ void TCsensorTasks(const std::array<T, size>& TCsensorArray, ADC& adc, uint8_t& 
     // iterate through valve array and run the stateOperations method
     for(auto sensor : TCsensorArray)
     {
-        if (sensor->getSensorNodeID() == nodeIDReadIn)
+        if (sensor->ID.getNodeID() == nodeIDReadIn)
         {
             sensor->stateOperations();
             //Serial.println("LoopRan for HP sensor tasks: ");
@@ -159,7 +182,7 @@ void TCsensorTasks(const std::array<T, size>& TCsensorArray, ADC& adc, uint8_t& 
         }
     }
 }
-
+/*
 // CALL THIS FUNCTION ONCE IN SETUP, THIS SETS THE VALVE PINMODES
     // make sure to pass this function valveArray, as defined in ValveDefinitions.h
 template <typename T, std::size_t size>
@@ -181,7 +204,32 @@ void pyroSetUp(const std::array<T, size>& pyroArray, uint8_t pinArrayIn[][11])
         pyro->begin(pinArrayIn);
     }
 }
+*/
+// Generic setup loop.
+// Accepts an std::array reference of things that have Task_Begin.begin().
+template <typename T, std::size_t size>
+void setUp(const std::array<T, size>& Array)
+{
+    // iterate through valve array and run the stateOperations method
+    for(auto item : Array)
+    {
+        item->begin();
+    }
+}
 
+// Generic setup loop.
+// Accepts an std::array reference of things that have Task_Begin.begin(uint8_t pinArrayIn[][11]).
+template <typename T, std::size_t size>
+void setUp(const std::array<T, size>& Array, uint8_t pinArrayIn[][11])
+{
+    // iterate through valve array and run the stateOperations method
+    for(auto item : Array)
+    {
+        item->begin(pinArrayIn);
+    }
+}
+
+/*
 template <typename T, std::size_t size>
 void autoSequenceSetUp(const std::array<T, size>& autoSequenceArray)
 {
@@ -211,7 +259,11 @@ void tankPressControllerSetup(const std::array<T, size>& tankPressControllerArra
         tankPressController->begin();
     }
 }
+*/
 
+/*
+// This one is special, it has a disabled other setup with these serial prints.
+// Maybe this should be in the sensor's specific begin?
 template <typename T, std::size_t size>
 void sensorSetUp(const std::array<T, size>& sensorArray)
 //void sensorSetUp(const std::array<T, size>& sensorArray, uint32_t& rocketDriverSeconds, uint32_t& rocketDriverMicros, void (*myTimeTrackingFunction)(uint32_t, uint32_t))
@@ -221,14 +273,16 @@ void sensorSetUp(const std::array<T, size>& sensorArray)
     {
         sensor->begin();
         //sensor->setSYSTimestamp(secondsRD, microsecondsRD);
-/*         myTimeTrackingFunction(rocketDriverSeconds, rocketDriverMicros);
-        Serial.println("rocketDriverSeconds");
-        Serial.println(rocketDriverSeconds);
-        Serial.println("rocketDriverMicros");
-        Serial.println(rocketDriverMicros); */
+        // myTimeTrackingFunction(rocketDriverSeconds, rocketDriverMicros);
+        // Serial.println("rocketDriverSeconds");
+        // Serial.println(rocketDriverSeconds);
+        // Serial.println("rocketDriverMicros");
+        // Serial.println(rocketDriverMicros); 
         //Serial.print("LoopRan");
     }
 }
+*/
+
 
 void fakesensorShit(uint32_t& rocketDriverSeconds, uint32_t& rocketDriverMicros, void (*myTimeTrackingFunction)(uint32_t, uint32_t))
 {
@@ -246,15 +300,28 @@ void fakesensorShit(uint32_t& rocketDriverSeconds, uint32_t& rocketDriverMicros,
     //}
 }
 
+// Sets an object in the array's NodeIDCheck to true if its NodeID matches the input id.
+template <typename T, std::size_t size>
+void nodeIDCheck(const std::array<T, size>& Array, uint8_t nodeIDfromMain)
+{
+    for (auto item : Array)
+    {
+        if (item->ID.getNodeID() == nodeIDfromMain)
+        {
+            item->ID.setNodeIDCheck(true);
+        }
+    }
+}
+/*
 template <typename T, std::size_t size>
 void ValveNodeIDCheck(const std::array<T, size>& valveArray, uint8_t nodeIDfromMain)
 {
     // iterate through valve array and run the stateOperations method
     for (auto valve : valveArray)
     {
-        if (valve->getValveNodeID() == nodeIDfromMain)
+        if (valve->ID.getNodeID() == nodeIDfromMain)
         {
-            valve->setNodeIDCheck(true);
+            valve->ID.setNodeIDCheck(true);
         }
     }
 }
@@ -278,17 +345,17 @@ void SensorNodeIDCheck(const std::array<T, size>& sensorArray, uint8_t nodeIDfro
     // iterate through sensor array and run the stateOperations method
     for (auto sensor : sensorArray)
     {
-        if (sensor->getSensorNodeID() == nodeIDfromMain)
+        if (sensor->ID.getNodeID() == nodeIDfromMain)
         {
-            sensor->setNodeIDCheck(true);
+            sensor->ID.setNodeIDCheck(true);
         }
         else if (nodeIDfromMain == 6)    //Logger nodeID so it generates array for all sensors
         {
-            sensor->setNodeIDCheck(true);
+            sensor->ID.setNodeIDCheck(true);
         }
     }
 }
-
+*/
 
 
 #endif

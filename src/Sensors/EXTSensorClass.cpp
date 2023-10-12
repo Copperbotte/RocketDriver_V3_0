@@ -98,7 +98,7 @@ EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t s
 void EXT_SENSOR::begin()
 {
     
-    if (nodeIDCheck)
+    if (ID.getNodeIDCheck())
     {
         //rolling array setup
         __linearReg.initConvertedValueArray(3,3,static_cast<float>(__linearReg.getRegressionSamples()));
@@ -106,7 +106,7 @@ void EXT_SENSOR::begin()
 //convertedValueArray[1] = {3};
 //convertedValueArray[2] = {static_cast<float>(regressionSamples)};
     }
-    if (nodeIDCheck && getADCtype() == TeensyMCUADC)
+    if (ID.getNodeIDCheck() && getADCtype() == TeensyMCUADC)
     {
         pinMode(getADCinput(), INPUT);
     }
@@ -176,17 +176,17 @@ void EXT_SENSOR::read(ADC& adc)
                 accumulatedI_float();
                 //currentLinReg_a1 = linearRegressionLeastSquared_PID();
 
-                //if (getSensorID() == 58)
+                //if (ID.getID() == 58)
                 //{
                 //Serial.print("sensorID: ");
-                //Serial.print(getSensorID());
+                //Serial.print(ID.getID());
                 //Serial.print(", currentRawValue: ");
                 //Serial.println(currentRawValue);
                 //Serial.print(", currentConvertedValue: ");
                 //Serial.println(currentConvertedValue); 
                 //}
                 //Serial.print("sensorID: ");
-                //Serial.print(getSensorID());
+                //Serial.print(ID.getID());
                 //Serial.print(", currentRawValue: ");
                 //Serial.println(currentRawValue);
                 //Serial.print(", currentRollingAverage: ");

@@ -58,17 +58,17 @@ void Sensor::read(ADC& adc)
             accumulatedI_float();
             //currentLinReg_a1 = linearRegressionLeastSquared_PID();
 
-            //if (getSensorID() == 58)
+            //if (ID.getID
             //{
             //Serial.print("sensorID: ");
-            //Serial.print(getSensorID());
+            //Serial.print(ID.getID());
             //Serial.print(", currentRawValue: ");
             //Serial.println(currentRawValue);
             //Serial.print(", currentConvertedValue: ");
             //Serial.println(currentConvertedValue); */
             //}
             //Serial.print("sensorID: ");
-            //Serial.print(getSensorID());
+            //Serial.print(ID.getID());
             //Serial.print(", currentRawValue: ");
             //Serial.println(currentRawValue);
             //Serial.print(", currentRollingAverage: ");
@@ -111,7 +111,7 @@ void LinearMap::linearConversion(uint32_t currentRaw)
     newConversionCheck = true;
 
     /*      Serial.print("sensorID: ");
-            Serial.print(getSensorID());
+            Serial.print(ID.getID());
             Serial.print(", currentRawValue: ");
             Serial.println(currentRawValue);
             Serial.print(", currentConvertedValue: ");
@@ -140,7 +140,7 @@ void LinearMap::linearConversion_WithSecondary(uint32_t currentRaw)
     newConversionCheck = true;
 
     /*      Serial.print("sensorID: ");
-            Serial.print(getSensorID());
+            Serial.print(ID.getID());
             Serial.print(", currentRawValue: ");
             Serial.println(currentRawValue);
             Serial.print(", currentConvertedValue: ");
@@ -350,7 +350,7 @@ void IntegralError::accumulatedI(float timeStepAccumI, float currentValue, float
 // timeStepAccumI = getTimer()/float(1000000);
         //timeStepAccumI = 0.01;
 /*         Serial.print(" ID: ");
-        Serial.print(getSensorID());
+        Serial.print(ID.getID());
         Serial.print(" timer: ");
         Serial.println(timer,10);
         Serial.print(" timeStepAccumI: ");

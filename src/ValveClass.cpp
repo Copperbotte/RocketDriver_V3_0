@@ -3,7 +3,7 @@
 #include "extendedIO/extendedIO.h"
 
 Valve::Valve(uint32_t setValveID, uint8_t setValveNodeID, ValveType setValveType_Default, uint8_t setALARA_HP_Channel, uint32_t setFullDutyTime_Default, bool setAbortHaltDeviceBool, uint16_t setHoldDuty_Default,  bool setNodeIDCheck)
-                : valveID{setValveID}, valveNodeID{setValveNodeID}, valveType_Default{setValveType_Default}, ALARA_HP_Channel{setALARA_HP_Channel}, fullDutyTime_Default{setFullDutyTime_Default}, abortHaltDeviceBool{setAbortHaltDeviceBool}, holdDuty_Default{setHoldDuty_Default}, nodeIDCheck{setNodeIDCheck}
+    : ID{setValveID, setValveNodeID}, valveType_Default{setValveType_Default}, ALARA_HP_Channel{setALARA_HP_Channel}, fullDutyTime_Default{setFullDutyTime_Default}, abortHaltDeviceBool{setAbortHaltDeviceBool}, holdDuty_Default{setHoldDuty_Default}
 {
     //set values to default values when intstantiated
     valveType = valveType_Default;
@@ -19,9 +19,11 @@ Valve::Valve(uint32_t setValveID, uint8_t setValveNodeID, ValveType setValveType
     default:           _setInitialValues(ValveState::Closed, ValveState::Closed); break;
     }
     
+    ID.setNodeIDCheck(nodeIDCheck);
 }
 
-Valve::Valve(ValveType setValveType_Default, bool setNodeIDCheck) : valveType_Default{setValveType_Default}, nodeIDCheck{setNodeIDCheck}
+Valve::Valve(ValveType setValveType_Default, bool setNodeIDCheck)
+    : ID{VALVEID_DEFAULT, VALVEID_DEFAULT}, valveType_Default{setValveType_Default}
 {
     //probably don't need anything here for the standin valve objects for unused controller valves
     
@@ -38,6 +40,8 @@ Valve::Valve(ValveType setValveType_Default, bool setNodeIDCheck) : valveType_De
     case NormalOpen:   _setInitialValues(ValveState::Open,   ValveState::Open);   break;
     default:           _setInitialValues(ValveState::Closed, ValveState::Closed); break;
     }
+
+    ID.setNodeIDCheck(nodeIDCheck);
 }
 
 void Valve::begin(uint8_t pinArrayIn[][11])
@@ -689,5 +693,15 @@ void Valve::controllerStateOperations()
     // All other states require no action
     default:
         break;
+    }
+}
+
+void Valve::runTasks(uint8_t& nodeIDReadIn, bool& outputOverride, AutoSequence& autoSequence)
+{
+    if (ID.getNodeID() == nodeIDReadIn)
+    {
+        setCurrentAutoSequenceTime(autoSequence.getCurrentCountdown());
+        controllerStateOperations();
+        ioStateOperations();
     }
 }

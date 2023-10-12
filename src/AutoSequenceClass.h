@@ -3,9 +3,10 @@
 
 #include <Arduino.h>
 #include "AutoSequenceStates.h"
+#include "./Base_Classes/Task_Begin.hpp"
 #include "./Base_Classes/Timer.hpp"
 
-class AutoSequence : public Timer
+class AutoSequence : public Timer, public Task_Begin
 {
 
     private:
@@ -25,7 +26,7 @@ class AutoSequence : public Timer
         AutoSequence(uint32_t setAutoSequenceID, int32_t setCountdownStart, uint32_t setHostNodeID);
 
     // a start up method,
-        void begin();
+    void begin();
 
     // get functions, return the current value of that variable
         uint32_t getAutoSequenceID(){return autoSequenceID;}

@@ -4,21 +4,24 @@
 #include "extendedIO/extendedIO.h"
 
 Pyro::Pyro(uint32_t setPyroID, uint32_t setPyroNodeID, uint8_t setALARA_HP_Channel, uint32_t setLiveOutTime_Default,  bool setNodeIDCheck)
-    : pyroID{setPyroID}, pyroNodeID{setPyroNodeID}, ALARA_HP_Channel{setALARA_HP_Channel}, liveOutTime_Default{setLiveOutTime_Default}, nodeIDCheck{setNodeIDCheck}
+    : ID{setPyroID, setPyroNodeID}, ALARA_HP_Channel{setALARA_HP_Channel}, liveOutTime_Default{setLiveOutTime_Default}
 {
     liveOutTime = liveOutTime_Default;
     _setInitialValues(PyroState::Off, PyroState::Off);
     //state = PyroState::Off;
+
+    ID.setNodeIDCheck(setNodeIDCheck);
 }
 
-Pyro::Pyro(uint32_t setLiveOutTime) : liveOutTime{setLiveOutTime}
+Pyro::Pyro(uint32_t setLiveOutTime):
+    ID{PYROID_DEFAULT, PYROID_DEFAULT}, liveOutTime{setLiveOutTime}
 {
 
 }
 
 void Pyro::begin(uint8_t pinArrayIn[][11])
 {
-    if (nodeIDCheck)
+    if (ID.getNodeIDCheck())
     {
         pinDigital = pinArrayIn[0][ALARA_HP_Channel];
         pinPWM = pinArrayIn[1][ALARA_HP_Channel];
@@ -199,3 +202,15 @@ void Pyro::controllerStateOperations()
         break;
     }
 } */
+
+void Pyro::runTasks(uint8_t& nodeIDReadIn, bool& outputOverride, AutoSequence& autoSequence)
+{
+    if (ID.getNodeID() == nodeIDReadIn)
+    {
+        setCurrentAutoSequenceTime(autoSequence.getCurrentCountdown());
+        controllerStateOperations();
+        ioStateOperations();
+    }
+}
+
+

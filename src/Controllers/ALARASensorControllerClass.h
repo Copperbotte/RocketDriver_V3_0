@@ -9,8 +9,9 @@
 #include "./States/ValveStates.hpp"
 #include "./ALARASNConfigurations.h"
 #include "./Sensors/ALARAHPSensorClass.h"
+#include "./Base_Classes/Task_Begin.hpp"
 
-class ALARAV2SensorController : public StateMachine<ALARAV2SensorControllerState>
+class ALARAV2SensorController : public StateMachine<ALARAV2SensorControllerState>, Task_Begin
 {
     private:
         const uint32_t controllerID;                        // Controller ID number - not super useful right now? Maybe for state reporting.
@@ -52,7 +53,7 @@ class ALARAV2SensorController : public StateMachine<ALARAV2SensorControllerState
                                 bool setBNO055_active = false, bool setBMI085_active = false, bool setKX134_1211_active = false, bool setSAM_M8Q_GPS_active = false, bool setMS5607_active = false,
                                 bool setALARA_VINRail_active = false, bool setALARA_5VRail_active = false, bool setALARA_3V3Rail_active = false);
     // a start up method, to set pins from within setup()
-        void begin();
+    void begin();
         //void setALARAHPSensors(ALARAHP_SENSOR* setHP1, ALARAHP_SENSOR* setHP2, ALARAHP_SENSOR* setHP3,ALARAHP_SENSOR* setHP4, ALARAHP_SENSOR* setHP5, ALARAHP_SENSOR* setHP6,ALARAHP_SENSOR* setHP7, ALARAHP_SENSOR* setHP8, ALARAHP_SENSOR* setHP9, ALARAHP_SENSOR* setHP10);
 
     // get functions, return the current value of that variable

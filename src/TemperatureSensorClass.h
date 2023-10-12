@@ -6,6 +6,7 @@
 #include "./States/SensorStates.hpp"
 #include "Adafruit_MCP9808.h" //  Where is this file? - Joe, 2023 July 15
 #include "ALARAUtilityFunctions.h"
+#include "./Base_Classes/ID.hpp"
 #include "./Base_Classes/Timer.hpp"
 #include "./Base_Classes/Sensor.hpp"
 
@@ -22,8 +23,8 @@ enum TCType
 class RTD_BREAKOUT : public Timer // Timer doesn't have a reset here.  Should that be a template?
 {
     private:
-        const uint32_t sensorID;
-        const uint32_t sensorNodeID;                        // NodeID the sensor is controlled by
+//const uint32_t sensorID;
+//const uint32_t sensorNodeID;                        // NodeID the sensor is controlled by
         uint8_t I2Caddress;                                 // 0x18 default, up to 0x1F
         uint8_t resolution;                                 // 0, 1, 2, 3
         // Minimal read periods for each Resultion setting, in Millis
@@ -38,12 +39,14 @@ class RTD_BREAKOUT : public Timer // Timer doesn't have a reset here.  Should th
         Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();    
         bool sensorInitialized = false;
     public:
+        idClass ID;
+
         // Constructor
         RTD_BREAKOUT(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setI2Caddress, uint8_t setResolution);
 
         //get functions
-        uint32_t getSensorID(){return sensorID;}
-        uint32_t getSensorNodeID(){return sensorNodeID;}
+//uint32_t getSensorID(){return sensorID;}
+//uint32_t getSensorNodeID(){return sensorNodeID;}
 //elapsedMillis getTimer(){return timer;}
         int16_t getConvertedValueC(){return convertedReadC;}
         int16_t getConvertedValueF(){return convertedReadF;}
@@ -58,8 +61,8 @@ class RTD_BREAKOUT : public Timer // Timer doesn't have a reset here.  Should th
 class THERMOCOUPLE : public Timer, public EMA, public LinearRegression
 {
     private:
-        const uint32_t sensorID;
-        const uint32_t sensorNodeID;
+//const uint32_t sensorID;
+//const uint32_t sensorNodeID;
         uint8_t ADCinput1;
         uint8_t ADCinput2;
         uint16_t refVoltage;    // in millivolts as int
@@ -96,21 +99,22 @@ class THERMOCOUPLE : public Timer, public EMA, public LinearRegression
 // float timeStep = 0.01; //timeStep in seconds, should be set based on sample rate to correct value this is a placeholder value
 
     public:
+        idClass ID;
         bool pullTimestamp = false;
-        uint32_t getSensorID(){return sensorID;}
-        uint32_t getSensorNodeID(){return sensorNodeID;}
+//uint32_t getSensorID(){return sensorID;}
+//uint32_t getSensorNodeID(){return sensorNodeID;}
 
 
         void begin();
         void read(ADC& adc);
         void stateOperations();
 
-        bool getNodeIDCheck(){return nodeIDCheck;}
+//bool getNodeIDCheck(){return nodeIDCheck;}
     
         // set functions, allows the setting of a variable
         void setState(SensorState newState);
         // set the Node ID Check bool function
-        void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
+//void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
         
         //void setNewConversionCheck(bool updateNewConversionCheck){newConversionCheck = updateNewConversionCheck;}
 

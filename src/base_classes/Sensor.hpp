@@ -13,6 +13,8 @@
 //#pragma once
 //#pragma GCC diagnostic ignored "-Wreorder" // go away cringe
 #include <limits> // For IntegralError
+#include "./Base_Classes/ID.hpp"
+#include "./Base_Classes/Task_Begin.hpp"
 
 // enum for holding ADC input types, may not use this way
 enum ADCType
@@ -386,14 +388,14 @@ struct sampleRateDefaults
 // than the items in protected.  Ideally, everything should have getters and 
 // setters defined in a seperate .cpp, but the linker is whining when I try.
 // - Joe
-class Sensor : protected sampleRateDefaults
+class Sensor : protected sampleRateDefaults, public Task_Begin
 //public Timer, public LinearMap, public EMA, public LinearRegression, public IntegralError,
 {
 
 private:
     // Constant sensor values.  Usually hardware identifiers.
-    const uint32_t _sensorID;
-    const uint32_t _sensorNodeID;                      // NodeID the sensor is controlled by
+//const uint32_t _sensorID;
+//const uint32_t _sensorNodeID;                      // NodeID the sensor is controlled by
     const ADCType _sensorSource = ADCType::TeensyMCUADC;  //default source here is Teensy ADC
     const uint8_t _ADCinput; //the input that will be read for this sensor that will get used in the ADC read main loop
 
@@ -416,7 +418,7 @@ protected:
 
     //bool pullTimestamp = false; // This is in public, for some reason.
 
-    bool nodeIDCheck = false;                           // Whether this object should operate on this node
+// bool nodeIDCheck = false;                           // Whether this object should operate on this node
     bool internalMCUTemp;                       // Is this sensor the MCU internal temp
     bool newSensorValueCheck_CAN = false;                      // Is the current raw value a new read that hasn't been sent yet?
     bool newSensorConvertedValueCheck_CAN = false;                      // Is the current raw value a new read that hasn't been sent yet?
@@ -438,7 +440,7 @@ public:
     //SENSORBASE(){};
     Sensor(uint32_t sensorID,       uint32_t sensorNodeID,    uint8_t ADCinput, const sampleRateDefaults&SRD,
         const LinearMap&linearMap, const EMA&ema, const LinearRegression&linearReg, const IntegralError&IErr) // The lack of a space here feels weird, but it compiles! - Joe, 2023 April 6
-        : _sensorID{sensorID}, _sensorNodeID{sensorNodeID}, _ADCinput{ADCinput},      sampleRateDefaults{SRD},
+        :        ID{sensorID,                sensorNodeID}, _ADCinput{ADCinput},      sampleRateDefaults{SRD},
             __linearMap{linearMap},    __ema{ema},           __linearReg{linearReg},             __IErr{IErr}
     {}
 
@@ -446,13 +448,13 @@ public:
     Sensor(uint32_t sensorID,       uint32_t sensorNodeID,    uint8_t ADCinput, const sampleRateDefaults&SRD,  
         const LinearMap&linearMap, const EMA&ema, const LinearRegression&linearReg, const IntegralError&IErr,
               ADCType sensorSource)
-        : _sensorID{sensorID}, _sensorNodeID{sensorNodeID}, _ADCinput{ADCinput},      sampleRateDefaults{SRD},
+        :        ID{sensorID,                sensorNodeID}, _ADCinput{ADCinput},      sampleRateDefaults{SRD},
             __linearMap{linearMap},    __ema{ema},           __linearReg{linearReg},             __IErr{IErr},
         _sensorSource{sensorSource}
     {};
 
     bool pullTimestamp = false;
-    virtual void begin() = 0;                     //
+    //virtual void begin() = 0; // Does this pass the pure virtual function down the chain? I guess it does! - Joe 2023 Oct 11
     virtual void resetAll() = 0;
     virtual void readRaw(ADC& adc);           // updates currentRawValue with current reading, using an activated ADC object
     virtual void readSim(ADC& adc){};         // updates currentConvertedValue with a simulated reading.  Default does nothing.
@@ -460,6 +462,7 @@ public:
     void stateOperations(); // No longer virtual!
 
     // TODO: refactor (automatic?) to remove one underscore from each of these member classes.
+    idClass ID;
     Timer __timer;
     LinearMap __linearMap;
     EMA __ema;
@@ -520,8 +523,8 @@ public:
     void accumulatedI_float(); 
 
     // Access functions defined in place
-    uint32_t getSensorID() const {return _sensorID;}
-    uint32_t getSensorNodeID() const {return _sensorNodeID;}
+// uint32_t getSensorID() const {return _sensorID;}
+// uint32_t getSensorNodeID() const {return _sensorNodeID;}
 
     ADCType getADCtype() const {return _sensorSource;}
     uint32_t getADCinput(){return _ADCinput;};
@@ -537,11 +540,11 @@ public:
     //virtual uint8_t getCurrentRollingArrayPosition(){return currentRollingArrayPosition;}
     uint32_t getCurrentRollingAverage(){return currentCalibrationValue;}
 
-    bool getNodeIDCheck(){return nodeIDCheck;}
+// bool getNodeIDCheck(){return nodeIDCheck;}
     bool getNewSensorValueCheckCAN(){return newSensorValueCheck_CAN;}
     bool getNewSensorValueCheckLog(){return newSensorValueCheck_Log;}
 
-    void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;} // set the Node ID Check bool function
+// void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;} // set the Node ID Check bool function
     void setState(SensorState newState){sensorState = newState;}
     void setSYSTimestamp(uint32_t timestampSeconds, uint32_t timestampMicros)
     {

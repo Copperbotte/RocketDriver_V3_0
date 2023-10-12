@@ -186,12 +186,12 @@ void FlexCan3Controller::generateHPObjectIDmsgs(FlexCAN& CANbus, const std::arra
     //for (size_t i = 0; i < 10; i++)
     //{
     for (auto valve : valveArray)
-        if (valve->getValveNodeID() == propulsionNodeIDIn)
-            nodeObjectIDReportStruct.objectIDByteArray[valve->getHPChannel()-1] = valve->getValveID();
+        if (valve->ID.getNodeID() == propulsionNodeIDIn)
+            nodeObjectIDReportStruct.objectIDByteArray[valve->getHPChannel()-1] = valve->ID.getID();
 
     for (auto pyro : pyroArray)
-        if (pyro->getPyroNodeID() == propulsionNodeIDIn)
-            nodeObjectIDReportStruct.objectIDByteArray[pyro->getHPChannel()-1] = pyro->getPyroID();
+        if (pyro->ID.getNodeID() == propulsionNodeIDIn)
+            nodeObjectIDReportStruct.objectIDByteArray[pyro->getHPChannel()-1] = pyro->ID.getID();
             
     //}
     writeObjectByteArray(nodeObjectIDReportStruct.objectIDByteArray, nodeObjectIDReportStruct.objectIDmsg, msgID);
@@ -206,11 +206,11 @@ void FlexCan3Controller::generateHPObjectStateReportmsgs(FlexCAN& CANbus, const 
     //for (size_t i = 0; i < 10; i++)
     //{
     for (auto valve : valveArray)
-        if (valve->getValveNodeID() == propulsionNodeIDIn) // add bit shifted electrical state later
+        if (valve->ID.getNodeID() == propulsionNodeIDIn) // add bit shifted electrical state later
             nodeObjectStateReportStruct.objectIDByteArray[valve->getHPChannel()-1] = static_cast<uint8_t>(valve->getState());
 
     for (auto pyro : pyroArray)
-        if (pyro->getPyroNodeID() == propulsionNodeIDIn) // add bit shifted electrical state later
+        if (pyro->ID.getNodeID() == propulsionNodeIDIn) // add bit shifted electrical state later
             nodeObjectStateReportStruct.objectIDByteArray[pyro->getHPChannel()-1] = static_cast<uint8_t>(pyro->getState());
     //}
     writeObjectByteArray(nodeObjectStateReportStruct.objectIDByteArray, nodeObjectStateReportStruct.objectIDmsg, msgID);
@@ -241,7 +241,7 @@ bool FlexCan3Controller::generateRawSensormsgs(FlexCAN& CANbus, const std::array
                 {
                     //Serial.println("Did I reach the last element of sensorArray in raw msgs??? ");
                     //Serial.print(" sensorID: ");
-                    //Serial.println(sensor->getSensorID());
+                    //Serial.println(sensor->ID.getID());
                     samplesRemaining = false;
                 }
             }
@@ -251,7 +251,7 @@ bool FlexCan3Controller::generateRawSensormsgs(FlexCAN& CANbus, const std::array
                 samplesRemaining = false;
             }
             // Grab sensor values
-            if (sensor->getSensorNodeID() == propulsionNodeIDIn && sensor->getNewSensorValueCheckCAN()) // if on this node and a new value to send
+            if (sensor->ID.getNodeID() == propulsionNodeIDIn && sensor->getNewSensorValueCheckCAN()) // if on this node and a new value to send
             {
                 //timestamp format is single seconds digits, measured down to micros precision
                 currentIteratoinTimeStamp = ((sensor->getTimestampSeconds() % 10)*1000000) + sensor->getTimestampMicros();
@@ -263,7 +263,7 @@ bool FlexCan3Controller::generateRawSensormsgs(FlexCAN& CANbus, const std::array
                         break;
                     }
                 }
-                sensorReadStruct.sensorID[i] = sensor->getSensorID();
+                sensorReadStruct.sensorID[i] = sensor->ID.getID();
                 //sensorReadStruct.sensorTimestampSeconds[i] = sensor->getTimestampSeconds();
                 sensorReadStruct.sensorTimestampMicros[i] = currentIteratoinTimeStamp;
 
@@ -288,7 +288,7 @@ bool FlexCan3Controller::generateRawSensormsgs(FlexCAN& CANbus, const std::array
         }
 /*         for (auto sensor : HPsensorArray)
         {
-            if (sensor->getSensorNodeID() == propulsionNodeIDIn && sensor->getNewSensorValueCheckCAN()) // if on this node and a new value to send
+            if (sensor->ID.getNodeID() == propulsionNodeIDIn && sensor->getNewSensorValueCheckCAN()) // if on this node and a new value to send
             {
                 //timestamp format is single seconds digits, measured down to micros precision
                 currentIteratoinTimeStamp = ((sensor->getTimestampSeconds() % 10)*1000000) + sensor->getTimestampMicros();
@@ -300,7 +300,7 @@ bool FlexCan3Controller::generateRawSensormsgs(FlexCAN& CANbus, const std::array
                         break;
                     }
                 }
-                sensorReadStruct.sensorID[i] = sensor->getSensorID();
+                sensorReadStruct.sensorID[i] = sensor->ID.getID();
                 //sensorReadStruct.sensorTimestampSeconds[i] = sensor->getTimestampSeconds();
                 sensorReadStruct.sensorTimestampMicros[i] = currentIteratoinTimeStamp;
 
@@ -392,7 +392,7 @@ bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std:
             
 /*             for (auto sensor : HPsensorArray)
             {
-                if (sensor->getSensorNodeID() == propulsionNodeIDIn && sensor->getNewSensorConversionCheck()) // if on this node and a new value to send
+                if (sensor->ID.getNodeID() == propulsionNodeIDIn && sensor->getNewSensorConversionCheck()) // if on this node and a new value to send
                 {
                     //timestamp format is single seconds digits, measured down to micros precision
                     currentIteratoinTimeStamp = ((sensor->getTimestampSeconds() % 10)*1000000) + sensor->getTimestampMicros();
@@ -404,7 +404,7 @@ bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std:
                             break;
                         }
                     }
-                    sensorReadStruct.sensorID[i] = (sensor->getSensorID());
+                    sensorReadStruct.sensorID[i] = (sensor->ID.getID());
                     //sensorReadStruct.sensorTimestampSeconds[i] = sensor->getTimestampSeconds();
                     sensorReadStruct.sensorTimestampMicros[i] = currentIteratoinTimeStamp;
                     sensorReadStruct.sensorConvertedValue[i] = static_cast<uint16_t>(sensor->getCurrentConvertedValue(true)*10);
@@ -428,7 +428,7 @@ bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std:
                 {
                     //Serial.print("Did I reach the last element of sensorArray??? ");
                     //Serial.print(" sensorID: ");
-                    //Serial.println(sensor->getSensorID());
+                    //Serial.println(sensor->ID.getID());
                     samplesRemaining = false;
                 }
             }
@@ -438,7 +438,7 @@ bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std:
                 samplesRemaining = false;
             }
             // Grab sensor values
-                if (sensor->getSensorNodeID() == propulsionNodeIDIn && sensor->__linearMap.getNewSensorConversionCheck()) // if on this node and a new value to send
+                if (sensor->ID.getNodeID() == propulsionNodeIDIn && sensor->__linearMap.getNewSensorConversionCheck()) // if on this node and a new value to send
                 {
                     //timestamp format is single seconds digits, measured down to micros precision
                     currentIteratoinTimeStamp = ((sensor->getTimestampSeconds() % 10)*1000000) + sensor->getTimestampMicros();
@@ -450,7 +450,7 @@ bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std:
                             break;
                         }
                     }
-                    sensorReadStruct.sensorID[i] = (sensor->getSensorID())+1;
+                    sensorReadStruct.sensorID[i] = (sensor->ID.getID())+1;
                     //sensorReadStruct.sensorTimestampSeconds[i] = sensor->getTimestampSeconds();
                     sensorReadStruct.sensorTimestampMicros[i] = currentIteratoinTimeStamp;
 
@@ -542,7 +542,7 @@ bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std:
                 {
                     //Serial.print("Did I reach the last element of HPsensorArray??? ");
                     //Serial.print(" sensorID: ");
-                    //Serial.println(sensor->getSensorID());
+                    //Serial.println(sensor->ID.getID());
                     samplesRemaining = false;
                 }
             }
@@ -552,7 +552,7 @@ bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std:
                 samplesRemaining = false;
             }
             // Grab sensor values
-                if (sensor->getSensorNodeID() == propulsionNodeIDIn && sensor->__linearMap.getNewSensorConversionCheck()) // if on this node and a new value to send
+                if (sensor->ID.getNodeID() == propulsionNodeIDIn && sensor->__linearMap.getNewSensorConversionCheck()) // if on this node and a new value to send
                 {
                     //timestamp format is single seconds digits, measured down to micros precision
                     currentIteratoinTimeStamp = ((sensor->getTimestampSeconds() % 10)*1000000) + sensor->getTimestampMicros();
@@ -564,7 +564,7 @@ bool FlexCan3Controller::generateConvertedSensormsgs(FlexCAN& CANbus, const std:
                             break;
                         }
                     }
-                    sensorReadStruct.sensorID[i] = (sensor->getSensorID())+1;
+                    sensorReadStruct.sensorID[i] = (sensor->ID.getID())+1;
                     //sensorReadStruct.sensorTimestampSeconds[i] = sensor->getTimestampSeconds();
                     sensorReadStruct.sensorTimestampMicros[i] = currentIteratoinTimeStamp;
                     //sensorReadStruct.sensorConvertedValue[i] = static_cast<uint16_t>(sensor->getCurrentConvertedValue(true)*10);

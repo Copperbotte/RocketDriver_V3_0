@@ -31,7 +31,7 @@ ALARAHP_SENSOR::ALARAHP_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, u
 
 void ALARAHP_SENSOR::begin()
 {
-    if (nodeIDCheck)
+    if (ID.getNodeIDCheck())
     {
         pinMode(getADCinput(), INPUT);
     }

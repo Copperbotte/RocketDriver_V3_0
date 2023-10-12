@@ -5,9 +5,11 @@
 #include "./States/ControllerStates.h"
 #include "./States/SensorStates.hpp"
 #include "./ValveClass.h"
-#include "./Base_Classes/Timer.hpp"
-#include "./Base_Classes/state_machine.hpp"
 #include "./Base_Classes/Controller.hpp"
+#include "./Base_Classes/state_machine.hpp"
+#include "./Base_Classes/Timer.hpp"
+#include "./Base_Classes/Task_Begin.hpp"
+#include "./Base_Classes/Task_Iterator.hpp"
 #include <string>
 
 class bangSensorPID
@@ -261,7 +263,7 @@ public: // These should be private.
 
 };
 
-class TankPressController : public Controller<TankPressControllerState>, public Timer, public PID
+class TankPressController : public Controller<TankPressControllerState>, public Timer, public PID, public Task_Begin
 {
 private:
 //const uint32_t controllerID;                          // Controller ID number 
@@ -382,7 +384,7 @@ public:
          float setControllerThreshold_Default, bool setVentFailsafeArm = false,
          bool isSystemBang = false, bool setNodeIDCheck = false);
     // a start up method, to set pins from within setup()
-void begin();
+    void begin();
 
     void resetAll(); // reset all configurable settings to defaults
 

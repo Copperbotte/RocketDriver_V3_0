@@ -3,24 +3,31 @@
 
 #include "./States/PyroStates.hpp"
 #include <Arduino.h>
+#include "./Base_Classes/ID.hpp"
 #include "./Base_Classes/state_machine.hpp"
+#include "./Base_Classes/Task_Begin.hpp"
+#include "./Base_Classes/Task_Iterator.hpp"
 #include "./Base_Classes/Timer.hpp"
 
-class Pyro : public StateMachine_Firetime<PyroState>, public Timer
+#define PYROID_DEFAULT 99
+
+class Pyro : public StateMachine_Firetime<PyroState>, public Timer, public Task_Iterator, public Task_Begin_Pins
 {
 private:
-    const uint32_t pyroID = 99;
-    const uint32_t pyroNodeID = 99;
+// const uint32_t pyroID = 99;
+// const uint32_t pyroNodeID = 99;
     const u_int8_t ALARA_HP_Channel = 0;
     uint8_t pinDigital = 99;
     uint8_t pinPWM = 99;
     uint8_t pinADC = 99;                              // Valve ADC read pin
     uint32_t liveOutTime;
     uint32_t liveOutTime_Default;
-    bool nodeIDCheck;                           // Whether this object should operate on this node
+// bool nodeIDCheck;                           // Whether this object should operate on this node
     bool controllerUpdate = false;
 
 public:
+
+    idClass ID;
 
     // constructor, define the valve ID here, and the pin that controls the valve, setFireDelay is only parameter that can be left blank
     Pyro(uint32_t setPyroID, uint32_t setPyroNodeID, uint8_t setALARA_HP_Channel, uint32_t liveOutTime_Default, bool setNodeIDCheck = false); 
@@ -35,8 +42,8 @@ public:
     // access functions defined in place
 
     // get functions, return the current value of that variable
-    uint32_t getPyroID(){return pyroID;}
-    uint32_t getPyroNodeID(){return pyroNodeID;}
+// uint32_t getPyroID(){return pyroID;}
+// uint32_t getPyroNodeID(){return pyroNodeID;}
     //uint32_t getFirePin(){return pinDigital;}
     //uint32_t getArmPin(){return pinPWM;}
     uint8_t getHPChannel(){return ALARA_HP_Channel;}
@@ -51,7 +58,7 @@ public:
 //PyroState getState(){return state;}
     PyroState getSyncState();
     
-    bool getNodeIDCheck(){return nodeIDCheck;}
+// bool getNodeIDCheck(){return nodeIDCheck;}
 
     // set functions, allows the setting of a variable
     // set function for current autosequence time
@@ -62,7 +69,7 @@ public:
     // Bypasses state logic to reset the Pyro to Off, used to reset after device has been fired
     void resetPyro(){_setInitialValues(PyroState::Off, getPriorState());}
 
-    void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
+// void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
     void setLiveOutTime(uint32_t liveOutTimeIn){if (liveOutTimeIn <= 2000000){liveOutTime = liveOutTimeIn;}}
     // reset all configurable settings to defaults
     void resetAll();
@@ -74,7 +81,8 @@ public:
     void ioStateOperations();
     void controllerStateOperations();
 
-
+    // Main loop task iterator helper
+    void runTasks(uint8_t& nodeIDReadIn, bool& outputOverride, AutoSequence& autoSequence);
 };
 
 #endif

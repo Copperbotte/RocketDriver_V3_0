@@ -35,7 +35,7 @@ DIG_LC_SENSOR::DIG_LC_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uin
 void DIG_LC_SENSOR::begin()
 {
     
-    if (nodeIDCheck)
+    if (ID.getNodeIDCheck())
     {
         //rolling array setup
         __linearReg.initConvertedValueArray(3,3,static_cast<float>(__linearReg.getRegressionSamples()));
@@ -43,7 +43,7 @@ void DIG_LC_SENSOR::begin()
 // convertedValueArray[1] = {3};
 // convertedValueArray[2] = {static_cast<float>(regressionSamples)};
     }
-    if (nodeIDCheck && getADCtype() == TeensyMCUADC)
+    if (ID.getNodeIDCheck() && getADCtype() == TeensyMCUADC)
     {
         pinMode(getADCinput() , INPUT);
         pinMode(getADCinput2(), INPUT);
@@ -129,17 +129,17 @@ void DIG_LC_SENSOR::read(ADC& adc)
                 accumulatedI_float();
                 //currentLinReg_a1 = linearRegressionLeastSquared_PID();
 
-                //if (getSensorID() == 58)
+                //if (ID.getID() == 58)
                 //{
                 //Serial.print("sensorID: ");
-                //Serial.print(getSensorID());
+                //Serial.print(ID.getID());
                 //Serial.print(", currentRawValue: ");
                 //Serial.println(currentRawValue);
                 //Serial.print(", currentConvertedValue: ");
                 //Serial.println(currentConvertedValue); 
                 //}
                 //Serial.print("sensorID: ");
-                //Serial.print(getSensorID());
+                //Serial.print(ID.getID());
                 //Serial.print(", currentRawValue: ");
                 //Serial.println(currentRawValue);
                 //Serial.print(", currentRollingAverage: ");

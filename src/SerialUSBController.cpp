@@ -107,14 +107,14 @@ void SerialUSBController::propulsionNodeStatusPrints(VehicleState& currentVehicl
     for(auto valve : valveArray)
     {
             //Serial.print("ValveNodeID: ");
-            //Serial.print(static_cast<uint8_t>(valve->getValveNodeID()));
+            //Serial.print(static_cast<uint8_t>(valve->ID.getNodeID()));
             //Serial.print("ValveID: ");
-            //Serial.print(static_cast<uint8_t>(valve->getValveID()));
+            //Serial.print(static_cast<uint8_t>(valve->ID.getID()));
         
-        if (valve->getValveNodeID() == propulsionNodeIDIn)
+        if (valve->ID.getNodeID() == propulsionNodeIDIn)
         {
             Serial.print(" ValveID: ");
-            Serial.print(static_cast<uint8_t>(valve->getValveID()));
+            Serial.print(static_cast<uint8_t>(valve->ID.getID()));
             //Serial.print( ": priorState: ");
             //Serial.print(static_cast<uint8_t>(valve->getPriorState()));
             Serial.print( ": ValveState: ");
@@ -139,13 +139,13 @@ void SerialUSBController::propulsionNodeStatusPrints(VehicleState& currentVehicl
     {
         
             //Serial.print("PyroNodeID: ");
-            //Serial.print(static_cast<uint8_t>(pyro->getPyroNodeID()));
+            //Serial.print(static_cast<uint8_t>(pyro->ID.getNodeID()));
             //Serial.print("PyroID: ");
-            //Serial.print(static_cast<uint8_t>(pyro->getPyroID()));
-       if (pyro->getPyroNodeID() == propulsionNodeIDIn)
+            //Serial.print(static_cast<uint8_t>(pyro->ID.getID()));
+       if (pyro->ID.getNodeID() == propulsionNodeIDIn)
          {
             Serial.print(" PyroID:  ");
-            Serial.print(static_cast<uint8_t>(pyro->getPyroID()));
+            Serial.print(static_cast<uint8_t>(pyro->ID.getID()));
             Serial.print( ": PyroState:  ");
             Serial.print(static_cast<uint8_t>(pyro->getState()));
             //Serial.print( ": firesequenceactuationtime: ");
@@ -165,12 +165,12 @@ void SerialUSBController::propulsionNodeStatusPrints(VehicleState& currentVehicl
   
     for(auto sensor : sensorArray)
     {
-        if (sensor->getSensorNodeID() == propulsionNodeIDIn)
+        if (sensor->ID.getNodeID() == propulsionNodeIDIn)
         {
         //sensor->setState(SensorState::Slow);
          
             Serial.print("SensorID: ");
-            Serial.print(static_cast<uint8_t>(sensor->getSensorID()));
+            Serial.print(static_cast<uint8_t>(sensor->ID.getID()));
             //Serial.print( ": new converted bool: ");
             //Serial.print( ": new raw bool: ");
             //Serial.print(sensor->getNewSensorValueCheckCAN());
@@ -204,12 +204,12 @@ void SerialUSBController::propulsionNodeStatusPrints(VehicleState& currentVehicl
 
     for(auto sensor : HPsensorArray)
     {
-        if (sensor->getSensorNodeID() == propulsionNodeIDIn)
+        if (sensor->ID.getNodeID() == propulsionNodeIDIn)
         {
         //sensor->setState(SensorState::Slow);
          
             Serial.print("SensorID: ");
-            Serial.print(static_cast<uint8_t>(sensor->getSensorID()));
+            Serial.print(static_cast<uint8_t>(sensor->ID.getID()));
             //Serial.print( ": new converted bool: ");
             //Serial.print( ": new raw bool: ");
             //Serial.print(sensor->getNewSensorValueCheckCAN());
@@ -289,7 +289,7 @@ void SerialUSBController::propulsionNodeCSVStreamPrints(VehicleState& currentVeh
     // Sensors
     for(auto sensor : sensorArray)
     {
-    if (sensor->getSensorNodeID() == propulsionNodeIDIn)
+    if (sensor->ID.getNodeID() == propulsionNodeIDIn)
     {
     Serial.print(sensor->getCurrentRawValue());
     Serial.print(", ");   // comma delimeter

@@ -7,6 +7,7 @@
 #include "./piezoSongs.h"
 #include "./ALARApinDefines.h"
 #include "./extendedIO/extendedIO.h"
+#include "./Base_Classes/Task_Begin.hpp"
 
 struct RGB_12bitColor
 {
@@ -61,7 +62,7 @@ class RGB_LED
 
 };
 
-class ALARABoardController
+class ALARABoardController : public Task_Begin
 {
     private:
     PCA9685 &ALARALEDExtPWM;

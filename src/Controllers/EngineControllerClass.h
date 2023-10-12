@@ -9,6 +9,7 @@
 #include <vector>
 using std::vector;
 #include <algorithm>
+#include "./Base_Classes/Task_Begin.hpp"
 #include "./Base_Classes/Timer.hpp"
 #include "./Base_Classes/state_machine.hpp"
 #include "./Base_Classes/Controller.hpp"
@@ -20,7 +21,7 @@ struct throttlePoint
 };
 
 
-class EngineController : public Controller<EngineControllerState>, public Timer
+class EngineController : public Controller<EngineControllerState>, public Timer, public Task_Begin
 {
 private:
 //const uint32_t controllerID;                          // Controller ID number 
@@ -92,7 +93,7 @@ public:
             int64_t setFuelMVAutosequenceActuation_Default = 0, int64_t setLoxMVAutosequenceActuation_Default = 0, int64_t setIgniter1Actuation_Default = 0,
             int64_t setIgniter2Actuation_Default = 0, bool setNodeIDCheck = false);
     // a start up method, to set pins from within setup()
-void begin();
+    void begin();
 
     // access functions defined in place
 
