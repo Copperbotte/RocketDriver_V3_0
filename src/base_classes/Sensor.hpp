@@ -32,7 +32,7 @@ const ADCType ADCType_Default = ADCType::TeensyMCUADC;  //default source here is
 // - Joe, 2023 April 1
 class LinearMap
 {
-protected:
+private:
     float currentConvertedValue{};
     float priorConvertedValue{};
 
@@ -121,7 +121,7 @@ public:
 // - Joe, 2023 April 1
 class EMA
 {
-protected:
+private:
     bool _EMA_Enable_Default = true;  //needs a set function still
     bool _EMA_Enable;  //needs a set function still
     float _priorEMAOutput = 0;
@@ -184,7 +184,7 @@ public:
 // Bang controller. - Joe, 2023 April 6
 class LinearRegression
 {
-protected:
+private:
     bool _enableLinearRegressionCalc_Default = true; //not currently using, linreg only calculates when get func requests it
     bool _enableLinearRegressionCalc = true; //not currently using, linreg only calculates when get func requests it
 
@@ -282,7 +282,7 @@ public:
 // Bang controller. - Joe, 2023 April 6
 class IntegralError
 {
-protected:
+private:
     float _maxIntegralSum_Default;
     float _minIntegralSum_Default;
     float _maxIntegralSum;
