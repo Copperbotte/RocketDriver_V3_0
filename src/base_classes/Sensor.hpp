@@ -389,7 +389,6 @@ struct sampleRateDefaults
 // setters defined in a seperate .cpp, but the linker is whining when I try.
 // - Joe
 class Sensor : protected sampleRateDefaults, public Task_Begin
-//public Timer, public LinearMap, public EMA, public LinearRegression, public IntegralError,
 {
 
 private:
@@ -478,53 +477,9 @@ public:
         __IErr.resetAll();
     }
 
-    // LinearMap group
-    // Maps ADC read value to the calibrated range using linConvCoef.
-    // Accepts currentRawValue, or currentRawDiffValue.
-// void linearConversion(uint32_t); 
-// void linearConversion_WithSecondary(uint32_t); // Maps ADC read value to the calibrated range using linConvCoef, using both calibration steps.
-// 
-// float getCurrentConvertedValue(){return currentConvertedValue;}
-// //float getCurrentConvertedValue(bool resetConvertedRead){if (resetConvertedRead) {newSensorConvertedValueCheck_CAN = false;} return currentConvertedValue;} //reads and clears new value bool
-// float getCurrentConvertedValue(bool resetConvertedRead){if (resetConvertedRead) {newConversionCheck = false;} return currentConvertedValue;} //reads and clears new value bool
-// 
-// bool getNewSensorConversionCheck(){return newConversionCheck;}
-// void setNewConversionCheck(bool updateNewConversionCheck){newConversionCheck = updateNewConversionCheck;}
-
-    // EMA group
-// void setAlphaEMA(float alphaEMAIn){if(alphaEMAIn >0 && alphaEMAIn <=1){alphaEMA = alphaEMAIn;}}
-// float getEMAConvertedValue(){return newEMAOutput;}
-// void exponentialMovingAverage(float EMA_Input); // Always CurrentConvertedValue. Physically seperated to allow for easier encapsulation.
-
-    // Linear Regression group
-// void initializeLinReg(uint8_t arraySizeIn); //not in use at the moment
-// float linearRegressionLeastSquared_PID();
-// //void setRegressionSamples():???
-// virtual float getLinRegSlope() = 0;
-// bool getEnableLinearRegressionCalc(){return enableLinearRegressionCalc;}
-
-    // Integral error group
-// bool getEnableIntegralCalc(){return enableIntegralCalc;}
-// 
-// float getMaxIntegralSum(){return maxIntegralSum;}
-// float getMinIntegralSum(){return minIntegralSum;}
-// 
-// void setMaxIntegralSum(float maxIntegralSumIn){maxIntegralSum = maxIntegralSumIn;}
-// void setMinIntegralSum(float minIntegralSumIn){maxIntegralSum = minIntegralSumIn;}
-// 
-// void setTargetValue(float targetValueIn){targetValue = targetValueIn;}
-// float getIntegralSum(){return currentIntegralSum;}
-// 
-// void setEnableIntegralCalc(bool setEnableIn){enableIntegralCalc = setEnableIn;}
-// void resetIntegralCalc(bool resetBoolIn, float integralCalcIn = 0){if(resetBoolIn){currentIntegralSum = integralCalcIn;}}  //resets the integral sum, default arg zeros it
-
     // Semi-compositional implementation. Calls accumulateI from IntegralError with appropriate inputs.
     // Updates currentIntegralSum from IntegralError using currentConvertedValue and priorConvertedValue from LinearMap.
     void accumulatedI_float(); 
-
-    // Access functions defined in place
-// uint32_t getSensorID() const {return _sensorID;}
-// uint32_t getSensorNodeID() const {return _sensorNodeID;}
 
     ADCType getADCtype() const {return _sensorSource;}
     uint32_t getADCinput(){return _ADCinput;};
@@ -537,14 +492,12 @@ public:
     uint16_t getCANTimestamp(){return currentCANtimestamp;}
     uint32_t getTimestampSeconds(){return currentTimestampSeconds;}
     uint32_t getTimestampMicros(){return currentTimestampMicros;}
-    //virtual uint8_t getCurrentRollingArrayPosition(){return currentRollingArrayPosition;}
+
     uint32_t getCurrentRollingAverage(){return currentCalibrationValue;}
 
-// bool getNodeIDCheck(){return nodeIDCheck;}
     bool getNewSensorValueCheckCAN(){return newSensorValueCheck_CAN;}
     bool getNewSensorValueCheckLog(){return newSensorValueCheck_Log;}
 
-// void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;} // set the Node ID Check bool function
     void setState(SensorState newState){sensorState = newState;}
     void setSYSTimestamp(uint32_t timestampSeconds, uint32_t timestampMicros)
     {
@@ -557,11 +510,6 @@ public:
         pullTimestamp = false;
         }
     }
-
-    //virtual float getDeengergizeOffsetValue();
-    
-
-//virtual void initializeLinReg(uint8_t arraySizeIn) = 0; //not in use at the moment
 
     void setCurrentRawValue(uint32_t updateCurrentRawValue){currentRawValue = updateCurrentRawValue;} //Why is set raw value here again?
     //resets both the CAN and log bools for when new sample is read
@@ -576,30 +524,6 @@ public:
     void setSampleRateMedMode(uint32_t updateSampleRateMedMode)   {if(updateSampleRateMedMode<=2000){sampleRateMedMode = updateSampleRateMedMode;}}
     void setSampleRateFastMode(uint32_t updateSampleRateFastMode) {if(updateSampleRateFastMode<=2000){sampleRateFastMode = updateSampleRateFastMode;}}
 
-//void setTargetValue(float targetValueIn){targetValue = targetValueIn;}
-    //virtual void setDeenergizeOffset(ADC& adc, bool outputOverrideIn);
-
-    // This group feels like it should be a different class, or object.
-//void initializeLinReg(uint8_t arraySizeIn); //not in use at the moment
-//float linearRegressionLeastSquared_PID();
-//void accumulatedI_float();
-
-    /*     //void setRollingSensorArrayRaw(uint8_t arrayPosition, uint16_t sensorValueToArray)
-    void setRollingSensorArrayRaw(uint8_t arrayPosition, uint16_t sensorValueToArray)
-      {
-        rollingSensorArrayRaw[arrayPosition] = sensorValueToArray;
-        arrayPosition++;
-      } */
-
-/*     void setCurrentCalibrationValue()
-    {
-    for (size_t i = 0; i < 10; i++)
-    {
-      currentRunningSUM = currentRunningSUM + rollingSensorArrayRaw[i];
-    }
-    currentCalibrationValue = currentRunningSUM / 10;
-    } */
-    //};
 };
 
 // need to add differential read toggle somehow 

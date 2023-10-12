@@ -6,6 +6,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // Base Node ID Check class.
+//     ID is the unique ID of this object, while NodeID is which ALARA this 
+// object lies on.
 // - Joe, 2023 October 11
 class idClass
 {
@@ -22,7 +24,7 @@ public:
     {}
 
     // Copy constructor.
-    idClass(idClass &Other):
+    idClass(const idClass &Other):
         _ID{Other._ID}, _NodeID{Other._NodeID}, _nodeIDCheck{Other._nodeIDCheck}
     {}
 

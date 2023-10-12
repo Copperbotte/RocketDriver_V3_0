@@ -1,12 +1,15 @@
 
-#ifndef BASECLASS_STATEMACHINE_H_
-#define BASECLASS_STATEMACHINE_H_
+#ifndef BASECLASS_STATEMACHINE_HPP_
+#define BASECLASS_STATEMACHINE_HPP_
 
 #include <Arduino.h>
 
-// 2023 Feb 10
+// 2023 Oct 12
 // Current Authors: 
 //     Joseph Kessler (joseph.b.kessler@gmail.com)
+// 
+//     This base class is a bit of a mess.  Sorry! I don't like how it's 
+// implemented and I highly suggest changing it. - Joe 2023 Oct 12
 // 
 ////////////////////////////////////////////////////////////////////////////////
 //     This is a template state machine class that requires an enum of states.

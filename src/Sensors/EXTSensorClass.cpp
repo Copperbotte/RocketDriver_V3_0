@@ -51,17 +51,7 @@ EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t s
   sampleRateCalibrationMode = sampleRateCalibrationMode_Default;
 
   _currentSampleRate = setCurrentSampleRate;
-
-// linConvCoef1_m = linConvCoef1_m_Default = setLinConvCoef1_m_Default;
-// linConvCoef1_b = linConvCoef1_b_Default = setLinConvCoef1_b_Default;
-// linConvCoef2_m = linConvCoef2_m_Default = setLinConvCoef2_m_Default;
-// linConvCoef2_b = linConvCoef2_b_Default = setLinConvCoef2_b_Default;
-
-// EMA_Enable = EMA_Enable_Default;
-// alphaEMA = alphaEMA_Default;
-// regressionSamples = regressionSamples_Default;
-// maxIntegralSum = maxIntegralSum_Default = setMaxIntegralSum_Default;
-// minIntegralSum = minIntegralSum_Default = setMinIntegralSum_Default;
+  
   sensorState = SensorState::Fast;
 }
 
@@ -81,18 +71,6 @@ EXT_SENSOR::EXT_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t s
   //temporarily default initialize the simulated sensors to a given rate
   //currentSampleRate = 200;
   sensorState = SensorState::Slow;
-
-  // I have no idea what these defaults are.  Is this constructor even used?
-// linConvCoef1_m = linConvCoef1_m_Default = 0;
-// linConvCoef1_b = linConvCoef1_b_Default = 0;
-// linConvCoef2_m = linConvCoef2_m_Default = 0;
-// linConvCoef2_b = linConvCoef2_b_Default = 0;
-
-// EMA_Enable = EMA_Enable_Default;
-// alphaEMA = alphaEMA_Default;
-// regressionSamples = regressionSamples_Default;
-// maxIntegralSum = maxIntegralSum_Default = setMaxIntegralSum_Default;
-// minIntegralSum = minIntegralSum_Default = setMinIntegralSum_Default;
 }
 
 void EXT_SENSOR::begin()
@@ -102,9 +80,6 @@ void EXT_SENSOR::begin()
     {
         //rolling array setup
         __linearReg.initConvertedValueArray(3,3,static_cast<float>(__linearReg.getRegressionSamples()));
-//convertedValueArray[0] = {3};
-//convertedValueArray[1] = {3};
-//convertedValueArray[2] = {static_cast<float>(regressionSamples)};
     }
     if (ID.getNodeIDCheck() && getADCtype() == TeensyMCUADC)
     {
@@ -114,25 +89,12 @@ void EXT_SENSOR::begin()
 
 void EXT_SENSOR::resetAll()
 {
-  //
-  sampleRateSlowMode = sampleRateSlowMode_Default;
-  sampleRateMedMode = sampleRateMedMode_Default;
-  sampleRateFastMode = sampleRateFastMode_Default;
-  sampleRateCalibrationMode = sampleRateCalibrationMode_Default;
+    sampleRateSlowMode = sampleRateSlowMode_Default;
+    sampleRateMedMode = sampleRateMedMode_Default;
+    sampleRateFastMode = sampleRateFastMode_Default;
+    sampleRateCalibrationMode = sampleRateCalibrationMode_Default;
 
-  resetAllComponents();
-// __linearMap.resetAll();
-// __ema.resetAll();
-
-// linConvCoef1_m = linConvCoef1_m_Default;
-// linConvCoef1_b = linConvCoef1_b_Default;
-// linConvCoef2_m = linConvCoef2_m_Default;
-// linConvCoef2_b = linConvCoef2_b_Default;
-
-// EMA_Enable = EMA_Enable_Default;
-// alphaEMA = alphaEMA_Default;
-// maxIntegralSum = maxIntegralSum_Default;
-// minIntegralSum = minIntegralSum_Default;
+    resetAllComponents();
 }
 
 void EXT_SENSOR::readSim(ADC& adc)
@@ -140,93 +102,3 @@ void EXT_SENSOR::readSim(ADC& adc)
     float currentConvertedValue = fluidSim.analogRead(getADCinput());
     __linearMap._overrideValues(__linearMap.getPriorConvertedValue(), currentConvertedValue);
 }
-
-/*
-void EXT_SENSOR::read(ADC& adc)
-{
-    //Add in sample rate code here to check if a sensor is up to be read
-    //This is also where alternate ADC sources would be used - I do have the RTD sensors over ITC right now
-    //I'll have to change how it's written though, right now it's ADC* adc which is specific to Teensy MCU ADC
-// if (getADCtype() == TeensyMCUADC)
-//     {
-        if (getCurrentSampleRate() != 0)     //math says no divide by zero, use separate conditional for sample rate of 0
-        {
-        if (getTimer() >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
-            {
-                if (getADCtype() == TeensyMCUADC)
-                {
-                    currentRawValue = adc.analogRead(getADCinput());
-                    newSensorValueCheck_CAN = true;
-                    newSensorValueCheck_Log = true;
-                    newSensorConvertedValueCheck_CAN = true;
-                    //pullTimestamp = true;
-                    //setRollingSensorArrayRaw(currentRollingArrayPosition, currentRawValue);
-                    /////linear conversions here, y = m*x + b
-                    // This automatically stores converted value for the on board nodes
-                    ////priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
-                    ////currentConvertedValue = linConvCoef1_m*currentRawValue + linConvCoef1_b;
-                    linearConversion(currentRawValue); // Maps the voltage read by the ADC to the calibrated range.
-                }
-                if (getADCtype() == simulatedInput)
-                {
-                    currentConvertedValue = fluidSim.analogRead(getADCinput());
-                }
-                writeToRollingArray(convertedValueArray, currentConvertedValue);
-                exponentialMovingAverage(currentConvertedValue);
-                accumulatedI_float();
-                //currentLinReg_a1 = linearRegressionLeastSquared_PID();
-
-                //if (ID.getID() == 58)
-                //{
-                //Serial.print("sensorID: ");
-                //Serial.print(ID.getID());
-                //Serial.print(", currentRawValue: ");
-                //Serial.println(currentRawValue);
-                //Serial.print(", currentConvertedValue: ");
-                //Serial.println(currentConvertedValue); 
-                //}
-                //Serial.print("sensorID: ");
-                //Serial.print(ID.getID());
-                //Serial.print(", currentRawValue: ");
-                //Serial.println(currentRawValue);
-                //Serial.print(", currentRollingAverage: ");
-                //Serial.println(getCurrentRollingAverage()); 
-                //Serial.println("newSensorREADbefore");
-                //Serial.println(newSensorValueCheck);
-                ////newSensorValueCheck_CAN = true;
-                ////newSensorValueCheck_Log = true;
-                ////newSensorConvertedValueCheck_CAN = true;
-                //newSensorValueCheck = false;
-                ////newConversionCheck = true;
-                //Serial.println("newSensorinREADafter");
-                //Serial.println(newSensorValueCheck);
-                resetTimer();
-                pullTimestamp = true;
-            }
-        }
-// }
-*/
-/*
-if (getADCtype() == simulatedInput)
-    {
-        if (getCurrentSampleRate() != 0)     //math says no divide by zero, use separate conditional for sample rate of 0
-        {
-        if (getTimer() >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
-            {
-                
-                    //currentRawValue = adc->analogRead(ADCinput);
-                    //setRollingSensorArrayRaw(currentRollingArrayPosition, currentRawValue);
-                    /////linear conversions here, y = m*x + b
-                    // This automatically stores converted value for the on board nodes
-                    pullTimestamp = true; // I want to move this below resetTimer to be consistent. I'm unsure if I can with so many functions below. - Joe, 2023 April 1
-                    priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
-                    currentConvertedValue = fluidSim.analogRead(getADCinput());
-                    writeToRollingArray(convertedValueArray, currentConvertedValue);
-                    exponentialMovingAverage(currentConvertedValue);
-                    accumulatedI_float();
-                    resetTimer();
-            }
-        }
-    }
-*/
-//}

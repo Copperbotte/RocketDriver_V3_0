@@ -266,15 +266,8 @@ public: // These should be private.
 class TankPressController : public Controller<TankPressControllerState>, public Timer, public PID, public Task_Begin
 {
 private:
-//const uint32_t controllerID;                          // Controller ID number 
-//const uint8_t controllerNodeID;
-//bool nodeIDCheck;                           // Whether this object should operate on this node
         bool isSystemBang;
-//bool testPass = false;
-//TankPressControllerState state;
-//TankPressControllerState priorState;
-//int64_t currentAutosequenceTime;
-//SensorState sensorState;                    // Use one sensor state inside here to toggle all sensors on controller
+
         //elapsedMicros bangtimer;                        // timer for the valve, used for changing duty cycles, in MICROS
         ValveState pressLineVentStateBang1;
         ValveState pressLineVentStateBang2;
@@ -295,64 +288,11 @@ private:
         float tankToChamberDp_Default;
         float tankToChamberDp;
 
-//float targetValue_Default;
-//float targetValue;
-
-//float K_p_Default = 1;
-//float K_p = 1;
-//
-//float K_i_Default = 0; //initial Ki, KEEP 0 for tank press
-//float K_i = 0; //initial Ki, KEEP 0 for tank press
-//
-//float K_i_run_Default = 0; //bang run Ki
-//float K_i_run = 0; //bang run Ki
-//
-//float K_d_Default = 0;
-//float K_d = 0;
-
         float controllerThreshold_Default = 1;
         float controllerThreshold = 1;
-//float bangPIDoutput;
 
 //float controllerTimeStep = 0.01; //default to 100Hz assumption for controller refresh
         float sensorIntervalTimeStep = 0.01; // Is this unused? It was next to controllerTimeStep intially, with the same value. - Joe 2023 October 3
-
-//bool trustBangSensor1 = true;
-//bool trustBangSensor2 = true;
-//bool trustBangSensor3 = false;
-//float bangSensor1EMA = 0;   //primary PT
-//float bangSensor1Integral = 0;   //primary PT
-//float bangSensor1Derivative = 0;   //primary PT
-//
-//float bangSensor2EMA = 0;   //secondary PT
-//float bangSensor2Integral = 0;   //secondary PT
-//float bangSensor2Derivative = 0;   //secondary PT
-//
-//float bangSensor3EMA = 0;   //simulated PT
-//float bangSensor3Integral = 0;   //simulated PT
-//float bangSensor3Derivative = 0;   //simulated PT
-
-//bangSensorPID PIDSensor1, PIDSensor2, PIDSensor3;
-
-//float bangSensorWeightedEMA = 0;   //weighted ave/trusted value - currently crude use
-        
-// Are these 3 ever used? It looks like old permanent input variables for before the KPE variables appeared. - Joe 2023 October 2
-//float proportionalValue = 0;
-//float integralValue = 0;
-//float derivativeValue = 0;
-
-        //do i need to create a float array for sensors here or can I pass a reference/similar?
-//float funcOutput = 0;
-//float p_rollingAve = 0;
-//float P_p = 0;
-//float P_i = 0;
-//float P_d = 0;
-//float e_p = 0;
-//float e_i = 0;
-//float e_d = 0;
-//int arrayMostRecentPositionPID = 0;
-//bool PIDmathPrintFlag = false;
-//float timeStepPIDMath = 0;
 
         bool resetIntegralCalcBool = false;
 
@@ -392,7 +332,7 @@ public:
     // stateOperations will check the current state of the valve and perform any actions that need to be performed
     // for example, if the valve is commanded to open, this needs to be run so that the valve can start opening
     // and it needs to be run every loop so that once enough time has pass the 
-void stateOperations();
+    void stateOperations();
 
     // access functions defined in place
     float getControllerThreshold(){return controllerThreshold;}
@@ -405,16 +345,7 @@ void stateOperations();
         }
     }
 
-    // get functions, return the current value of that variable
-//uint32_t getControllerID(){return controllerID;}
-//uint8_t getControllerNodeID(){return controllerNodeID;}
-//bool getNodeIDCheck(){return nodeIDCheck;}
         bool getIsBang(){return isSystemBang;}
-//float getTargetValue(){return targetValue;}
-//float getControllerThreshold(){return controllerThreshold;}
-//TankPressControllerState getState(){return state;}
-//TankPressControllerState getPriorState(){return priorState;}
-//SensorState getControllerSensorState(){return sensorState;}
         ValveState getPrimaryPressValveState(){return primaryPressValve.getState();}
         ValveState getPressLineVentState(){return pressLineVent.getState();}
         ValveState getTankVentState(){return tankVent.getState();}
@@ -439,19 +370,6 @@ bool getAbortFlag(){return abortFlag;}
             }
         void resetIntegralCalc(bool resetIntIn){resetIntegralCalcBool = resetIntIn;}
         
-
-    // set the Node ID Check bool function
-void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
-    // controller state set function
-// void setState(TankPressControllerState newState)
-// {
-//     if (newState != state)
-//     {
-//         priorState = state;
-//         controllerConfigUpdate = true;
-//     }
-//     state = newState;
-// }        
     // vent line setting - for bang bang with two tank controllers sharing vent line control
         void setPressVentLineStateBang1(ValveState ventLineSetIn) {pressLineVentStateBang1 = ventLineSetIn;}
     // vent line setting - for bang bang with two tank controllers sharing vent line control
@@ -472,24 +390,19 @@ void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
         void setValveMinimumEnergizeTime(uint32_t valveMinimumEnergizeTimeIn){if(valveMinimumEnergizeTimeIn >= 0 && valveMinimumEnergizeTimeIn <= 10000){valveMinimumEnergizeTime = valveMinimumEnergizeTimeIn;controllerConfigUpdate = true;}}
         void setValveMinimumDeenergizeTime(uint32_t valveMinimumDeenergizeTimeIn){if(valveMinimumDeenergizeTimeIn >= 0 && valveMinimumDeenergizeTimeIn <= 10000){valveMinimumDeenergizeTime = valveMinimumDeenergizeTimeIn;controllerConfigUpdate = true;}}
 
-//void setPcTarget(float PcTargetIn);
-    
-//// reset all configurable settings to defaults
-//void resetAll();
 
     // autosequence get function
 void setCurrentAutosequenceTime(int64_t countdownIn) {currentAutosequenceTime = countdownIn;}
 
     // set function for controllerUpdateBool that indicates if a new controller calc has been run
         void setControllerUpdate(bool controllerUpdateIn){controllerUpdate = controllerUpdateIn;}
-//void setControllerConfigUpdate(bool controllerConfigUpdateIn){controllerConfigUpdate = controllerConfigUpdateIn;}
         void ventPressureCheck();
 
 
-////////////////////////////////////////////////////////////////////////////////
-// PID Controller Interface Variables and Functions
-// Do NOT leave this here.  This is relocated for ease of refactoring.
-// - Joe Kessler, 2023 October 3
+    ////////////////////////////////////////////////////////////////////////////
+    // PID Controller Interface Variables and Functions
+    // Do NOT leave this here.  This is relocated for ease of refactoring.
+    // - Joe Kessler, 2023 October 3
 
     // BAD MOVE THIS NO DO NOT KEEP THIS HERE THIS IS TEMPORARY NO BAD
     // BE ORGANIZED THAT'S THE WHOLE POINT OF THIS REFACTOR - Joe
@@ -499,27 +412,6 @@ void setCurrentAutosequenceTime(int64_t countdownIn) {currentAutosequenceTime = 
     bangSensorPID PIDSensor1; //primary PT
     bangSensorPID PIDSensor2; //secondary PT
     bangSensorPID PIDSensor3; //simulated PT
-
-//float getPfunc(){return e_p;}
-//float getIfunc(){return e_i;}
-//float getDfunc(){return e_d;}
-//float getP_p(){return P_p;}
-//float getP_i(){return P_i;}
-//float getP_d(){return P_d;}
-
-// set functions, allows the setting of a variable
-//void setPIDSensorInput1(float proportionalValue, float integralValue, float derivativeValue);
-//void setPIDSensorInput2(float proportionalValue, float integralValue, float derivativeValue);
-//void setPIDSensorInput3(float proportionalValue, float integralValue, float derivativeValue);
-
-//float getKp(){return K_p;}
-//float getKi(){return K_i;}
-//float getKd(){return K_d;}
-
-//void setK_p(float K_pin){if (K_pin <= 1000 && K_pin >= -1000) {K_p = K_pin;controllerConfigUpdate = true;}}
-//void setK_i(float K_iin){if (K_iin <= 1000 && K_iin >= -1000) {K_i = K_iin;controllerConfigUpdate = true;}}
-//void setK_i(){K_i = K_i_run;}   //empty input args means reset K_i to K_i_run
-//void setK_d(float K_din){if (K_din <= 1000 && K_din >= -1000) {K_d = K_din;controllerConfigUpdate = true;}}
 
     // Wrappers to pass a PID controller setting update. - Joe 2023 October 3
     void setK_p(float K_pin){controllerConfigUpdate = controllerConfigUpdate || _setK_i(K_pin);}

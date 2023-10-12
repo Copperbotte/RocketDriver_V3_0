@@ -2,6 +2,8 @@
 #ifndef BASECLASS_TASK_BEGIN_HPP_
 #define BASECLASS_TASK_BEGIN_HPP_
 
+#include <Arduino.h> // for uint8_t
+
 ////////////////////////////////////////////////////////////////////////////////
 // Base Task Begin class.
 // A pure virtual class that defines a common Begin function in most objects.

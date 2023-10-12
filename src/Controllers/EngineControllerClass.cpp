@@ -2,9 +2,10 @@
 #include <Arduino.h>
 
 EngineController::EngineController(uint32_t setControllerID, uint8_t setControllerNodeID, float setCurrentPcTarget_Default, Valve* setPilotMVFuelValve, Valve* setPilotMVLoxValve, Valve* setPneumaticVent, Pyro* setIgniter1, Pyro* setIgniter2, int64_t setFuelMVAutosequenceActuation_Default, int64_t setLoxMVAutosequenceActuation_Default, int64_t setIgniter1Actuation_Default, int64_t setIgniter2Actuation_Default, bool setNodeIDCheck) 
-//    : Controller{setControllerID}, controllerNodeID{setControllerNodeID}, currentPcTarget_Default{setCurrentPcTarget_Default}, pilotMVFuelValve{*setPilotMVFuelValve}, pilotMVLoxValve{*setPilotMVLoxValve}, pneumaticVent{*setPneumaticVent}, igniter1{*setIgniter1}, igniter2{*setIgniter2}, fuelMVAutosequenceActuation_Default{setFuelMVAutosequenceActuation_Default}, loxMVAutosequenceActuation_Default{setLoxMVAutosequenceActuation_Default}, igniter1Actuation_Default{setIgniter1Actuation_Default}, igniter2Actuation_Default{setIgniter2Actuation_Default}, nodeIDCheck{setNodeIDCheck}
-    : Controller{setControllerID, setControllerNodeID, setNodeIDCheck}, currentPcTarget_Default{setCurrentPcTarget_Default}, pilotMVFuelValve{*setPilotMVFuelValve}, pilotMVLoxValve{*setPilotMVLoxValve}, pneumaticVent{*setPneumaticVent}, igniter1{*setIgniter1}, igniter2{*setIgniter2}, fuelMVAutosequenceActuation_Default{setFuelMVAutosequenceActuation_Default}, loxMVAutosequenceActuation_Default{setLoxMVAutosequenceActuation_Default}, igniter1Actuation_Default{setIgniter1Actuation_Default}, igniter2Actuation_Default{setIgniter2Actuation_Default}
+    : Controller{idClass{setControllerID, setControllerNodeID}}, currentPcTarget_Default{setCurrentPcTarget_Default}, pilotMVFuelValve{*setPilotMVFuelValve}, pilotMVLoxValve{*setPilotMVLoxValve}, pneumaticVent{*setPneumaticVent}, igniter1{*setIgniter1}, igniter2{*setIgniter2}, fuelMVAutosequenceActuation_Default{setFuelMVAutosequenceActuation_Default}, loxMVAutosequenceActuation_Default{setLoxMVAutosequenceActuation_Default}, igniter1Actuation_Default{setIgniter1Actuation_Default}, igniter2Actuation_Default{setIgniter2Actuation_Default}
 {
+    ID.setNodeIDCheck(setNodeIDCheck);
+
     fuelMVAutosequenceActuation = fuelMVAutosequenceActuation_Default;
     loxMVAutosequenceActuation = loxMVAutosequenceActuation_Default;
     igniter1Actuation = igniter1Actuation_Default;
@@ -28,7 +29,7 @@ EngineController::EngineController(uint32_t setControllerID, uint8_t setControll
 
 void EngineController::begin()
 {
-    if (nodeIDCheck)
+    if (ID.getNodeIDCheck())
     {
         // setup initial firing times to propulsion devices
         pilotMVFuelValve.setState(ValveState::Closed, fuelMVAutosequenceActuation);

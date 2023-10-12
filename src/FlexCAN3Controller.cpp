@@ -634,8 +634,8 @@ void FlexCan3Controller::generateTankControllermsgs(FlexCAN& CANbus, const std::
  */    
     for (auto tankPressController : tankPressControllerArray)
     {
-        tankPressControllerReportsStruct.controllerID = tankPressController->getControllerID();
-        tankPressControllerReportsStruct.controllerStateReportID = (tankPressController->getControllerID()*100) + 1000;
+        tankPressControllerReportsStruct.controllerID = tankPressController->ID.getID();
+        tankPressControllerReportsStruct.controllerStateReportID = (tankPressController->ID.getID()*100) + 1000;
 
         // Controller State Report and other quasistatic info to send low rate
         //if (tankPressControllerReportsStruct.quasistaticSendBool || externalStateChange)
@@ -677,7 +677,7 @@ void FlexCan3Controller::generateEngineControllermsgs(FlexCAN& CANbus, const std
     for (auto engine : engineControllerArray)
     {
         // Throttle program
-        uint16_t controllerID = 1000 + (engine->getControllerID()*100);
+        uint16_t controllerID = 1000 + (engine->ID.getID()*100);
         throttlePoint point1;
         throttlePoint point2;
 

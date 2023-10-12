@@ -9,6 +9,52 @@
 
 // This contains some of the functions to be used during operations they are templates, and so defined in the header. BEWARE
 
+// Generic setup loop.
+// Accepts an std::array reference of things that have Task_Begin.begin().
+template <typename T, std::size_t size>
+void setUp(const std::array<T, size>& Array)
+{
+    // iterate through valve array and run the stateOperations method
+    for(auto item : Array)
+    {
+        item->begin();
+    }
+}
+
+// Generic setup loop.
+// Accepts an std::array reference of things that have Task_Begin.begin(uint8_t pinArrayIn[][11]).
+template <typename T, std::size_t size>
+void setUp(const std::array<T, size>& Array, uint8_t pinArrayIn[][11])
+{
+    // iterate through valve array and run the stateOperations method
+    for(auto item : Array)
+    {
+        item->begin(pinArrayIn);
+    }
+}
+
+// Sets an object in the array's NodeIDCheck to true if its NodeID matches the input id.
+template <typename T, std::size_t size>
+void nodeIDCheck(const std::array<T, size>& Array, uint8_t nodeIDfromMain)
+{
+    for (auto item : Array)
+    {
+        if (item->ID.getNodeID() == nodeIDfromMain)
+        {
+            item->ID.setNodeIDCheck(true);
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//     Below here are a series of task functions.  runTasks should be generic, 
+// but I didn't find a clever way for all of the tasks to be ran with the same 
+// function at the time.  It was late at night, it might be easy.  Please keep
+// in mind performance due to these being a funcitonal approach running 
+// effectively a Map() on a series of functions.  Try to avoid using entire 
+// arrays as arguments to a function as the array will get packed onto the heap
+// during each function call.  I think.  Needs testing. - Joe, 2023 Oct 12
+
 //  CALL THIS FUNCTION EVERY LOOP 
     // This function takes the array of pointers that point to the valve objects, and then calls the .stateOperations() method for each valve
     // Make sure valveArray is an array of pointers, as defined in ValveDefinitions.h
@@ -18,59 +64,13 @@ void runTasks(const std::array<T, size>& Array, uint8_t& nodeIDReadIn, bool& out
     if (!outputOverride)    //bool will block all stateOps
     {
         // iterate through the array and run the lambda method
-        for(auto valve : Array)
+        for(auto item : Array)
         {
-            valve->runTasks(nodeIDReadIn, outputOverride, mainAutoSequence);
-// if (valve->ID.getNodeID() == nodeIDReadIn)
-// {
-//     valve->setCurrentAutoSequenceTime(mainAutoSequence.getCurrentCountdown());
-//     valve->controllerStateOperations();
-//     valve->ioStateOperations();
-// }
+            item->runTasks(nodeIDReadIn, outputOverride, mainAutoSequence);
         }
     }
 }
 
-/*
-//  CALL THIS FUNCTION EVERY LOOP 
-    // This function takes the array of pointers that point to the valve objects, and then calls the .stateOperations() method for each valve
-    // Make sure valveArray is an array of pointers, as defined in ValveDefinitions.h
-template <typename T, std::size_t size>
-void valveTasks(const std::array<T, size>& valveArray, uint8_t& nodeIDReadIn, bool& outputOverride, AutoSequence& mainAutoSequence)
-{
-    if (!outputOverride)    //bool will block all stateOps
-    {
-        // iterate through valve array and run the stateOperations method
-        for(auto valve : valveArray)
-        {
-            if (valve->ID.getNodeID() == nodeIDReadIn)
-            {
-                valve->setCurrentAutoSequenceTime(mainAutoSequence.getCurrentCountdown());
-                valve->controllerStateOperations();
-                valve->ioStateOperations();
-            }
-        }
-    }
-}
-
-template <typename T, std::size_t size>
-void pyroTasks(const std::array<T, size>& pyroArray, uint8_t& nodeIDReadIn, bool& outputOverride, AutoSequence& mainAutoSequence)
-{
-    if (!outputOverride)    //bool will block all stateOps
-    {
-        // iterate through valve array and run the stateOperations method
-        for(auto pyro : pyroArray)
-        {
-        if (pyro->getPyroNodeID() == nodeIDReadIn)
-            {
-                pyro->setCurrentAutoSequenceTime(mainAutoSequence.getCurrentCountdown());
-                pyro->controllerStateOperations();
-                pyro->ioStateOperations();
-            }
-        }
-    }
-}
-*/
 template <typename T, std::size_t size>
 void tankPressControllerTasks(const std::array<T, size>& tankPressControllerArray, uint8_t& nodeIDReadIn, AutoSequence& ignitionAutoSequenceRef)
 {
@@ -78,7 +78,7 @@ void tankPressControllerTasks(const std::array<T, size>& tankPressControllerArra
     for(auto tankPressController : tankPressControllerArray)
     {
     
-        if (tankPressController->getControllerNodeID() == nodeIDReadIn)
+        if (tankPressController->ID.getNodeID() == nodeIDReadIn)
         {
             tankPressController->setCurrentAutosequenceTime(ignitionAutoSequenceRef.getCurrentCountdown());
             tankPressController->stateOperations();
@@ -93,7 +93,7 @@ void engineControllerTasks(const std::array<T, size>& engineControllerArray, uin
     for(auto engineController : engineControllerArray)
     {
     
-        if (engineController->getControllerNodeID() == nodeIDReadIn)
+        if (engineController->ID.getNodeID() == nodeIDReadIn)
         {
             engineController->setCurrentAutosequenceTime(ignitionAutoSequenceRef.getCurrentCountdown());
             engineController->stateOperations();
@@ -182,107 +182,6 @@ void TCsensorTasks(const std::array<T, size>& TCsensorArray, ADC& adc, uint8_t& 
         }
     }
 }
-/*
-// CALL THIS FUNCTION ONCE IN SETUP, THIS SETS THE VALVE PINMODES
-    // make sure to pass this function valveArray, as defined in ValveDefinitions.h
-template <typename T, std::size_t size>
-void valveSetUp(const std::array<T, size>& valveArray, uint8_t pinArrayIn[][11])
-{
-    // iterate through valve array and run the stateOperations method
-    for(auto valve : valveArray)
-    {
-        valve->begin(pinArrayIn);
-    }
-}
-
-template <typename T, std::size_t size>
-void pyroSetUp(const std::array<T, size>& pyroArray, uint8_t pinArrayIn[][11])
-{
-    // iterate through valve array and run the stateOperations method
-    for(auto pyro : pyroArray)
-    {
-        pyro->begin(pinArrayIn);
-    }
-}
-*/
-// Generic setup loop.
-// Accepts an std::array reference of things that have Task_Begin.begin().
-template <typename T, std::size_t size>
-void setUp(const std::array<T, size>& Array)
-{
-    // iterate through valve array and run the stateOperations method
-    for(auto item : Array)
-    {
-        item->begin();
-    }
-}
-
-// Generic setup loop.
-// Accepts an std::array reference of things that have Task_Begin.begin(uint8_t pinArrayIn[][11]).
-template <typename T, std::size_t size>
-void setUp(const std::array<T, size>& Array, uint8_t pinArrayIn[][11])
-{
-    // iterate through valve array and run the stateOperations method
-    for(auto item : Array)
-    {
-        item->begin(pinArrayIn);
-    }
-}
-
-/*
-template <typename T, std::size_t size>
-void autoSequenceSetUp(const std::array<T, size>& autoSequenceArray)
-{
-    // iterate through valve array and run the stateOperations method
-    for(auto autoSequence : autoSequenceArray)
-    {
-        autoSequence->begin();
-    }
-}
-
-template <typename T, std::size_t size>
-void engineControllerSetup(const std::array<T, size>& engineControllerArray)
-{
-    // iterate through engine controller array and run begin
-    for(auto engineController : engineControllerArray)
-    {
-        engineController->begin();
-    }
-}
-
-template <typename T, std::size_t size>
-void tankPressControllerSetup(const std::array<T, size>& tankPressControllerArray)
-{
-    // iterate through tank controller array and run begin
-    for(auto tankPressController : tankPressControllerArray)
-    {
-        tankPressController->begin();
-    }
-}
-*/
-
-/*
-// This one is special, it has a disabled other setup with these serial prints.
-// Maybe this should be in the sensor's specific begin?
-template <typename T, std::size_t size>
-void sensorSetUp(const std::array<T, size>& sensorArray)
-//void sensorSetUp(const std::array<T, size>& sensorArray, uint32_t& rocketDriverSeconds, uint32_t& rocketDriverMicros, void (*myTimeTrackingFunction)(uint32_t, uint32_t))
-{
-    // iterate through sensor array and run begin
-    for(auto sensor : sensorArray)
-    {
-        sensor->begin();
-        //sensor->setSYSTimestamp(secondsRD, microsecondsRD);
-        // myTimeTrackingFunction(rocketDriverSeconds, rocketDriverMicros);
-        // Serial.println("rocketDriverSeconds");
-        // Serial.println(rocketDriverSeconds);
-        // Serial.println("rocketDriverMicros");
-        // Serial.println(rocketDriverMicros); 
-        //Serial.print("LoopRan");
-    }
-}
-*/
-
 
 void fakesensorShit(uint32_t& rocketDriverSeconds, uint32_t& rocketDriverMicros, void (*myTimeTrackingFunction)(uint32_t, uint32_t))
 {
@@ -300,62 +199,6 @@ void fakesensorShit(uint32_t& rocketDriverSeconds, uint32_t& rocketDriverMicros,
     //}
 }
 
-// Sets an object in the array's NodeIDCheck to true if its NodeID matches the input id.
-template <typename T, std::size_t size>
-void nodeIDCheck(const std::array<T, size>& Array, uint8_t nodeIDfromMain)
-{
-    for (auto item : Array)
-    {
-        if (item->ID.getNodeID() == nodeIDfromMain)
-        {
-            item->ID.setNodeIDCheck(true);
-        }
-    }
-}
-/*
-template <typename T, std::size_t size>
-void ValveNodeIDCheck(const std::array<T, size>& valveArray, uint8_t nodeIDfromMain)
-{
-    // iterate through valve array and run the stateOperations method
-    for (auto valve : valveArray)
-    {
-        if (valve->ID.getNodeID() == nodeIDfromMain)
-        {
-            valve->ID.setNodeIDCheck(true);
-        }
-    }
-}
-
-template <typename T, std::size_t size>
-void PyroNodeIDCheck(const std::array<T, size>& pyroArray, uint8_t nodeIDfromMain)
-{
-    // iterate through pyro array and run the stateOperations method
-    for (auto pyro : pyroArray)
-    {
-        if (pyro->getPyroNodeID() == nodeIDfromMain)
-        {
-            pyro->setNodeIDCheck(true);
-        }
-    }
-}
-
-template <typename T, std::size_t size>
-void SensorNodeIDCheck(const std::array<T, size>& sensorArray, uint8_t nodeIDfromMain)
-{
-    // iterate through sensor array and run the stateOperations method
-    for (auto sensor : sensorArray)
-    {
-        if (sensor->ID.getNodeID() == nodeIDfromMain)
-        {
-            sensor->ID.setNodeIDCheck(true);
-        }
-        else if (nodeIDfromMain == 6)    //Logger nodeID so it generates array for all sensors
-        {
-            sensor->ID.setNodeIDCheck(true);
-        }
-    }
-}
-*/
 
 
 #endif

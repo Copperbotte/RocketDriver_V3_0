@@ -9,16 +9,14 @@
 #include "./States/ValveStates.hpp"
 #include "./ALARASNConfigurations.h"
 #include "./Sensors/ALARAHPSensorClass.h"
+#include "./Base_Classes/ID.hpp"
 #include "./Base_Classes/Task_Begin.hpp"
 
 class ALARAV2SensorController : public StateMachine<ALARAV2SensorControllerState>, Task_Begin
 {
     private:
-        const uint32_t controllerID;                        // Controller ID number - not super useful right now? Maybe for state reporting.
-        const uint8_t controllerNodeID;                     // node the controller is running on
         bool nodeIDCheck;                           // Whether this object should operate on this node
-// ALARAV2SensorControllerState state;
-// ALARAV2SensorControllerState priorState;
+
         SensorState sensorStateInternal;                    // Use one sensor state inside here to toggle all sensors on controller
         SensorState sensorStateGNC;                    // Use one sensor state inside here to toggle all sensors on controller
         SensorState sensorStateALARAHP;                    // Use one sensor state inside here to toggle all sensors on controller
@@ -48,6 +46,8 @@ class ALARAV2SensorController : public StateMachine<ALARAV2SensorControllerState
         
     public:
     
+    idClass ID;
+
     // constructor
         ALARAV2SensorController(uint32_t setControllerID, uint8_t setControllerNodeID, bool setNodeIDCheck = false,
                                 bool setBNO055_active = false, bool setBMI085_active = false, bool setKX134_1211_active = false, bool setSAM_M8Q_GPS_active = false, bool setMS5607_active = false,
@@ -56,24 +56,6 @@ class ALARAV2SensorController : public StateMachine<ALARAV2SensorControllerState
     void begin();
         //void setALARAHPSensors(ALARAHP_SENSOR* setHP1, ALARAHP_SENSOR* setHP2, ALARAHP_SENSOR* setHP3,ALARAHP_SENSOR* setHP4, ALARAHP_SENSOR* setHP5, ALARAHP_SENSOR* setHP6,ALARAHP_SENSOR* setHP7, ALARAHP_SENSOR* setHP8, ALARAHP_SENSOR* setHP9, ALARAHP_SENSOR* setHP10);
 
-    // get functions, return the current value of that variable
-        uint32_t getControllerID(){return controllerID;}
-        uint8_t getControllerNodeID(){return controllerNodeID;}
-        bool getNodeIDCheck(){return nodeIDCheck;}
-// ALARAV2SensorControllerState getState(){return state;}
-
-    // set functions, allows the setting of a variable
-    // set the Node ID Check bool function
-        void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
-    // controller state set function
-// void setState(ALARAV2SensorControllerState newState)
-// {
-//     if (newState != state)
-//     {
-//         priorState = state;
-//     }
-//     state = newState;
-// }
     // sensor bool set functions
         void setBNO055_active(bool ALARAsensorSetIN) {BNO055_active = ALARAsensorSetIN;}
         void setBMI085_active(bool ALARAsensorSetIN) {BMI085_active = ALARAsensorSetIN;}

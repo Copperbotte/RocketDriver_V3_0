@@ -36,8 +36,6 @@ class Valve : public StateMachine_Firetime<ValveState>, public Timer, public Tas
 {
 
 private:
-// const uint32_t valveID = 99;                          // Valve ID number 
-// const uint8_t valveNodeID = 99;                      // NodeID the valve is controlled by
     ValveType valveType_Default;                  // sets the valve type, either normal closed or normal open
     ValveType valveType;                  // sets the valve type, either normal closed or normal open
     const u_int8_t ALARA_HP_Channel = 0;
@@ -74,8 +72,6 @@ public:
     idClass ID;
 
     // get functions, return the current value of that variable
-// uint32_t getValveID(){return valveID;}
-// uint8_t getValveNodeID(){return valveNodeID;}
     ValveType getValveType(){return valveType;}
     uint8_t getHPChannel(){return ALARA_HP_Channel;}
     uint8_t getPinPWM(){return pinPWM;}
@@ -97,15 +93,6 @@ public:
 // bool getNodeIDCheck(){return nodeIDCheck;}
     bool getAbortHaltDeviceBool(){return abortHaltDeviceBool;}
 
-    //every time a state is set, the timer should reset
-    //Is the above still true?
-    // set function for current autosequence time
- //       void setCurrentAutoSequenceTime(int64_t timeSetIn)
- //       {
- //           currentAutosequenceTime = timeSetIn;
- //       }
-    // set the Node ID Check bool function
-// void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
     //set functions 
     void setValveType(uint8_t typeIn){if (typeIn == 0 || typeIn == 1) {valveType = static_cast<ValveType>(typeIn);}}
     void setFullDutyTime(uint32_t fullDutyTimeIn){if (fullDutyTimeIn <= 10000) {fullDutyTime = fullDutyTimeIn;}}

@@ -91,7 +91,6 @@ void Pyro::controllerStateOperations()
             if (getPriorState() != PyroState::On)
             {
                 _setInitialValues(PyroState::On, getPriorState());
-//state = PyroState::On;
                 resetTimer();
             }
             else {_setInitialValues(PyroState::On, getPriorState());}
@@ -103,7 +102,6 @@ void Pyro::controllerStateOperations()
         if(getTimer() >= liveOutTime)
         {
             _setInitialValues(PyroState::Fired, getPriorState());
-//state = PyroState::Fired;
             //resetTimer();
         }
         break;
@@ -115,7 +113,6 @@ void Pyro::controllerStateOperations()
             if (getPriorState() != PyroState::Off)
             {
                 _setInitialValues(PyroState::Off, getPriorState());
-//state = PyroState::Off;
             //resetTimer();
             }
             else {_setInitialValues(PyroState::Off, getPriorState());}
@@ -132,7 +129,6 @@ void Pyro::controllerStateOperations()
             //     If AutosequenceTime is greater than fireSequenceActuation, 
             // and the valve has already fired, replace the command.
             _setInitialValues(PyroState::OnCommanded, getPriorState());
-//state = PyroState::OnCommanded;
         }
         break;
     case PyroState::Fired:

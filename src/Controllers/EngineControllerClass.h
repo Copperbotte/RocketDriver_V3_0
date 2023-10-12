@@ -9,6 +9,7 @@
 #include <vector>
 using std::vector;
 #include <algorithm>
+#include "./Base_Classes/ID.hpp"
 #include "./Base_Classes/Task_Begin.hpp"
 #include "./Base_Classes/Timer.hpp"
 #include "./Base_Classes/state_machine.hpp"
@@ -24,14 +25,6 @@ struct throttlePoint
 class EngineController : public Controller<EngineControllerState>, public Timer, public Task_Begin
 {
 private:
-//const uint32_t controllerID;                          // Controller ID number 
-//const uint8_t controllerNodeID;
-//bool nodeIDCheck;                           // Whether this object should operate on this node
-//bool testPass = false;
-// EngineControllerState state;
-// EngineControllerState priorState;
-//int64_t currentAutosequenceTime;
-//SensorState sensorState;                    // Use one sensor state inside here to toggle all sensors on controller
         bool abortFlag = false;         //controller can trigger an abort by flipping this flag true, sets the main vehicle state to abort
         bool deviceCommand = false;     // only send the direct device state commands while true
         int64_t fuelMVAutosequenceActuation_Default;
@@ -70,8 +63,6 @@ private:
 
         // controllerUpdate is for every controller cycle dynamic data
         bool controllerUpdate = false;
-        // controllerConfigUpdate is for controller settings that only change from user input
-// bool controllerConfigUpdate = false;
 
         //uint32_t igniter1LiveOutTime = 500000;
         //uint32_t igniter2LiveOutTime = 500000;
@@ -98,12 +89,6 @@ public:
     // access functions defined in place
 
     // get functions, return the current value of that variable
-//uint32_t getControllerID(){return controllerID;}
-//uint8_t getControllerNodeID(){return controllerNodeID;}
-//bool getNodeIDCheck(){return nodeIDCheck;}
-// EngineControllerState getState(){return state;}
-// EngineControllerState getPriorState(){return priorState;}
-//SensorState getControllerSensorState(){return sensorState;}
         ValveState getPilotMVFuelValveState(){return pilotMVFuelValve.getState();}
         ValveState getPilotMVLoxValveState(){return pilotMVLoxValve.getState();}
         PyroState getIgniter1State(){return igniter1.getState();}
@@ -118,18 +103,7 @@ bool getAbortFlag(){return abortFlag;}
         bool getControllerUpdate(){return controllerUpdate;}
         bool getControllerConfigUpdate(){return controllerConfigUpdate;}
     // set functions, allows the setting of a variable
-    // set the Node ID Check bool function
-void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
-    // controller state set function
-// void setState(EngineControllerState newState)
-//     {
-//         if (newState != state)
-//         {
-//             priorState = state;
-//             controllerConfigUpdate = true;
-//         }
-//         state = newState;
-//     }
+
     //valve and pyro state set functions
         void setPilotMVFuelValveState(ValveState pilotMVFuelValveStateIn) {if (pilotMVFuelValveStateIn != ValveState::NullReturn){pilotMVFuelValve.setState(pilotMVFuelValveStateIn);}}
         void setPilotMVLoxValveState(ValveState pilotMVLoxValveStateIn) {if (pilotMVLoxValveStateIn != ValveState::NullReturn){pilotMVLoxValve.setState(pilotMVLoxValveStateIn);}}
@@ -160,13 +134,13 @@ void setControllerUpdate(bool controllerUpdateIn){controllerUpdate = controllerU
         void setControllerConfigUpdate(bool controllerConfigUpdateIn){controllerConfigUpdate = controllerConfigUpdateIn;}
         
     // reset all configurable settings to defaults
-        void resetAll();
+    void resetAll();
 
     // ----- THIS METHOD TO BE RUN EVERY LOOP ------
     // stateOperations will check the current state of the valve and perform any actions that need to be performed
     // for example, if the valve is commanded to open, this needs to be run so that the valve can start opening
     // and it needs to be run every loop so that once enough time has pass the 
-void stateOperations();
+    void stateOperations();
 
 };
 

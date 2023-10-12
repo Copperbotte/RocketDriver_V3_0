@@ -2,8 +2,7 @@
 #include <Arduino.h>
 
 TankPressController::TankPressController(uint32_t setControllerID, uint8_t setControllerNodeID, Valve* setPrimaryPressValve, Valve* setPressLineVent, Valve* setTankVent, float setVentFailsafePressure_Default, bool setVentFailsafeArm = false, bool setIsSystemBang, bool setNodeIDCheck) 
-//    : Controller{setControllerID}, controllerNodeID{setControllerNodeID}, primaryPressValve{*setPrimaryPressValve}, pressLineVent{*setPressLineVent}, tankVent{*setTankVent}, ventFailsafePressure_Default{setVentFailsafePressure_Default}, ventFailsafeArm{setVentFailsafeArm}, isSystemBang{setIsSystemBang}, nodeIDCheck{setNodeIDCheck}
-    : Controller{setControllerID, setControllerNodeID, setNodeIDCheck},
+    : Controller{idClass{setControllerID, setControllerNodeID}},
     PID{},
     primaryPressValve{*setPrimaryPressValve}, pressLineVent{*setPressLineVent},
     tankVent{*setTankVent},
@@ -12,6 +11,7 @@ TankPressController::TankPressController(uint32_t setControllerID, uint8_t setCo
     isSystemBang{setIsSystemBang}
 {
     // Instantiation stuff?
+    ID.setNodeIDCheck(setNodeIDCheck);
 
     // The compiler is whining at me if these are a constructor - Joe 2023 Sept 29
     PIDSensor1.name = "bang1";
@@ -19,38 +19,27 @@ TankPressController::TankPressController(uint32_t setControllerID, uint8_t setCo
     PIDSensor3.name = "bang3";
 }
 TankPressController::TankPressController(uint32_t setControllerID, uint8_t setControllerNodeID, Valve* setPrimaryPressValve, Valve* setPressLineVent, Valve* setTankVent, float setTargetPcValue_Default, float setTankToChamberDp_Default, float setVentFailsafePressure_Default, float set_K_p_Default, float set_K_i_Default, float set_K_d_Default, float setControllerThreshold_Default, bool setVentFailsafeArm = false, bool setIsSystemBang, bool setNodeIDCheck) 
-//    : Controller{setControllerID}, controllerNodeID{setControllerNodeID}, primaryPressValve{*setPrimaryPressValve}, pressLineVent{*setPressLineVent}, tankVent{*setTankVent}, targetPcValue_Default{setTargetPcValue_Default}, tankToChamberDp_Default{setTankToChamberDp_Default}, ventFailsafePressure_Default{setVentFailsafePressure_Default}, K_p_Default{set_K_p_Default}, K_i_Default{set_K_i_Default}, K_d_Default{set_K_d_Default}, controllerThreshold_Default{setControllerThreshold_Default}, ventFailsafeArm{setVentFailsafeArm}, isSystemBang{setIsSystemBang}, nodeIDCheck{setNodeIDCheck}
-    : Controller{setControllerID, setControllerNodeID, setNodeIDCheck},
+    : Controller{idClass{setControllerID, setControllerNodeID}},
       PID{set_K_p_Default, set_K_i_Default, set_K_d_Default, setTargetPcValue_Default + setTankToChamberDp_Default},
       primaryPressValve{*setPrimaryPressValve}, pressLineVent{*setPressLineVent},
       tankVent{*setTankVent}, targetPcValue_Default{setTargetPcValue_Default},
       tankToChamberDp_Default{setTankToChamberDp_Default},
       ventFailsafePressure_Default{setVentFailsafePressure_Default},
-//K_p_Default{set_K_p_Default}, K_i_Default{set_K_i_Default},
-//K_d_Default{set_K_d_Default},
       controllerThreshold_Default{setControllerThreshold_Default},
       ventFailsafeArm{setVentFailsafeArm}, isSystemBang{setIsSystemBang}
 {
+    ID.setNodeIDCheck(setNodeIDCheck);
+
     // Instantiate operational values from the default values given
     // Allows a reset to defaults after having changed settings via config messages
     targetPcValue = targetPcValue_Default;
     tankToChamberDp = tankToChamberDp_Default;
-    //_setTargetValue(targetValue_Default);
-    //_setTargetValue(targetPcValue + tankToChamberDp);
 
-//K_p = K_p_Default;
-//K_i = K_i_Default;
-//K_d = K_d_Default;
     ventFailsafePressure = ventFailsafePressure_Default;
     controllerThreshold = controllerThreshold_Default;
     valveMinimumDeenergizeTime = valveMinimumDeenergizeTime_Default;
     valveMinimumEnergizeTime = valveMinimumEnergizeTime_Default;
     
-//// force K_i = 0 at instantiation - should move this now with new defaults setup
-//K_i_run = K_i;  //stashes K_i value for later
-//K_i = 0;
-////TankPressController::setK_i(0);
-
     // The compiler is whining at me if these are a constructor - Joe 2023 Sept 29
     PIDSensor1.name = "bang1";
     PIDSensor2.name = "bang2";
@@ -59,7 +48,7 @@ TankPressController::TankPressController(uint32_t setControllerID, uint8_t setCo
 
 void TankPressController::begin()
 {
-    if (nodeIDCheck)
+    if (ID.getNodeIDCheck())
     {
         // setup stuff?
     }

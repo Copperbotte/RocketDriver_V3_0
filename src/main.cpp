@@ -6,51 +6,7 @@
 // -------------------------------------------------------------
 // Use top level define conditional to determine which system the code is operating
 // Maintain definition header sets for a given propulsion system
-#include "ControlFunctions.h"
-#include "./Definitions/ValveDefinitions.hpp"
-#include "./Definitions/PyroDefinitions.hpp"
-#include "AutoSequenceDefinitions.h"
-#include "./Definitions/SensorDefinitions.hpp"
-#include "./Definitions/TankPressControllerDefinitions.h"
-#include "./Definitions/EngineControllerDefinitions.h"
-#include "ControlFunctions.h"
-#include "./Definitions/ALARASensorControllerDefinitions.h"
-// -------------------------------------------------------------
-
-// ----- "COTS" includes ----- //
-#include <Arduino.h>
-#include <EEPROM.h>
-#include <ADC.h>
-#include <ADC_util.h>
-#include <FlexCAN.h>
-#include <kinetis_flexcan.h>
-#include <WireKinetis.h>
-#include <Wire.h>
-#include "Adafruit_MCP9808.h" //  Where is this file? - Joe, 2023 July 15
-#include <InternalTemperature.h>
-#include <array>
-#include <string>
-#include <list>
-#include <unordered_map>
-using std::string;
-#include <IntervalTimer.h>
-
-#include "ALARAUtilityFunctions.h"
-#include "./Controllers/ALARABoardControllerClass.h"
-#include "./Definitions/ALARABoardControllerDefinitions.h"
-//#include "ToMillisTimeTracker.h"
-#include "CANRead.h"
-#include "CANWrite.h"
-#include "OperationFunctionTemplates.h"
-#include "ALARApinDefines.h"
-#include "fluidSystemSimulation.h"
-#include "FlexCAN3Controller.h"
-#include "SerialUSBController.h"
-#include "extendedIO/extendedIO.h"
-#include "ms5607/ms5607.h"
-//Trying to figure out RTC stuff with these libs
-#include <TimeLib.h>
-#include <DS1307RTC.h>
+#include "./main.hpp"
 
 //#define PROPULSIONSYSNODEIDPRESET 2;     //NOT in use normally, for testing with the address IO register inactive
 
@@ -253,10 +209,6 @@ void setup() {
     //////////////////////////////////
     // -- Initialize Sensors Bus -- //
     //////////////////////////////////
-    //     Finally!! Functional programming!!! Kinda.  This uses some very well 
-    // made atomic functions to verify and initialize all the valves and 
-    // sensors.
-////////////////////////////////////////////////////////////////////////////////
 
     // -----Run Valve PropulsionSysNodeID Check-----
     // ID Check verifies that the right devices are attached to the right ALARA.

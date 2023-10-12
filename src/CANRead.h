@@ -1,7 +1,7 @@
 #ifndef CANREAD_H
 #define CANREAD_H
 
-//#include <FlexCAN.h>
+#include <FlexCAN.h>
 #include "ControlCommands.h"
 #include "configurationSet.h"
 

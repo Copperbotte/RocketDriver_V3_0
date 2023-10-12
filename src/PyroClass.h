@@ -14,15 +14,12 @@
 class Pyro : public StateMachine_Firetime<PyroState>, public Timer, public Task_Iterator, public Task_Begin_Pins
 {
 private:
-// const uint32_t pyroID = 99;
-// const uint32_t pyroNodeID = 99;
     const u_int8_t ALARA_HP_Channel = 0;
     uint8_t pinDigital = 99;
     uint8_t pinPWM = 99;
     uint8_t pinADC = 99;                              // Valve ADC read pin
     uint32_t liveOutTime;
     uint32_t liveOutTime_Default;
-// bool nodeIDCheck;                           // Whether this object should operate on this node
     bool controllerUpdate = false;
 
 public:
@@ -42,8 +39,6 @@ public:
     // access functions defined in place
 
     // get functions, return the current value of that variable
-// uint32_t getPyroID(){return pyroID;}
-// uint32_t getPyroNodeID(){return pyroNodeID;}
     //uint32_t getFirePin(){return pinDigital;}
     //uint32_t getArmPin(){return pinPWM;}
     uint8_t getHPChannel(){return ALARA_HP_Channel;}
@@ -53,23 +48,13 @@ public:
     //uint32_t getshuntPin(){return shuntPin;}
     //uint32_t getContPin(){return contCheckPin;}        
     uint32_t getLiveOutTime(){return liveOutTime;}
-//int64_t getCurrentAutoSequenceTime(){return currentAutosequenceTime;}
-//int64_t getFireTime(){return fireSequenceActuation;}
-//PyroState getState(){return state;}
     PyroState getSyncState();
     
-// bool getNodeIDCheck(){return nodeIDCheck;}
 
     // set functions, allows the setting of a variable
-    // set function for current autosequence time
-//void setCurrentAutoSequenceTime(int64_t timeSetIn)
-//{
-//    currentAutosequenceTime = timeSetIn;
-//}
     // Bypasses state logic to reset the Pyro to Off, used to reset after device has been fired
     void resetPyro(){_setInitialValues(PyroState::Off, getPriorState());}
 
-// void setNodeIDCheck(bool updatedNodeIDCheck) {nodeIDCheck = updatedNodeIDCheck;}
     void setLiveOutTime(uint32_t liveOutTimeIn){if (liveOutTimeIn <= 2000000){liveOutTime = liveOutTimeIn;}}
     // reset all configurable settings to defaults
     void resetAll();

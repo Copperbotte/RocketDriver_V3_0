@@ -1377,7 +1377,7 @@ void controllerDataSync(const std::array<Valve*, NUM_VALVES>& valveArray, const 
     tankPressControllerArray.at(LoxTankController_ArrayPointer)->PIDSensor2.setInput(sensorArray.at(LoxTank2PT_ArrayPointer)->__ema.getEMAConvertedValue(), sensorArray.at(LoxTank2PT_ArrayPointer)->__IErr.getIntegralSum(), sensorArray.at(LoxTank2PT_ArrayPointer)->__linearReg.getLinRegSlope());
     tankPressControllerArray.at(LoxTankController_ArrayPointer)->PIDSensor3.setInput(sensorArray.at(FakeLoxTankPT_ArrayPointer)->__ema.getEMAConvertedValue(), sensorArray.at(FakeLoxTankPT_ArrayPointer)->__IErr.getIntegralSum(), sensorArray.at(FakeLoxTankPT_ArrayPointer)->__linearReg.getLinRegSlope());
     //Fuel Tank Controller Sensor Data fetch
-    
+
     tankPressControllerArray.at(FuelTankController_ArrayPointer)->PIDSensor1.setInput(sensorArray.at(FuelTank1PT_ArrayPointer)->__ema.getEMAConvertedValue(), sensorArray.at(FuelTank1PT_ArrayPointer)->__IErr.getIntegralSum(), sensorArray.at(FuelTank1PT_ArrayPointer)->__linearReg.getLinRegSlope());
     tankPressControllerArray.at(FuelTankController_ArrayPointer)->PIDSensor2.setInput(sensorArray.at(FuelTank2PT_ArrayPointer)->__ema.getEMAConvertedValue(), sensorArray.at(FuelTank2PT_ArrayPointer)->__IErr.getIntegralSum(), sensorArray.at(FuelTank2PT_ArrayPointer)->__linearReg.getLinRegSlope());
     tankPressControllerArray.at(FuelTankController_ArrayPointer)->PIDSensor3.setInput(sensorArray.at(FakeFuelTankPT_ArrayPointer)->__ema.getEMAConvertedValue(), sensorArray.at(FakeFuelTankPT_ArrayPointer)->__IErr.getIntegralSum(), sensorArray.at(FakeFuelTankPT_ArrayPointer)->__linearReg.getLinRegSlope());
@@ -1560,7 +1560,7 @@ if (NewConfigMessage) //only run all this nonsense if there is a new config mess
         //Serial.println("do I get past idSearch: tankPressController:  ");
         for (auto tankPressController : tankPressControllerArray)
         {
-            if (currentConfigMSG.TargetObjectID == tankPressController->getControllerID())
+            if (currentConfigMSG.TargetObjectID == tankPressController->ID.getID())
             {
                 switch (currentConfigMSG.ObjectSettingID)
                 {
@@ -1606,7 +1606,7 @@ if (NewConfigMessage) //only run all this nonsense if there is a new config mess
         //Serial.println("do I get past idSearch: engineController:  ");
         for (auto engineController : engineControllerArray)
         {
-            if (currentConfigMSG.TargetObjectID == engineController->getControllerID())
+            if (currentConfigMSG.TargetObjectID == engineController->ID.getID())
             {
                 switch (currentConfigMSG.ObjectSettingID)
                 {
