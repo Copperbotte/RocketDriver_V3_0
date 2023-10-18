@@ -437,17 +437,17 @@ protected:
 
 public:
     //SENSORBASE(){};
-    Sensor(uint32_t sensorID,       uint32_t sensorNodeID,    uint8_t ADCinput, const sampleRateDefaults&SRD,
+    Sensor(const idClass&sensorID,    uint8_t ADCinput, const sampleRateDefaults&SRD,
         const LinearMap&linearMap, const EMA&ema, const LinearRegression&linearReg, const IntegralError&IErr) // The lack of a space here feels weird, but it compiles! - Joe, 2023 April 6
-        :        ID{sensorID,                sensorNodeID}, _ADCinput{ADCinput},      sampleRateDefaults{SRD},
+        :             ID{sensorID}, _ADCinput{ADCinput},      sampleRateDefaults{SRD},
             __linearMap{linearMap},    __ema{ema},           __linearReg{linearReg},             __IErr{IErr}
     {}
 
     // Initializer with sensorSource.
-    Sensor(uint32_t sensorID,       uint32_t sensorNodeID,    uint8_t ADCinput, const sampleRateDefaults&SRD,  
+    Sensor(const idClass&sensorID,    uint8_t ADCinput, const sampleRateDefaults&SRD,  
         const LinearMap&linearMap, const EMA&ema, const LinearRegression&linearReg, const IntegralError&IErr,
               ADCType sensorSource)
-        :        ID{sensorID,                sensorNodeID}, _ADCinput{ADCinput},      sampleRateDefaults{SRD},
+        :             ID{sensorID}, _ADCinput{ADCinput},      sampleRateDefaults{SRD},
             __linearMap{linearMap},    __ema{ema},           __linearReg{linearReg},             __IErr{IErr},
         _sensorSource{sensorSource}
     {};
