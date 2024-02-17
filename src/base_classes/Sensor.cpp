@@ -227,111 +227,27 @@ float LinearRegression::linearRegressionLeastSquared_PID()
     float denLeastSquare = 0;
     float a0LeastSquare = 0;
     float a1LeastSquare = 0;
-    
-    sumX = 0;
-    sumY = 0;
-    sumXX = 0;
-    sumXY = 0;
-    denLeastSquare = 0;
-    a0LeastSquare = 0;
-    a1LeastSquare = 0;
-    
-    _convertedValueArray[0] = 3; _convertedValueArray[2] = 5;
-    // Version of linear regression simplified for finding the recent slope for a PID controller
-    // assumes fixed time steps, time is X, controller variable Y
-    // !!!!! - Function is built to expect arrays in format of:
-    // !!!!! - index[0] = first index with a value entry
-    // !!!!! - index[1] = array index for the starting point which is most recent entry, with next most recent the next highest index and so on
-    // !!!!! - index[2] = size of value entries
-    // Not sure if I've updated the math to use the first value in the numerical part instead of just manually subtracting to make it work for when it's 3
-    arrayIndexFirstValueLinReg = static_cast<uint32_t>(_convertedValueArray[0]+0.5);
-    arrayMostRecentPositionLinReg = static_cast<uint32_t>(_convertedValueArray[1]+0.5);
-    sizeInputArrayLinReg = static_cast<uint32_t>(_convertedValueArray[2]+0.5);
-    
-    // if statement to handle case where the input Array is smaller than the set number of terms to integrate over
-    if (sizeInputArrayLinReg < _regressionSamples)
-        regression_n = sizeInputArrayLinReg;
-    else regression_n = _regressionSamples;
-    // determine the overwrap value, if any
-    //arrayWrapSizeLinReg =  (-1) * ((arrayMostRecentPositionLinReg - regression_n) - 1); //old array method
-    arrayWrapSizeLinReg =  regression_n - ((arrayMostRecentPositionLinReg) - (arrayIndexFirstValueLinReg) + 1);
 
-    // calculate the sum terms;
-    // 
-        //Serial.print("timeStep: ");
-        //Serial.println(timeStep);
     _timeStep = 0.01;
-    //dont think I need below with new methods
-    /*     if (arrayWrapSizeLinReg <= 0)    // when there is no wrap required, calculated value will be zero or negative. Set to zero.
-        {
-        arrayWrapSizeLinReg = 0;
-        } */
-        //Serial.print("overwrap after zero set: ");
-        //Serial.println(arrayWrapSizeLinReg);
-    if (arrayWrapSizeLinReg > 0)  //only true if there are enough array values to use to wrap the end of the array
-    {
-        for (int i = arrayMostRecentPositionLinReg; i > (arrayIndexFirstValueLinReg - 1); i--)
-        {
-            float dX = (i - (arrayMostRecentPositionLinReg - regression_n + 1))*_timeStep;
-            sumX += dX;
-            sumXX += dX*dX;
-            sumY += _convertedValueArray[i];
-            sumXY += _convertedValueArray[i] * dX;
-        /*       Serial.print("DOES THIS EVER HAPPEN1: ");
-            Serial.print(i);
-            Serial.print(" : ");
-            Serial.println((i - (arrayMostRecentPositionLinReg - regression_n + 1)));
-        */
-        }
 
-        for (int i = (sizeInputArrayLinReg + arrayIndexFirstValueLinReg - 1); i > (sizeInputArrayLinReg + arrayIndexFirstValueLinReg - 1 - arrayWrapSizeLinReg); i--)
-        {
-            float dX = (i + (arrayWrapSizeLinReg) - (sizeInputArrayLinReg) - 3)*_timeStep;
-            sumX += dX;
-            sumXX += dX*dX;
-            sumY += _convertedValueArray[i];
-            sumXY += (_convertedValueArray[i] * dX);
-        /*       Serial.print("DOES THIS EVER HAPPEN2: ");
-            Serial.print(i);
-            Serial.print(" : ");
-            Serial.println((i + (arrayWrapSizeLinReg) - (sizeInputArrayLinReg) - 3));
-        */
-        }
-    }
-    else
+    // Offset recent by the size of the array to prevent negatives.
+    int recent = _convertedValueArrayNextInd + _regressionSamples;
+
+    for (int i=0; i < _regressionSamples; i++)
     {
-        for (int i = arrayMostRecentPositionLinReg; i > (arrayMostRecentPositionLinReg - regression_n); i--)
-        {
-            float dX = (i - (arrayMostRecentPositionLinReg - regression_n + 1))*_timeStep;
-            sumX += dX;
-            sumXX += dX*dX;
-            sumY += _convertedValueArray[i];
-            sumXY += _convertedValueArray[i] * dX;
-        /*       Serial.print("DOES THIS EVER HAPPEN: ");
-            Serial.print(i);
-            Serial.print(" : ");
-            Serial.println((i - (arrayMostRecentPositionLinReg - regression_n + 1)));
-        */    
-        }
+        // Trace backwards through the array to find dx
+        int di = (recent-i) % _regressionSamples;
+
+        float dX = -i*_timeStep;
+        sumX += dX;
+        sumXX += dX*dX;
+        sumY += _convertedValueArray[di];
+        sumXY += _convertedValueArray[di] * dX;
     }
-    /*   Serial.print("sumX: ");
-    Serial.println(sumX,8);
-    Serial.print("sumY: ");
-    Serial.println(sumY,8);
-    Serial.print("sumXX: ");
-    Serial.println(sumXX,8);
-    Serial.print("sumXY: ");
-    Serial.println(sumXY,8); */
     
     // calculate the denominator term
-    denLeastSquare = regression_n*sumXX - (sumX * sumX);
-    //Serial.print("den: ");
-    //Serial.println(denLeastSquare,5);
-    // calculate the a1 term, which is the slope
-    a1LeastSquare = ((regression_n*sumXY) - (sumX*sumY))/denLeastSquare;
-    // calculate the a0 term, which is the linear offset
-    // NOT USED IN PID VERSION
-    // a0LeastSquare = ((sumXX*sumY) - (sumXY*sumX))/denLeastSquare;
+    denLeastSquare = _regressionSamples*sumXX - (sumX * sumX);
+    a1LeastSquare = ((_regressionSamples*sumXY) - (sumX * sumY))/denLeastSquare;
     return a1LeastSquare;
 }
 
