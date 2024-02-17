@@ -191,7 +191,7 @@ private:
     bool _enableLinearRegressionCalc = true; //not currently using, linreg only calculates when get func requests it
 
     // Do not let the user modify this without writing a destructor. - Joe Kessler, 2023 October 8
-    const uint32_t _regressionSamples_Default = 5;
+    const static uint32_t _regressionSamples_Default = 5;
     uint32_t _regressionSamples;
 
     const float _timeStep_Default = 0.01;
@@ -199,18 +199,19 @@ private:
 
     // Holds an array of values used for the regression.
     // Use ALARAUtilityFunctions.h function writeToRollingArray to fill with data. - Joe 2023 April 3
-    float _convertedValueArray[5+3] = {};  //should be the same size as regression samples +3 for rolling array index stuff
-    int _convertedValueArrayNextInd = 3;
+    int _convertedValueArrayNextInd;
+    float _convertedValueArray[_regressionSamples_Default];  //should be the same size as regression samples +3 for rolling array index stuff
     
     float _currentLinReg_a1 = 0; // I'm pretty sure this is the slope after the regression.  I haven't checked, but that's how its used below. - Joe, 2023 April 3
 
 public:
     // Default constructor.
     LinearRegression():
-        _enableLinearRegressionCalc_Default{true}, _regressionSamples_Default{5},
-        _enableLinearRegressionCalc{        true}, _regressionSamples{        5},
+        _enableLinearRegressionCalc_Default{true}, //_regressionSamples_Default{__regressionSamples_SIZE},
+        _enableLinearRegressionCalc{        true}, _regressionSamples{_regressionSamples_Default},
         _timeStep_Default{0.01}, _currentLinReg_a1{0},
         _timeStep{        0.01},
+        _convertedValueArrayNextInd{0},
         //     This initializer is "clever," but I can't find a cleaner way that
         // works.  An empty curly brace sets all the values to 0.
         // - Joe 2023 October 8
@@ -221,13 +222,14 @@ public:
     LinearRegression(const LinearRegression &Other):
         _enableLinearRegressionCalc_Default{Other._enableLinearRegressionCalc_Default},
         _enableLinearRegressionCalc{        Other._enableLinearRegressionCalc},
-        _regressionSamples_Default{Other._regressionSamples_Default},
+        //_regressionSamples_Default{Other._regressionSamples_Default},
         _regressionSamples{        Other._regressionSamples},
         _timeStep_Default{Other._timeStep_Default},
         _timeStep{        Other._timeStep},
+        _convertedValueArrayNextInd{Other._convertedValueArrayNextInd},
         _currentLinReg_a1{Other._currentLinReg_a1}
     {
-        memcpy(_convertedValueArray, Other._convertedValueArray, (_regressionSamples + 3)*sizeof(float));
+        memcpy(_convertedValueArray, Other._convertedValueArray, _regressionSamples*sizeof(float));
     }
 
     // Initializer constructor.
@@ -269,28 +271,8 @@ public:
 
     void writeToRollingArray(float newInputArrayValue)
     {
-        _convertedValueArrayNextInd = (((_convertedValueArrayNextInd-3)+1)%5)+3;
+        _convertedValueArrayNextInd = (_convertedValueArrayNextInd+1) % _regressionSamples;
         _convertedValueArray[_convertedValueArrayNextInd] = newInputArrayValue;
-        _convertedValueArray[1] = static_cast<float>(_convertedValueArrayNextInd);
-        /*
-        // Updated format to allow arbitrary number of "header" indexes to be used
-        // primary purpose for now is to allow for multiple size indexes so type of array doesn't limit length
-        arrayIndexFirstValue = static_cast<uint32_t>(rollingArray[0]+0.5);
-        arrayMostRecentPositionInsert = static_cast<uint32_t>(rollingArray[1]+0.5);
-        sizeInputArrayInsert1 = static_cast<uint32_t>(rollingArray[2]+0.5);
-        sizeInputArrayInsert = sizeInputArrayInsert1;
-
-        if (arrayMostRecentPositionInsert == (sizeInputArrayInsert + arrayIndexFirstValue - 1)) // special case for being at the end of the array
-        {
-            rollingArray[1] = arrayIndexFirstValue;   // update the index that stores most recent value index to the first value index
-            rollingArray[arrayIndexFirstValue] = newInputArrayValue;    // write the most recent value to first value index
-        }
-        else
-        {
-            rollingArray[1] = arrayMostRecentPositionInsert + 1;
-            rollingArray[arrayMostRecentPositionInsert + 1] = newInputArrayValue;
-        }
-        */
     }
 
     uint32_t getRegressionSamples(){return _regressionSamples;}
