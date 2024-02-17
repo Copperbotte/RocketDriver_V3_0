@@ -200,6 +200,7 @@ private:
     // Holds an array of values used for the regression.
     // Use ALARAUtilityFunctions.h function writeToRollingArray to fill with data. - Joe 2023 April 3
     float _convertedValueArray[5+3] = {};  //should be the same size as regression samples +3 for rolling array index stuff
+    int _convertedValueArrayNextInd = 3;
     
     float _currentLinReg_a1 = 0; // I'm pretty sure this is the slope after the regression.  I haven't checked, but that's how its used below. - Joe, 2023 April 3
 
@@ -259,6 +260,37 @@ public:
         _convertedValueArray[0] = a0;
         _convertedValueArray[1] = a1;
         _convertedValueArray[2] = a2;
+    }
+
+    void initConvertedValueArray(int n, float a)
+    {
+        _convertedValueArray[n] = a;
+    }
+
+    void writeToRollingArray(float newInputArrayValue)
+    {
+        _convertedValueArrayNextInd = (((_convertedValueArrayNextInd-3)+1)%5)+3;
+        _convertedValueArray[_convertedValueArrayNextInd] = newInputArrayValue;
+        _convertedValueArray[1] = static_cast<float>(_convertedValueArrayNextInd);
+        /*
+        // Updated format to allow arbitrary number of "header" indexes to be used
+        // primary purpose for now is to allow for multiple size indexes so type of array doesn't limit length
+        arrayIndexFirstValue = static_cast<uint32_t>(rollingArray[0]+0.5);
+        arrayMostRecentPositionInsert = static_cast<uint32_t>(rollingArray[1]+0.5);
+        sizeInputArrayInsert1 = static_cast<uint32_t>(rollingArray[2]+0.5);
+        sizeInputArrayInsert = sizeInputArrayInsert1;
+
+        if (arrayMostRecentPositionInsert == (sizeInputArrayInsert + arrayIndexFirstValue - 1)) // special case for being at the end of the array
+        {
+            rollingArray[1] = arrayIndexFirstValue;   // update the index that stores most recent value index to the first value index
+            rollingArray[arrayIndexFirstValue] = newInputArrayValue;    // write the most recent value to first value index
+        }
+        else
+        {
+            rollingArray[1] = arrayMostRecentPositionInsert + 1;
+            rollingArray[arrayMostRecentPositionInsert + 1] = newInputArrayValue;
+        }
+        */
     }
 
     uint32_t getRegressionSamples(){return _regressionSamples;}

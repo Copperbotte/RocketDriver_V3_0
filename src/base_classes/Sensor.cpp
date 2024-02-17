@@ -235,7 +235,7 @@ float LinearRegression::linearRegressionLeastSquared_PID()
     a0LeastSquare = 0;
     a1LeastSquare = 0;
     
-    
+    _convertedValueArray[0] = 3; _convertedValueArray[2] = 5;
     // Version of linear regression simplified for finding the recent slope for a PID controller
     // assumes fixed time steps, time is X, controller variable Y
     // !!!!! - Function is built to expect arrays in format of:
@@ -321,7 +321,7 @@ float LinearRegression::linearRegressionLeastSquared_PID()
     Serial.println(sumXX,8);
     Serial.print("sumXY: ");
     Serial.println(sumXY,8); */
-
+    
     // calculate the denominator term
     denLeastSquare = regression_n*sumXX - (sumX * sumX);
     //Serial.print("den: ");
