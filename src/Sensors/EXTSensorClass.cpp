@@ -33,16 +33,32 @@ void MCUADCSetup(ADC& adc, ADC_REFERENCE refIn0, ADC_REFERENCE refIn1, uint8_t a
   adc.adc1->recalibrate();
 
 }
+/*
+EXT_SENSOR::EXT_SENSOR(const idClass&setSensorID, uint8_t setADCinput, FluidSystemSimulation* setFluidSim,
+     uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default)
+    : Sensor{setSensorID, setADCinput, sampleRateDefaults{setSampleRateSlowMode_Default, setSampleRateMedMode_Default, setSampleRateFastMode_Default, _SRD.sampleRateCalibrationMode_Default},
+        LinearMap{1, 0, 1, 0},
+        EMA{}, LinearRegression{}, IntegralError{2500, -2500, false}},
+      fluidSim{*setFluidSim}
+{
+  // setting stuff to defaults at initialization
+  sampleRateSlowMode = sampleRateSlowMode_Default;
+  sampleRateMedMode = sampleRateMedMode_Default;
+  sampleRateFastMode = sampleRateFastMode_Default;
+  sampleRateCalibrationMode = sampleRateCalibrationMode_Default;
 
-
+  _currentSampleRate = 0;
+  
+  sensorState = SensorState::Fast;
+}
+*/
 // Initializer 1
-EXT_SENSOR::EXT_SENSOR(const idClass&setSensorID, uint8_t setADCinput, FluidSystemSimulation* setFluidSim, uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default, 
+EXT_SENSOR::EXT_SENSOR(const idClass&setSensorID, uint8_t setADCinput, FluidSystemSimulation** setppFluidSim, uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default, 
     float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0,
     float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Off)
-    : Sensor{setSensorID, setADCinput, sampleRateDefaults{setSampleRateSlowMode_Default, setSampleRateMedMode_Default, setSampleRateFastMode_Default, _SRD.sampleRateCalibrationMode_Default},
+    : SensorWFluidPPtr{setSensorID, setADCinput, sampleRateDefaults{setSampleRateSlowMode_Default, setSampleRateMedMode_Default, setSampleRateFastMode_Default, _SRD.sampleRateCalibrationMode_Default},
         LinearMap{setLinConvCoef1_m_Default, setLinConvCoef1_b_Default, setLinConvCoef2_m_Default, setLinConvCoef2_b_Default},
-        EMA{}, LinearRegression{}, IntegralError{setMinIntegralSum_Default, setMaxIntegralSum_Default, false}},
-      fluidSim{*setFluidSim}
+        EMA{}, LinearRegression{}, IntegralError{setMinIntegralSum_Default, setMaxIntegralSum_Default, false}, setppFluidSim}
 {
   // setting stuff to defaults at initialization
   sampleRateSlowMode = sampleRateSlowMode_Default;
@@ -56,12 +72,11 @@ EXT_SENSOR::EXT_SENSOR(const idClass&setSensorID, uint8_t setADCinput, FluidSyst
 }
 
 // Initializer 2
-EXT_SENSOR::EXT_SENSOR(const idClass&setSensorID, uint8_t setADCinput, FluidSystemSimulation* setFluidSim, float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, ADCType setSensorSource)
-    : Sensor{setSensorID, setADCinput, _SRD,
+EXT_SENSOR::EXT_SENSOR(const idClass&setSensorID, uint8_t setADCinput, FluidSystemSimulation** setppFluidSim, float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, ADCType setSensorSource)
+    : SensorWFluidPPtr{setSensorID, setADCinput, _SRD,
         LinearMap{}, EMA{}, LinearRegression{},
         IntegralError{setMinIntegralSum_Default, setMaxIntegralSum_Default, false},
-        setSensorSource},
-      fluidSim{*setFluidSim}
+        setSensorSource, setppFluidSim}
 {
   // setting stuff to defaults at initialization
   sampleRateSlowMode = sampleRateSlowMode_Default;
@@ -99,6 +114,6 @@ void EXT_SENSOR::resetAll()
 
 void EXT_SENSOR::readSim(ADC& adc)
 {
-    float currentConvertedValue = fluidSim.analogRead(getADCinput());
+    float currentConvertedValue = (*_getFluidSimPPtr())->analogRead(getADCinput());
     __linearMap._overrideValues(__linearMap.getPriorConvertedValue(), currentConvertedValue);
 }

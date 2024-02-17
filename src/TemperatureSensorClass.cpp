@@ -81,7 +81,7 @@ void RTD_BREAKOUT::read()
 
 
 THERMOCOUPLE::THERMOCOUPLE(const idClass&setSensorID, uint8_t setADCinput1, uint8_t setADCinput2, TCType setTc, RTD_BREAKOUT* setTempsensor, uint16_t setRefVoltage)
-    : ID{setSensorID}, ADCinput1{setADCinput1}, ADCinput2{setADCinput2}, tc{setTc}, tempsensor{*setTempsensor}, refVoltage{setRefVoltage}
+    : ID{setSensorID}, ADCinput1{setADCinput1}, ADCinput2{setADCinput2}, tc{setTc}, tempsensor{setTempsensor}, refVoltage{setRefVoltage}
 {
   
 }
@@ -104,12 +104,12 @@ void THERMOCOUPLE::begin()
 void THERMOCOUPLE::stateOperations()
 {
   // Use timers to track whether the RTD has updated and new subsampling period begins for the TC
-  if (RTDtimer != tempsensor.getTimer())
+  if (RTDtimer != tempsensor->getTimer())
   {
     // if the timer is not equal, then make it so and flag to start a new TC averaging period
-    RTDtimer = tempsensor.getTimer();
+    RTDtimer = tempsensor->getTimer();
     priorColdJunctionTempC = coldJunctionTempC;
-    coldJunctionTempC = tempsensor.getConvertedValueC();
+    coldJunctionTempC = tempsensor->getConvertedValueC();
     newRTD = true;
   }
   

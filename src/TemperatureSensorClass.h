@@ -76,7 +76,7 @@ class THERMOCOUPLE : public Timer, public EMA, public LinearRegression
         uint32_t priorTimestampMicros = 0;
         bool nodeIDCheck = false;                           // Whether this object should operate on this node
 
-        RTD_BREAKOUT& tempsensor;
+        RTD_BREAKOUT *tempsensor;
         elapsedMillis RTDtimer;
 //elapsedMillis timer;
         bool newRTD = false;

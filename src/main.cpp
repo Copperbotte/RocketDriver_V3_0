@@ -83,7 +83,7 @@ SerialUSBController SerialUSBdataController;
 
 const int CAN2busSpeed = 500000; // CAN2.0 baudrate - do not set above 500000 for full distance run bunker to pad
 
-bool startup{true}; // bool for storing if this is the first loop on startup, ESSENTIAL FOR STATE MACHINE OPERATION (maybe not anymore?)
+bool startup{false}; // bool for storing if this is the first loop on startup, ESSENTIAL FOR STATE MACHINE OPERATION (maybe not anymore?)
 
 uint32_t loopCount {0};// for debugging
 
@@ -126,7 +126,10 @@ uint16_t nodeIDAddress2{23};
 uint16_t nodeIDAddress3{24};
 
 ////////////////////////////////////////////////////////////////////////////////
+FluidDefs fluidDefs;
+SensorDefs sensorDefs;
 
+////////////////////////////////////////////////////////////////////////////////
 //     Main function call.  Is ran on power on once, followed by a while(true) 
 // on loop.  
 //-------------------------------------------------------//
@@ -210,14 +213,17 @@ void setup() {
     // -- Initialize Sensors Bus -- //
     //////////////////////////////////
 
+    //fluidDefs
+    sensorDefs.pWaterGoesVroom = &fluidDefs.waterGoesVroom;
+
     // -----Run Valve PropulsionSysNodeID Check-----
     // ID Check verifies that the right devices are attached to the right ALARA.
     nodeIDCheck(valveArray, PropulsionSysNodeID);
     nodeIDCheck(pyroArray, PropulsionSysNodeID);
-    nodeIDCheck(sensorArray, PropulsionSysNodeID);
-    nodeIDCheck(sensorArray, 6); //Logger nodeID so it generates array for all sensors
-    nodeIDCheck(HPsensorArray, PropulsionSysNodeID);
-    nodeIDCheck(HPsensorArray, 6); //Logger nodeID so it generates array for all sensors
+    nodeIDCheck(sensorDefs.sensorArray, PropulsionSysNodeID);
+    nodeIDCheck(sensorDefs.sensorArray, 6); //Logger nodeID so it generates array for all sensors
+    nodeIDCheck(sensorDefs.HPsensorArray, PropulsionSysNodeID);
+    nodeIDCheck(sensorDefs.HPsensorArray, 6); //Logger nodeID so it generates array for all sensors
     //SensorNodeIDCheck(TCsensorArray, PropulsionSysNodeID);
 
     // -----Run Valve Setup-----
@@ -230,15 +236,15 @@ void setup() {
     setUp(autoSequenceArray);
     
     // -----Run Sensor Setup -----
-    setUp(sensorArray);
-    setUp(HPsensorArray);
-    setUp(TCsensorArray);
+    setUp(sensorDefs.sensorArray);
+    setUp(sensorDefs.HPsensorArray);
+    setUp(sensorDefs.TCsensorArray);
     #ifdef TEENSY3_X
-    coldJunctionRenegade.begin();
+    sensorDefs.coldJunctionRenegade.begin();
     #endif
 
     // ----- Set Controller Dependent Sensor Settings -----
-    controllerSensorSetup(valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, engineControllerArray);
+    controllerSensorSetup(valveArray, pyroArray, autoSequenceArray, sensorDefs.sensorArray, tankPressControllerArray, engineControllerArray);
 
     #ifdef ALARAV2_1
     pinModeExtended(ALARA_DIGITAL_ADDRESS_OE, OUTPUT);
@@ -285,9 +291,9 @@ void setup() {
 void loop() 
 {
     // Lazy "SensorTasks" for the RTD sensor
-    if (coldJunctionRenegade.ID.getNodeID() == PropulsionSysNodeID)
+    if (sensorDefs.coldJunctionRenegade.ID.getNodeID() == PropulsionSysNodeID)
     {
-        coldJunctionRenegade.read();
+        sensorDefs.coldJunctionRenegade.read();
     }
 
     //fakesensorShit(rocketDriverSeconds, rocketDriverMicros, &myTimeTrackingFunction);
@@ -320,14 +326,14 @@ void loop()
     //process command
     //if (commandExecuteTimer >= 2000)
     //{
-    commandExecute(currentVehicleState, priorVehicleState, currentMissionState, priorMissionState, currentCommand, NewCommandMessage, autoSequenceArray, sensorArray, tankPressControllerArray, engineControllerArray);
+    commandExecute(currentVehicleState, priorVehicleState, currentMissionState, priorMissionState, currentCommand, NewCommandMessage, autoSequenceArray, sensorDefs.sensorArray, tankPressControllerArray, engineControllerArray);
     //Serial.println("Do I get past command execute?");
     //}
     //pull next config message from buffer, if there is one
     NewConfigMessage = readRemoveVectorBuffer(currentConfigMSG);
     //Serial.println("Do I get past new config msg?");
     //process config message
-    configMSGread(currentConfigMSG, NewConfigMessage, valveArray, pyroArray, sensorArray, autoSequenceArray, tankPressControllerArray, engineControllerArray, waterGoesVroom);
+    configMSGread(currentConfigMSG, NewConfigMessage, valveArray, pyroArray, sensorDefs.sensorArray, autoSequenceArray, tankPressControllerArray, engineControllerArray, fluidDefs.waterGoesVroom);
     //Serial.println("Do I get past config msg read?");
     ///// ------------------------------------ /////  
 
@@ -340,19 +346,19 @@ void loop()
     if (ezModeControllerTimer >= 20) // 5 = 200Hz controller rate, 20 = 50Hz rate
     {
         // -----Process Commands Here-----
-        vehicleStateMachine(currentVehicleState, priorVehicleState, currentCommand, boardController, autoSequenceArray, sensorArray, tankPressControllerArray, engineControllerArray, waterGoesVroom, abortHaltFlag, outputOverride);
+        vehicleStateMachine(currentVehicleState, priorVehicleState, currentCommand, boardController, autoSequenceArray, sensorDefs.sensorArray, tankPressControllerArray, engineControllerArray, fluidDefs.waterGoesVroom, abortHaltFlag, outputOverride);
         missionStateMachine(currentVehicleState, priorVehicleState, currentMissionState, priorMissionState, boardController, autoSequenceArray, staticTest, abortHaltFlag);
         
         #ifdef ALARAV2_1
-        controllerDataSync(valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, engineControllerArray);
+        controllerDataSync(valveArray, pyroArray, autoSequenceArray, sensorDefs.sensorArray, tankPressControllerArray, engineControllerArray);
         #endif
 
         autoSequenceTasks(autoSequenceArray, PropulsionSysNodeID);
         tankPressControllerTasks(tankPressControllerArray, PropulsionSysNodeID, IgnitionAutoSequence);
         engineControllerTasks(engineControllerArray, PropulsionSysNodeID, IgnitionAutoSequence);
-        controllerDeviceSync(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorArray, tankPressControllerArray, engineControllerArray, waterGoesVroom, abortHaltFlag);
+        controllerDeviceSync(currentVehicleState, priorVehicleState, currentCommand, valveArray, pyroArray, autoSequenceArray, sensorDefs.sensorArray, tankPressControllerArray, engineControllerArray, fluidDefs.waterGoesVroom, abortHaltFlag);
         //fluid sim run
-        waterGoesVroom.fluidSystemUpdate();
+        fluidDefs.waterGoesVroom.fluidSystemUpdate();
         //Serial.println("Is this Pizza's fault?");
         ezModeControllerTimer = 0;
 
@@ -391,9 +397,9 @@ void loop()
     // Updates sensors.
     // 
 
-    sensorTasks(         sensorArray, *adc, PropulsionSysNodeID, rocketDriverSeconds, rocketDriverMicros);
-    ALARAHPsensorTasks(HPsensorArray, *adc, PropulsionSysNodeID, rocketDriverSeconds, rocketDriverMicros, outputOverride);
-    TCsensorTasks(     TCsensorArray, *adc, PropulsionSysNodeID, rocketDriverSeconds, rocketDriverMicros);
+    sensorTasks(         sensorDefs.sensorArray, *adc, PropulsionSysNodeID, rocketDriverSeconds, rocketDriverMicros);
+    ALARAHPsensorTasks(sensorDefs.HPsensorArray, *adc, PropulsionSysNodeID, rocketDriverSeconds, rocketDriverMicros, outputOverride);
+    TCsensorTasks(     sensorDefs.TCsensorArray, *adc, PropulsionSysNodeID, rocketDriverSeconds, rocketDriverMicros);
     DEBUG_SPRINT_PASS("Sensor Tasks");
 
     /////////////////////////
@@ -431,7 +437,7 @@ void loop()
         shittyCANTimer = 0;
     }
     
-    Can2msgController.controllerTasks(Can0, currentVehicleState, currentMissionState, currentCommand, engineControllerArray, tankPressControllerArray, valveArray, pyroArray, sensorArray, HPsensorArray, autoSequenceArray, waterGoesVroom, PropulsionSysNodeID);
+    Can2msgController.controllerTasks(Can0, currentVehicleState, currentMissionState, currentCommand, engineControllerArray, tankPressControllerArray, valveArray, pyroArray, sensorDefs.sensorArray, sensorDefs.HPsensorArray, autoSequenceArray, fluidDefs.waterGoesVroom, PropulsionSysNodeID);
     /*   Serial.println("Do I get past Can2 controllerTasks?");
     Can0stats = Can0.getStats();
     Serial.print("Can0stats.ringRxMax? ");
@@ -442,8 +448,8 @@ void loop()
 ///// ----- Serial Print Functions ----- /////
     if (mainLoopTestingTimer >= 250)
     {
-        SerialUSBdataController.propulsionNodeStatusPrints(currentVehicleState, priorVehicleState, currentMissionState, priorMissionState, currentCommand, currentCommandMSG, currentConfigMSG, autoSequenceArray, engineControllerArray, waterGoesVroom, tankPressControllerArray, valveArray, pyroArray, sensorArray, HPsensorArray, PropulsionSysNodeID);
-        SerialUSBdataController.propulsionNodeCSVStreamPrints(currentVehicleState, priorVehicleState, currentMissionState, priorMissionState, currentCommand, currentCommandMSG, currentConfigMSG, autoSequenceArray, engineControllerArray, waterGoesVroom, tankPressControllerArray, valveArray, pyroArray, sensorArray, PropulsionSysNodeID);
+        SerialUSBdataController.propulsionNodeStatusPrints(currentVehicleState, priorVehicleState, currentMissionState, priorMissionState, currentCommand, currentCommandMSG, currentConfigMSG, autoSequenceArray, engineControllerArray, fluidDefs.waterGoesVroom, tankPressControllerArray, valveArray, pyroArray, sensorDefs.sensorArray, sensorDefs.HPsensorArray, PropulsionSysNodeID);
+        SerialUSBdataController.propulsionNodeCSVStreamPrints(currentVehicleState, priorVehicleState, currentMissionState, priorMissionState, currentCommand, currentCommandMSG, currentConfigMSG, autoSequenceArray, engineControllerArray, fluidDefs.waterGoesVroom, tankPressControllerArray, valveArray, pyroArray, sensorDefs.sensorArray, PropulsionSysNodeID);
         mainLoopTestingTimer = 0; //resets timer to zero each time the loop prints
         Serial.print(" Crash Timer Millis: ");
         Serial.println(crashTimer);

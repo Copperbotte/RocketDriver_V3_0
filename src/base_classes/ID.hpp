@@ -31,11 +31,13 @@ public:
     // Initializer constructor.
     // Inputs:
     // - uint32_t ID    // The unique ID of this sensor
-    // - uint8_t NodeID // The unique ID of the node this sensor is attached to
-    idClass(uint32_t ID,  uint8_t NodeID):
-                 _ID{ID}, _NodeID{NodeID}, _nodeIDCheck{false}
+    // - uint32_t NodeID // The unique ID of the node this sensor is attached to
+    // 
+    // Note: NodeID was changed from uint8_t to appease the debug compiler.
+    idClass(uint32_t ID,                      uint32_t NodeID):
+                 _ID{ID}, _NodeID{static_cast<uint8_t>(NodeID)}, _nodeIDCheck{false}
     {}
-
+    
     // Copy constructor.
     // Inputs:
     // - const idClass &Other // A reference to an existing idClass.

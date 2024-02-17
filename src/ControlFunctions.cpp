@@ -25,7 +25,7 @@ uint32_t ventTriggerTime = 600000;  //600000 = 10 minutes in millis, this is liv
 #define EngineIgniter2_ArrayPointer 1
 
 // autosequenceArray position defines for pointers
-#define IgnitionAutoSequence 0
+#define IgnitionAutoSequence_ptr_disabled 0
 
 // sensorArray position defines for pointers
 #define ThrustMountLoadCell1_ArrayPointer 0
