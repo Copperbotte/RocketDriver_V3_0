@@ -52,7 +52,7 @@ void DIG_LC_SENSOR::resetAll()
   resetAllComponents();
 }
 
-void DIG_LC_SENSOR::readRaw(ADC& adc)
+uint32_t DIG_LC_SENSOR::readRaw(ADC& adc)
 {
     currentRawValue = adc.analogRead(getADCinput());
     currentRawValue2 = adc.analogRead(getADCinput2());
@@ -63,5 +63,7 @@ void DIG_LC_SENSOR::readRaw(ADC& adc)
     Serial.print(", currentDiffRawValue: ");
     Serial.println(currentRawDiffValue);
 
-    __linearMap.linearConversion(currentRawDiffValue); // Maps the voltage read by the ADC to the calibrated range.
+    return currentRawDiffValue;
+
+    //return __linearMap.linearConversion(currentRawDiffValue); // Maps the voltage read by the ADC to the calibrated range.
 }

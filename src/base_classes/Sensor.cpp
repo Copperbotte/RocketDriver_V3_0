@@ -24,12 +24,14 @@ void Sensor::stateOperations()
 }
 
 // I dont like linearConversion being in here, but the simulated input doesn't use it in EXTSensorClass. - Joe, 2023 April 6
-void Sensor::readRaw(ADC& adc)
+uint32_t Sensor::readRaw(ADC& adc)
 {
     currentRawValue = adc.analogRead(getADCinput());
     newSensorValueCheck_CAN = true;
     newSensorValueCheck_Log = true;
     newSensorConvertedValueCheck_CAN = true; // This looks like it never does anything.
+
+    return currentRawValue;
 
     ////pullTimestamp = true;
     //setRollingSensorArrayRaw(currentRollingArrayPosition, currentRawValue);
@@ -37,10 +39,10 @@ void Sensor::readRaw(ADC& adc)
     // This automatically stores converted value for the on board nodes
     //// priorConvertedValue = currentConvertedValue; //shifts previous converted value into prior variable
     //// currentConvertedValue = linConvCoef1_m*currentRawValue + linConvCoef1_b;
-    __linearMap.linearConversion(currentRawValue); // Maps the voltage read by the ADC to the calibrated range.
+    //__linearMap.linearConversion(currentRawValue); // Maps the voltage read by the ADC to the calibrated range.
 }
 
-void Sensor::read(ADC& adc)
+float Sensor::read(ADC& adc)
 {
     //Add in sample rate code here to check if a sensor is up to be read
     //This is also where alternate ADC sources would be used - I do have the RTD sensors over ITC right now
@@ -49,48 +51,30 @@ void Sensor::read(ADC& adc)
     {
         if (__timer.getTimer() >= (1000000/getCurrentSampleRate()))   // Divides 1 second in microseconds by current sample rate in Hz
         {
+            uint32_t raw = 0.0;
             if (getADCtype() == TeensyMCUADC)
-                readRaw(adc);
+                raw = readRaw(adc);
             if (getADCtype() == simulatedInput)
-                readSim(adc);
-            writeToRollingArray(__linearReg.getConvertedValueArrayPtr(), __linearMap.getCurrentConvertedValue()); // Should this be on every sensor? is it slow? - Joe, 2023 April 6
-            __ema.exponentialMovingAverage(__linearMap.getCurrentConvertedValue());
-            accumulatedI_float();
-            //currentLinReg_a1 = linearRegressionLeastSquared_PID();
+                raw = readSim(adc);
+            
+            float lmap = __linearMap.linearConversion(raw);
 
-            //if (ID.getID
-            //{
-            //Serial.print("sensorID: ");
-            //Serial.print(ID.getID());
-            //Serial.print(", currentRawValue: ");
-            //Serial.println(currentRawValue);
-            //Serial.print(", currentConvertedValue: ");
-            //Serial.println(currentConvertedValue); */
-            //}
-            //Serial.print("sensorID: ");
-            //Serial.print(ID.getID());
-            //Serial.print(", currentRawValue: ");
-            //Serial.println(currentRawValue);
-            //Serial.print(", currentRollingAverage: ");
-            //Serial.println(getCurrentRollingAverage()); */
-            //Serial.println("newSensorREADbefore");
-            //Serial.println(newSensorValueCheck);
-            ////newSensorValueCheck_CAN = true;
-            ////newSensorValueCheck_Log = true;
-            ////newSensorConvertedValueCheck_CAN = true;
-                
-            //newSensorValueCheck = false;
-            ////newConversionCheck = true;
-            //Serial.println("newSensorinREADafter");
-            //Serial.println(newSensorValueCheck);
+            // Should this be on every sensor? is it slow? - Joe, 2023 April 6
+            //__linearReg.queue(lmap);
+            //float dterm = __linearReg.leastSquared_PID();
+
+            //__ema.exponentialMovingAverage(lmap);
+            //accumulatedI_float();
+
             __timer.resetTimer();
             pullTimestamp = true;
         }
     }
+    return __linearMap.getCurrentConvertedValue();
 }
 
 
-void LinearMap::linearConversion(uint32_t currentRaw)
+float LinearMap::linearConversion(uint32_t currentRaw)
 {
     /////linear conversions here, y = m*x + b
     //if (newSensorValueCheck && newConversionCheck == false)
@@ -110,6 +94,8 @@ void LinearMap::linearConversion(uint32_t currentRaw)
     //currentConvertedValue = linConvCoef2_m*currentConvertedValue + linConvCoef2_b;    //Secondary Calibration
     newConversionCheck = true;
 
+    return currentConvertedValue;
+
     /*      Serial.print("sensorID: ");
             Serial.print(ID.getID());
             Serial.print(", currentRawValue: ");
@@ -119,7 +105,7 @@ void LinearMap::linearConversion(uint32_t currentRaw)
 //}
 }
 
-void LinearMap::linearConversion_WithSecondary(uint32_t currentRaw)
+float LinearMap::linearConversion_WithSecondary(uint32_t currentRaw)
 {
     /////linear conversions here, y = m*x + b
     //if (newSensorValueCheck && newConversionCheck == false)
@@ -138,6 +124,8 @@ void LinearMap::linearConversion_WithSecondary(uint32_t currentRaw)
     currentConvertedValue = linConvCoef1_m*currentRaw + linConvCoef1_b;    //Initial Calibration
     currentConvertedValue = linConvCoef2_m*currentConvertedValue + linConvCoef2_b;    //Secondary Calibration
     newConversionCheck = true;
+
+    return currentConvertedValue;
 
     /*      Serial.print("sensorID: ");
             Serial.print(ID.getID());
@@ -211,7 +199,7 @@ void LinearRegression::initializeLinReg(uint8_t arraySizeIn)
 // although this function's job should be a single variable using PID, or an 
 // entirely other PID with a higher damping term.  Alternatively another PID to
 // act as an EMA.
-float LinearRegression::linearRegressionLeastSquared_PID()
+float LinearRegression::leastSquared_PID()
 {
     uint32_t arrayIndexFirstValueLinReg = 0;
     uint32_t arrayWrapSizeLinReg = 0;

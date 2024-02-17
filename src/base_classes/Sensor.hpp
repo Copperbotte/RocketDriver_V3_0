@@ -88,8 +88,8 @@ public:
 
     // Maps ADC read value to the calibrated range using linConvCoef.
     // Accepts currentRawValue, or currentRawDiffValue.
-    void linearConversion(uint32_t currentRaw); 
-    void linearConversion_WithSecondary(uint32_t currentRaw); // Maps ADC read value to the calibrated range using linConvCoef, using both calibration steps.
+    float linearConversion(uint32_t currentRaw); 
+    float linearConversion_WithSecondary(uint32_t currentRaw); // Maps ADC read value to the calibrated range using linConvCoef, using both calibration steps.
 
     float getCurrentConvertedValue(){return currentConvertedValue;}
     //float getCurrentConvertedValue(bool resetConvertedRead){if (resetConvertedRead) {newSensorConvertedValueCheck_CAN = false;} return currentConvertedValue;} //reads and clears new value bool
@@ -246,11 +246,11 @@ public:
     // me to do it! - Joe Kessler, 2023 October 8
 
     void initializeLinReg(uint8_t arraySizeIn); //not in use at the moment
-    float linearRegressionLeastSquared_PID();
+    float leastSquared_PID();
     //void setRegressionSamples():???
     //float getLinRegSlope(); // The instance below was found in EXTSensorClass.h.  I'm not sure why it has a node ID check, so I'm leaving it out for now. - Joe, 2023 April 3
     //float getLinRegSlope(){if(nodeIDCheck){currentLinReg_a1 = linearRegressionLeastSquared_PID();} return currentLinReg_a1;} 
-    float getLinRegSlope(){_currentLinReg_a1 = linearRegressionLeastSquared_PID(); return _currentLinReg_a1;}
+    float getLinRegSlope(){_currentLinReg_a1 = leastSquared_PID(); return _currentLinReg_a1;}
     bool getEnableLinearRegressionCalc(){return _enableLinearRegressionCalc;}
 
     float* getConvertedValueArrayPtr() {return _convertedValueArray;}
@@ -269,7 +269,7 @@ public:
         _convertedValueArray[n] = a;
     }
 
-    void writeToRollingArray(float newInputArrayValue)
+    void queue(float newInputArrayValue)
     {
         _convertedValueArrayNextInd = (_convertedValueArrayNextInd+1) % _regressionSamples;
         _convertedValueArray[_convertedValueArrayNextInd] = newInputArrayValue;
@@ -469,9 +469,9 @@ public:
     bool pullTimestamp = false;
     //virtual void begin() = 0; // Does this pass the pure virtual function down the chain? I guess it does! - Joe 2023 Oct 11
     virtual void resetAll() = 0;
-    virtual void readRaw(ADC& adc);           // updates currentRawValue with current reading, using an activated ADC object
-    virtual void readSim(ADC& adc){};         // updates currentConvertedValue with a simulated reading.  Default does nothing.
-    virtual void read(ADC& adc);              // updates currentRawValue with current reading, using an activated ADC object
+    virtual uint32_t readRaw(ADC& adc);           // updates currentRawValue with current reading, using an activated ADC object
+    virtual uint32_t readSim(ADC& adc){};         // updates currentConvertedValue with a simulated reading.  Default does nothing.
+    virtual float read(ADC& adc);              // updates currentRawValue with current reading, using an activated ADC object
     void stateOperations(); // No longer virtual!
 
     // TODO: refactor (automatic?) to remove one underscore from each of these member classes.

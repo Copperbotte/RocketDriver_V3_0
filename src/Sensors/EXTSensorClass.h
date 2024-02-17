@@ -29,7 +29,7 @@ private:
   public:
     void begin();                     // run in setup to get pins going
     void resetAll();                  // reset all configurable settings to defaults
-    void readSim(ADC& adc);
+    uint32_t readSim(ADC& adc);
 
     
     // constructor 1 - standard MCU external ADC read
