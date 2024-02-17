@@ -42,7 +42,7 @@ class RTD_BREAKOUT : public Timer // Timer doesn't have a reset here.  Should th
         idClass ID;
 
         // Constructor
-        RTD_BREAKOUT(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setI2Caddress, uint8_t setResolution);
+        RTD_BREAKOUT(const idClass&setSensorID, uint8_t setI2Caddress, uint8_t setResolution);
 
         //get functions
 //uint32_t getSensorID(){return sensorID;}
@@ -138,7 +138,7 @@ class THERMOCOUPLE : public Timer, public EMA, public LinearRegression
 //void exponentialMovingAverage();
 //float linearRegressionLeastSquared_PID();
         // Constructor
-        THERMOCOUPLE(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput1, uint8_t setADCinput2, TCType setTc, RTD_BREAKOUT* setTempsensor, uint16_t setRefVoltage = 1200);
+        THERMOCOUPLE(const idClass&setSensorID, uint8_t setADCinput1, uint8_t setADCinput2, TCType setTc, RTD_BREAKOUT* setTempsensor, uint16_t setRefVoltage = 1200);
 };
 
 

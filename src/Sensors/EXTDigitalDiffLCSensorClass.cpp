@@ -4,8 +4,8 @@
 #include <array>
 
 // Initializer 1
-DIG_LC_SENSOR::DIG_LC_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput1, uint8_t setADCinput2, FluidSystemSimulation* setFluidSim, uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default, uint32_t setConversionSendRate_Default, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Off)
-  : Sensor{setSensorID, setSensorNodeID, setADCinput1, sampleRateDefaults{setSampleRateSlowMode_Default, setSampleRateMedMode_Default, setSampleRateFastMode_Default, _SRD.sampleRateCalibrationMode_Default},
+DIG_LC_SENSOR::DIG_LC_SENSOR(const idClass&setSensorID, uint8_t setADCinput1, uint8_t setADCinput2, FluidSystemSimulation* setFluidSim, uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default, uint32_t setConversionSendRate_Default, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Off)
+  : Sensor{setSensorID, setADCinput1, sampleRateDefaults{setSampleRateSlowMode_Default, setSampleRateMedMode_Default, setSampleRateFastMode_Default, _SRD.sampleRateCalibrationMode_Default},
     LinearMap{setLinConvCoef1_m_Default, setLinConvCoef1_b_Default, setLinConvCoef2_m_Default, setLinConvCoef2_b_Default},
     EMA{}, LinearRegression{}, IntegralError{setMinIntegralSum_Default, setMaxIntegralSum_Default, false}},
     ADCinput2{setADCinput2}, fluidSim{*setFluidSim}, conversionSendRate_Default{setConversionSendRate_Default}

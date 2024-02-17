@@ -23,7 +23,7 @@ class ALARAVRAIL_SENSOR : public Sensor
     void resetAll();                  // reset all configurable settings to defaults
     
     // constructor 1 - standard MCU external ADC read
-    ALARAVRAIL_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Slow);
+    ALARAVRAIL_SENSOR(const idClass&setSensorID, uint8_t setADCinput, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Slow);
     // constructor 2 - simulated sensor object
 };
 

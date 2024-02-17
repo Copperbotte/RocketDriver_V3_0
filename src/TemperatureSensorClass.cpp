@@ -3,8 +3,8 @@
 
 
 
-RTD_BREAKOUT::RTD_BREAKOUT(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setI2Caddress, uint8_t setResolution)
-                        : ID{setSensorID, setSensorNodeID}, I2Caddress{setI2Caddress}, resolution{setResolution}
+RTD_BREAKOUT::RTD_BREAKOUT(const idClass&setSensorID, uint8_t setI2Caddress, uint8_t setResolution)
+                        : ID{setSensorID}, I2Caddress{setI2Caddress}, resolution{setResolution}
 {
     // Bound check resolution setting
     if (resolution >= 3)
@@ -80,8 +80,8 @@ void RTD_BREAKOUT::read()
 }
 
 
-THERMOCOUPLE::THERMOCOUPLE(uint32_t setSensorID, uint32_t setSensorNodeID, uint8_t setADCinput1, uint8_t setADCinput2, TCType setTc, RTD_BREAKOUT* setTempsensor, uint16_t setRefVoltage)
-    : ID{setSensorID, setSensorNodeID}, ADCinput1{setADCinput1}, ADCinput2{setADCinput2}, tc{setTc}, tempsensor{*setTempsensor}, refVoltage{setRefVoltage}
+THERMOCOUPLE::THERMOCOUPLE(const idClass&setSensorID, uint8_t setADCinput1, uint8_t setADCinput2, TCType setTc, RTD_BREAKOUT* setTempsensor, uint16_t setRefVoltage)
+    : ID{setSensorID}, ADCinput1{setADCinput1}, ADCinput2{setADCinput2}, tc{setTc}, tempsensor{*setTempsensor}, refVoltage{setRefVoltage}
 {
   
 }
