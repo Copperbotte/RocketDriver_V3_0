@@ -27,7 +27,7 @@ private:
   public:
     void begin();                     // run in setup to get pins going
     void resetAll();                  // reset all configurable settings to defaults
-    void readSim(ADC& adc);
+    uint32_t readSim(ADC& adc);
 
     //EXT_SENSOR(const idClass&setSensorID, uint8_t setADCinput, FluidSystemSimulation* setFluidSim,
     //     uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default);

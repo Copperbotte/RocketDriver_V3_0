@@ -30,7 +30,7 @@ private:
 public:
     void begin();                     // run in setup to get pins going
     void resetAll();                  // reset all configurable settings to defaults
-    void readRaw(ADC& adc);              // updates currentRawValue with current reading, using an activated ADC object
+    uint32_t readRaw(ADC& adc);              // updates currentRawValue with current reading, using an activated ADC object
 
     // constructor 1 - standard MCU external ADC read
     DIG_LC_SENSOR(const idClass&setSensorID, uint8_t setADCinput1, uint8_t setADCinput2, FluidSystemSimulation** setppFluidSim, uint32_t setSampleRateSlowMode_Default, uint32_t setSampleRateMedMode_Default, uint32_t setSampleRateFastMode_Default, uint32_t setConversionSendRate_Default, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, float setMaxIntegralSum_Default = 2500, float setMinIntegralSum_Default = -2500, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Off);

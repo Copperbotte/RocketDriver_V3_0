@@ -112,8 +112,8 @@ void EXT_SENSOR::resetAll()
     resetAllComponents();
 }
 
-void EXT_SENSOR::readSim(ADC& adc)
+uint32_t EXT_SENSOR::readSim(ADC& adc)
 {
     float currentConvertedValue = (*_getFluidSimPPtr())->analogRead(getADCinput());
-    __linearMap._overrideValues(__linearMap.getPriorConvertedValue(), currentConvertedValue);
+    return static_cast<uint32_t>(currentConvertedValue);
 }
