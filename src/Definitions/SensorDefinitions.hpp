@@ -24,21 +24,21 @@
 // Renegade SF Stand
 //Non LC normal sensor objects
 // Node 2
-EXT_SENSOR ChamberPT2{              idClass{ 52, 2}, ALARA_ANALOG_IN7, &waterGoesVroom, 10, 100, 500, 0.0196, -102.94}; //  6
-EXT_SENSOR ChamberPT1{              idClass{ 50, 2}, ALARA_ANALOG_IN8, &waterGoesVroom, 10, 100, 500, 0.0195, -128.88}; //  7
-EXT_SENSOR FuelInletPropSidePT{     idClass{ 58, 2}, ALARA_ANALOG_IN6, &waterGoesVroom,  5,  10, 100, 0.0185, -125.74}; //  8
-EXT_SENSOR FuelInjectorPT{          idClass{ 54, 2}, ALARA_ANALOG_IN4, &waterGoesVroom, 10, 100, 100, 0.0196, -123.27}; //  9
-EXT_SENSOR LoxInletPropSidePT{      idClass{ 60, 2}, ALARA_ANALOG_IN5, &waterGoesVroom,  5,  10, 100, 0.0196, -128.58}; // 10
-EXT_SENSOR MVPneumaticsPT{          idClass{ 56, 2}, ALARA_ANALOG_IN3, &waterGoesVroom,  5,   5,  10, 0.0193, -125.56}; // 11
+EXT_SENSOR ChamberPT2{              idClass{ 52, 2}, ALARA_ANALOG_IN7, &waterGoesVroom, sampleRateDefaults{10, 100, 500}, LinearMap{0.0196, -102.94}}; //  6
+EXT_SENSOR ChamberPT1{              idClass{ 50, 2}, ALARA_ANALOG_IN8, &waterGoesVroom, sampleRateDefaults{10, 100, 500}, LinearMap{0.0195, -128.88}}; //  7
+EXT_SENSOR FuelInletPropSidePT{     idClass{ 58, 2}, ALARA_ANALOG_IN6, &waterGoesVroom, sampleRateDefaults{ 5,  10, 100}, LinearMap{0.0185, -125.74}}; //  8
+EXT_SENSOR FuelInjectorPT{          idClass{ 54, 2}, ALARA_ANALOG_IN4, &waterGoesVroom, sampleRateDefaults{10, 100, 100}, LinearMap{0.0196, -123.27}}; //  9
+EXT_SENSOR LoxInletPropSidePT{      idClass{ 60, 2}, ALARA_ANALOG_IN5, &waterGoesVroom, sampleRateDefaults{ 5,  10, 100}, LinearMap{0.0196, -128.58}}; // 10
+EXT_SENSOR MVPneumaticsPT{          idClass{ 56, 2}, ALARA_ANALOG_IN3, &waterGoesVroom, sampleRateDefaults{ 5,   5,  10}, LinearMap{0.0193, -125.56}}; // 11
 // Node 3
-EXT_SENSOR DomeRegFuelPT{           idClass{ 74, 3}, ALARA_ANALOG_IN1, &waterGoesVroom,  5,   5,  10, 0.0196, -127.95}; // 12
-EXT_SENSOR DomeRegLoxPT{            idClass{ 76, 3}, ALARA_ANALOG_IN2, &waterGoesVroom,  5,   5,  10, 0.0194, -134.95}; // 13
-EXT_SENSOR FuelTankPT1{             idClass{ 62, 3}, ALARA_ANALOG_IN3, &waterGoesVroom,  5,  50, 100, 0.0192, -125.04}; // 14
-EXT_SENSOR FuelTankPT2{             idClass{ 64, 3}, ALARA_ANALOG_IN8, &waterGoesVroom,  5,  10, 100, 0.0194, -125.08}; // 14
-EXT_SENSOR LoxTankPT1{              idClass{ 66, 3}, ALARA_ANALOG_IN4, &waterGoesVroom,  5,  50, 100, 0.0192, -122.78}; // 15
-EXT_SENSOR LoxTankPT2{              idClass{ 68, 3}, ALARA_ANALOG_IN7, &waterGoesVroom,  5,  50, 100, 0.0191, -126.90}; // 15
-EXT_SENSOR HiPressFuelPT{           idClass{ 70, 3}, ALARA_ANALOG_IN5, &waterGoesVroom,  5,  10,  50, 0.0967, -623.11}; // 16
-EXT_SENSOR HiPressLoxPT{            idClass{ 72, 3}, ALARA_ANALOG_IN6, &waterGoesVroom,  5,  10,  50, 0.0981, -630.47}; // 17
+EXT_SENSOR DomeRegFuelPT{           idClass{ 74, 3}, ALARA_ANALOG_IN1, &waterGoesVroom, sampleRateDefaults{ 5,   5,  10}, LinearMap{0.0196, -127.95}}; // 12
+EXT_SENSOR DomeRegLoxPT{            idClass{ 76, 3}, ALARA_ANALOG_IN2, &waterGoesVroom, sampleRateDefaults{ 5,   5,  10}, LinearMap{0.0194, -134.95}}; // 13
+EXT_SENSOR FuelTankPT1{             idClass{ 62, 3}, ALARA_ANALOG_IN3, &waterGoesVroom, sampleRateDefaults{ 5,  50, 100}, LinearMap{0.0192, -125.04}}; // 14
+EXT_SENSOR FuelTankPT2{             idClass{ 64, 3}, ALARA_ANALOG_IN8, &waterGoesVroom, sampleRateDefaults{ 5,  10, 100}, LinearMap{0.0194, -125.08}}; // 14
+EXT_SENSOR LoxTankPT1{              idClass{ 66, 3}, ALARA_ANALOG_IN4, &waterGoesVroom, sampleRateDefaults{ 5,  50, 100}, LinearMap{0.0192, -122.78}}; // 15
+EXT_SENSOR LoxTankPT2{              idClass{ 68, 3}, ALARA_ANALOG_IN7, &waterGoesVroom, sampleRateDefaults{ 5,  50, 100}, LinearMap{0.0191, -126.90}}; // 15
+EXT_SENSOR HiPressFuelPT{           idClass{ 70, 3}, ALARA_ANALOG_IN5, &waterGoesVroom, sampleRateDefaults{ 5,  10,  50}, LinearMap{0.0967, -623.11}}; // 16
+EXT_SENSOR HiPressLoxPT{            idClass{ 72, 3}, ALARA_ANALOG_IN6, &waterGoesVroom, sampleRateDefaults{ 5,  10,  50}, LinearMap{0.0981, -630.47}}; // 17
 
 //FAKESHIT
 EXT_SENSOR FakeChamberPT1{          idClass{150, 2},              41, &waterGoesVroom, simulatedInput}; // 7
@@ -49,9 +49,9 @@ EXT_SENSOR FakeLoxTankPT{           idClass{166, 3},              21, &waterGoes
 EXT_SENSOR FakeHiPressPT{           idClass{170, 3},              11, &waterGoesVroom, simulatedInput}; // 16
 
 //LC Sensors
-DIG_LC_SENSOR ThrustMountLoadCell1{ idClass{ 32, 4}, A14, A15, &waterGoesVroom, 100, 1000, 10000, 100}; // 0,1
-DIG_LC_SENSOR ThrustMountLoadCell2{ idClass{ 38, 4}, A16, A17, &waterGoesVroom, 100, 1000, 10000, 100}; // 2,3
-DIG_LC_SENSOR ThrustMountLoadCell3{ idClass{ 44, 4}, A18, A19, &waterGoesVroom, 100, 1000, 10000, 100}; // 4,5
+DIG_LC_SENSOR ThrustMountLoadCell1{ idClass{ 32, 4}, A14, A15, &waterGoesVroom, sampleRateDefaults{100, 1000, 10000}, 100}; // 0,1
+DIG_LC_SENSOR ThrustMountLoadCell2{ idClass{ 38, 4}, A16, A17, &waterGoesVroom, sampleRateDefaults{100, 1000, 10000}, 100}; // 2,3
+DIG_LC_SENSOR ThrustMountLoadCell3{ idClass{ 44, 4}, A18, A19, &waterGoesVroom, sampleRateDefaults{100, 1000, 10000}, 100}; // 4,5
 
 // Temp Sensors
 RTD_BREAKOUT coldJunctionRenegade{  idClass{ 99, 4}, 24, 3};
@@ -64,27 +64,27 @@ THERMOCOUPLE LoxTankUpperTC{        idClass{110, 4}, A10, A11, T_Type, &coldJunc
 
 // HP Channel Sensors
 // Node 2
-ALARAHP_SENSOR RenegadeEngineHP1{   idClass{121, 2}, ALARA_HIGHPOWER_ANALOGREAD1 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadeEngineHP2{   idClass{122, 2}, ALARA_HIGHPOWER_ANALOGREAD2 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadeEngineHP3{   idClass{123, 2}, ALARA_HIGHPOWER_ANALOGREAD3 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadeEngineHP4{   idClass{124, 2}, ALARA_HIGHPOWER_ANALOGREAD4 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadeEngineHP5{   idClass{125, 2}, ALARA_HIGHPOWER_ANALOGREAD5 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadeEngineHP6{   idClass{126, 2}, ALARA_HIGHPOWER_ANALOGREAD6 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadeEngineHP7{   idClass{127, 2}, ALARA_HIGHPOWER_ANALOGREAD7 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadeEngineHP8{   idClass{128, 2}, ALARA_HIGHPOWER_ANALOGREAD8 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadeEngineHP9{   idClass{129, 2}, ALARA_HIGHPOWER_ANALOGREAD9 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadeEngineHP10{  idClass{130, 2}, ALARA_HIGHPOWER_ANALOGREAD10, 0.0006,1.7800};
+ALARAHP_SENSOR RenegadeEngineHP1{   idClass{121, 2}, ALARA_HIGHPOWER_ANALOGREAD1 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadeEngineHP2{   idClass{122, 2}, ALARA_HIGHPOWER_ANALOGREAD2 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadeEngineHP3{   idClass{123, 2}, ALARA_HIGHPOWER_ANALOGREAD3 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadeEngineHP4{   idClass{124, 2}, ALARA_HIGHPOWER_ANALOGREAD4 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadeEngineHP5{   idClass{125, 2}, ALARA_HIGHPOWER_ANALOGREAD5 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadeEngineHP6{   idClass{126, 2}, ALARA_HIGHPOWER_ANALOGREAD6 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadeEngineHP7{   idClass{127, 2}, ALARA_HIGHPOWER_ANALOGREAD7 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadeEngineHP8{   idClass{128, 2}, ALARA_HIGHPOWER_ANALOGREAD8 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadeEngineHP9{   idClass{129, 2}, ALARA_HIGHPOWER_ANALOGREAD9 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadeEngineHP10{  idClass{130, 2}, ALARA_HIGHPOWER_ANALOGREAD10, LinearMap{0.0006,1.7800}};
 // Node 3
-ALARAHP_SENSOR RenegadePropHP1{     idClass{131, 3}, ALARA_HIGHPOWER_ANALOGREAD1 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadePropHP2{     idClass{132, 3}, ALARA_HIGHPOWER_ANALOGREAD2 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadePropHP3{     idClass{133, 3}, ALARA_HIGHPOWER_ANALOGREAD3 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadePropHP4{     idClass{134, 3}, ALARA_HIGHPOWER_ANALOGREAD4 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadePropHP5{     idClass{135, 3}, ALARA_HIGHPOWER_ANALOGREAD5 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadePropHP6{     idClass{136, 3}, ALARA_HIGHPOWER_ANALOGREAD6 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadePropHP7{     idClass{137, 3}, ALARA_HIGHPOWER_ANALOGREAD7 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadePropHP8{     idClass{138, 3}, ALARA_HIGHPOWER_ANALOGREAD8 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadePropHP9{     idClass{139, 3}, ALARA_HIGHPOWER_ANALOGREAD9 , 0.0006,1.7800};
-ALARAHP_SENSOR RenegadePropHP10{    idClass{140, 3}, ALARA_HIGHPOWER_ANALOGREAD10, 0.0006,1.7800};
+ALARAHP_SENSOR RenegadePropHP1{     idClass{131, 3}, ALARA_HIGHPOWER_ANALOGREAD1 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadePropHP2{     idClass{132, 3}, ALARA_HIGHPOWER_ANALOGREAD2 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadePropHP3{     idClass{133, 3}, ALARA_HIGHPOWER_ANALOGREAD3 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadePropHP4{     idClass{134, 3}, ALARA_HIGHPOWER_ANALOGREAD4 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadePropHP5{     idClass{135, 3}, ALARA_HIGHPOWER_ANALOGREAD5 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadePropHP6{     idClass{136, 3}, ALARA_HIGHPOWER_ANALOGREAD6 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadePropHP7{     idClass{137, 3}, ALARA_HIGHPOWER_ANALOGREAD7 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadePropHP8{     idClass{138, 3}, ALARA_HIGHPOWER_ANALOGREAD8 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadePropHP9{     idClass{139, 3}, ALARA_HIGHPOWER_ANALOGREAD9 , LinearMap{0.0006,1.7800}};
+ALARAHP_SENSOR RenegadePropHP10{    idClass{140, 3}, ALARA_HIGHPOWER_ANALOGREAD10, LinearMap{0.0006,1.7800}};
 
 // ALARA Renegade Engine and Prop Node HP sensor array
 std::array<ALARAHP_SENSOR*, 20> HPsensorArray{

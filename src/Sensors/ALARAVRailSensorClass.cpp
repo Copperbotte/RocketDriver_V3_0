@@ -28,10 +28,8 @@ ALARAHP_SENSOR::ALARAHP_SENSOR(uint32_t setSensorID, uint32_t setSensorNodeID, u
 */
 
 // Initializer 2
-ALARAVRAIL_SENSOR::ALARAVRAIL_SENSOR(const idClass&setSensorID, uint8_t setADCinput, float setLinConvCoef1_m_Default = 1, float setLinConvCoef1_b_Default = 0, float setLinConvCoef2_m_Default = 1, float setLinConvCoef2_b_Default = 0, uint32_t setCurrentSampleRate = 0, SensorState setSensorState = Slow)
-    : Sensor{setSensorID, setADCinput, _SRD,
-        LinearMap{setLinConvCoef1_m_Default, setLinConvCoef1_b_Default, setLinConvCoef2_m_Default, setLinConvCoef2_b_Default},
-        EMA{}, LinearRegression{}, IntegralError{}}
+ALARAVRAIL_SENSOR::ALARAVRAIL_SENSOR(const idClass&setSensorID, uint8_t setADCinput, const LinearMap&linearMap, uint32_t setCurrentSampleRate, SensorState setSensorState)
+    : Sensor{setSensorID, setADCinput, _SRD(), linearMap, EMA{}, LinearRegression{}, IntegralError{}}
 {
     // setting stuff to defaults at initialization
     sampleRateSlowMode = sampleRateSlowMode_Default;

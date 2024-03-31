@@ -385,6 +385,12 @@ struct sampleRateDefaults
       sampleRateFastMode_Default{fastMode}, sampleRateCalibrationMode_Default{calibrationMode}
     {}
 
+    // Initializer constructor, without calibration mode.  Must supply every field.
+    sampleRateDefaults(uint32_t slowMode, uint32_t medMode, uint32_t fastMode)
+    : sampleRateSlowMode_Default{slowMode}, sampleRateMedMode_Default{medMode},
+      sampleRateFastMode_Default{fastMode}, sampleRateCalibrationMode_Default{10}
+    {}
+
     // Copy constructor.
     sampleRateDefaults(const sampleRateDefaults &defs)
     : sampleRateSlowMode_Default{defs.sampleRateSlowMode_Default},
